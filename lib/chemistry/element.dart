@@ -1,4 +1,4 @@
-enum Element {
+enum ElementSymbol {
   H,
   He,
   Li,
@@ -360,6 +360,32 @@ final List<String> names = [
   "Oganesson (Ununoctium)",
 ];
 
-num ar(Element element) {
+class Element {
+  String name;
+  ElementSymbol symbol;
+  int atomicNumber;
+  num relativeAtomicMass;
+
+  Element(this.symbol) {
+    name = names[symbol.index];
+    atomicNumber = symbol.index + 1;
+    relativeAtomicMass = relativeAtomicMasses[symbol.index];
+  }
+
+  Element.fromString(String stringSymbol) {
+    for (ElementSymbol symbol in ElementSymbol.values) {
+      if (symbol.toString().split("Symbol.")[1] == stringSymbol) {
+        this.symbol = symbol;
+        name = names[symbol.index];
+        atomicNumber = symbol.index + 1;
+        relativeAtomicMass = relativeAtomicMasses[symbol.index];
+        return;
+      }
+    }
+    throw new ArgumentError("Cannot recognize symbol $stringSymbol.");
+  }
+}
+
+num ar(ElementSymbol element) {
   return relativeAtomicMasses[element.index];
 }
