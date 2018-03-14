@@ -360,30 +360,28 @@ final List<String> names = [
   "Oganesson (Ununoctium)",
 ];
 
+Map<String, ElementSymbol> lookup = new Map.fromIterables(
+    ElementSymbol.values
+        .toList()
+        .map((symbol) => symbol.toString().split("ElementSymbol.")[1]),
+    ElementSymbol.values);
+
 class Element {
-  String name;
-  ElementSymbol symbol;
-  int atomicNumber;
-  num relativeAtomicMass;
+  final String name;
+  final ElementSymbol symbol;
+  final int atomicNumber;
+  final num relativeAtomicMass;
 
-  Element(this.symbol) {
-    name = names[symbol.index];
-    atomicNumber = symbol.index + 1;
-    relativeAtomicMass = relativeAtomicMasses[symbol.index];
-  }
-
-  Element.fromString(String stringSymbol) {
-    for (ElementSymbol symbol in ElementSymbol.values) {
-      if (symbol.toString().split("Symbol.")[1] == stringSymbol) {
-        this.symbol = symbol;
-        name = names[symbol.index];
-        atomicNumber = symbol.index + 1;
+  Element(this.symbol)
+      : name = names[symbol.index],
+        atomicNumber = symbol.index + 1,
         relativeAtomicMass = relativeAtomicMasses[symbol.index];
-        return;
-      }
-    }
-    throw new ArgumentError("Cannot recognize symbol $stringSymbol.");
-  }
+
+  Element.fromString(String stringSymbol)
+      : name = names[lookup[stringSymbol].index],
+        symbol = lookup[stringSymbol],
+        atomicNumber = lookup[stringSymbol].index + 1,
+        relativeAtomicMass = relativeAtomicMasses[lookup[stringSymbol].index];
 }
 
 num ar(ElementSymbol element) {
