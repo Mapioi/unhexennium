@@ -119,7 +119,7 @@ enum ElementSymbol {
   Uuo,
 }
 
-final List<num> relativeAtomicMasses = [
+final List<num> _relativeAtomicMasses = [
   1.01,
   4.0,
   6.94,
@@ -239,7 +239,7 @@ final List<num> relativeAtomicMasses = [
   294,
   294,
 ];
-final List<String> names = [
+final List<String> _names = [
   "Hydrogen",
   "Helium",
   "Lithium",
@@ -360,7 +360,7 @@ final List<String> names = [
   "Oganesson (Ununoctium)",
 ];
 
-Map<String, ElementSymbol> lookup = new Map.fromIterables(
+Map<String, ElementSymbol> _lookup = new Map.fromIterables(
     ElementSymbol.values
         .toList()
         .map((symbol) => symbol.toString().split("ElementSymbol.")[1]),
@@ -373,17 +373,13 @@ class Element {
   final num relativeAtomicMass;
 
   Element(this.symbol)
-      : name = names[symbol.index],
+      : name = _names[symbol.index],
         atomicNumber = symbol.index + 1,
-        relativeAtomicMass = relativeAtomicMasses[symbol.index];
+        relativeAtomicMass = _relativeAtomicMasses[symbol.index];
 
   Element.fromString(String stringSymbol)
-      : name = names[lookup[stringSymbol].index],
-        symbol = lookup[stringSymbol],
-        atomicNumber = lookup[stringSymbol].index + 1,
-        relativeAtomicMass = relativeAtomicMasses[lookup[stringSymbol].index];
-}
-
-num ar(ElementSymbol element) {
-  return relativeAtomicMasses[element.index];
+      : name = _names[_lookup[stringSymbol].index],
+        symbol = _lookup[stringSymbol],
+        atomicNumber = _lookup[stringSymbol].index + 1,
+        relativeAtomicMass = _relativeAtomicMasses[_lookup[stringSymbol].index];
 }
