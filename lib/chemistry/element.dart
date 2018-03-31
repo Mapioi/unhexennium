@@ -1,3 +1,6 @@
+/// Chemical elements: building blocks of chemistry
+
+/// Identifiers for elements
 enum ElementSymbol {
   H,
   He,
@@ -119,6 +122,9 @@ enum ElementSymbol {
   Uuo,
 }
 
+/// Relative atomic masses
+/// from table 6 - The periodic table
+/// of the IB chemistry data booklet (version 2, 2014)
 final List<num> _relativeAtomicMasses = [
   1.01,
   4.0,
@@ -239,6 +245,8 @@ final List<num> _relativeAtomicMasses = [
   294,
   294,
 ];
+
+/// Names of the elements
 final List<String> _names = [
   "Hydrogen",
   "Helium",
@@ -360,26 +368,18 @@ final List<String> _names = [
   "Oganesson (Ununoctium)",
 ];
 
-Map<String, ElementSymbol> _lookup = new Map.fromIterables(
-    ElementSymbol.values
-        .toList()
-        .map((symbol) => symbol.toString().split("ElementSymbol.")[1]),
-    ElementSymbol.values);
-
-class Element {
+/// A species of atoms having the same number of protons in their atomic nuclei.
+/// Construct using [new ChemicalElement] with an [ElementSymbol].
+/// Provides information about the name, symbol, atomic number and relative
+/// atomic mass about the element.
+class ChemicalElement {
   final String name;
   final ElementSymbol symbol;
   final int atomicNumber;
   final num relativeAtomicMass;
 
-  Element(this.symbol)
+  ChemicalElement(this.symbol)
       : name = _names[symbol.index],
         atomicNumber = symbol.index + 1,
         relativeAtomicMass = _relativeAtomicMasses[symbol.index];
-
-  Element.fromString(String stringSymbol)
-      : name = _names[_lookup[stringSymbol].index],
-        symbol = _lookup[stringSymbol],
-        atomicNumber = _lookup[stringSymbol].index + 1,
-        relativeAtomicMass = _relativeAtomicMasses[_lookup[stringSymbol].index];
 }
