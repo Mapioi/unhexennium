@@ -1,3 +1,6 @@
+/// Chemical elements: building blocks of chemistry
+
+/// Identifiers for elements
 enum ElementSymbol {
   H,
   He,
@@ -119,7 +122,10 @@ enum ElementSymbol {
   Uuo,
 }
 
-final List<num> relativeAtomicMasses = [
+/// Relative atomic masses
+/// from table 6 - The periodic table
+/// of the IB chemistry data booklet (version 2, 2014)
+final List<num> _relativeAtomicMasses = [
   1.01,
   4.0,
   6.94,
@@ -239,7 +245,9 @@ final List<num> relativeAtomicMasses = [
   294,
   294,
 ];
-final List<String> names = [
+
+/// Names of the elements
+final List<String> _names = [
   "Hydrogen",
   "Helium",
   "Lithium",
@@ -360,32 +368,18 @@ final List<String> names = [
   "Oganesson (Ununoctium)",
 ];
 
-class Element {
-  String name;
-  ElementSymbol symbol;
-  int atomicNumber;
-  num relativeAtomicMass;
+/// A species of atoms having the same number of protons in their atomic nuclei.
+/// Construct using [new ChemicalElement] with an [ElementSymbol].
+/// Provides information about the name, symbol, atomic number and relative
+/// atomic mass about the element.
+class ChemicalElement {
+  final String name;
+  final ElementSymbol symbol;
+  final int atomicNumber;
+  final num relativeAtomicMass;
 
-  Element(this.symbol) {
-    name = names[symbol.index];
-    atomicNumber = symbol.index + 1;
-    relativeAtomicMass = relativeAtomicMasses[symbol.index];
-  }
-
-  Element.fromString(String stringSymbol) {
-    for (ElementSymbol symbol in ElementSymbol.values) {
-      if (symbol.toString().split("Symbol.")[1] == stringSymbol) {
-        this.symbol = symbol;
-        name = names[symbol.index];
-        atomicNumber = symbol.index + 1;
-        relativeAtomicMass = relativeAtomicMasses[symbol.index];
-        return;
-      }
-    }
-    throw new ArgumentError("Cannot recognize symbol $stringSymbol.");
-  }
-}
-
-num ar(ElementSymbol element) {
-  return relativeAtomicMasses[element.index];
+  ChemicalElement(this.symbol)
+      : name = _names[symbol.index],
+        atomicNumber = symbol.index + 1,
+        relativeAtomicMass = _relativeAtomicMasses[symbol.index];
 }
