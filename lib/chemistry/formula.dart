@@ -1,4 +1,5 @@
 /// Chemical formulae
+import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
 /// A chemical formula is a way of information about the chemical proportions
@@ -114,8 +115,7 @@ class FormulaFactory {
           }
         }
       } else {
-        String elementSymbol =
-            pair.elementSymbol.toString().split("ElementSymbol.")[1];
+        String elementSymbol = enumToString(pair.elementSymbol);
         // TODO make subscript
         String subscript = pair.subscript == 1 ? "" : pair.subscript.toString();
         formulaString += "$elementSymbol$subscript";
