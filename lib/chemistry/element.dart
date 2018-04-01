@@ -1,6 +1,10 @@
 /// Chemical elements: building blocks of chemistry
 
 /// Identifiers for elements
+///
+/// The IUPAC names Uut, Uuq, Uup, Uuh, Uus, Uuo are used instead of
+/// Nh, Fl, Mc, Ts, Og so that this app is compliant with table 6 of
+/// the IB chemistry data booklet.
 enum ElementSymbol {
   H,
   He,
@@ -125,9 +129,12 @@ enum ElementSymbol {
 /// Relative atomic masses
 /// from table 6 - The periodic table
 /// of the IB chemistry data booklet (version 2, 2014)
+///
+/// For elements with no stable isotopes,
+/// the mass number of the isotope with the longest half-life is given.
 final List<num> _relativeAtomicMasses = [
   1.01,
-  4.0,
+  4.00,
   6.94,
   9.01,
   10.81,
