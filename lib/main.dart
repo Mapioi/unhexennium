@@ -9,7 +9,7 @@ class App extends StatelessWidget {
     return new MaterialApp(
       title: 'Unhexennium',
       theme: new ThemeData(
-        primarySwatch: Colors.teal,
+        primarySwatch: Colors.blue,
       ),
       home: new HomePage(),
     );
