@@ -20,11 +20,18 @@ class ElementParent extends StatefulWidget {
 class _ElementParentState extends State<ElementParent> {
 
   // no element selected => null
-  ChemicalElement selectedElement = new ChemicalElement(ElementSymbol.H);
+  ChemicalElement selectedElement = new ChemicalElement(ElementSymbol.Fe);
 
   @override
   Widget build(BuildContext context) {
+    // Building the widget
     Widget widgetToReturn;
+
+    List<List<String>> tableData = [
+      ["Name", this.selectedElement.name],
+      ["Molar Mass", this.selectedElement.relativeAtomicMass.toString()]
+    ];
+
     print(this.selectedElement);
     if (this.selectedElement == null) {
       // fallback if user hasn't inputted an element
@@ -34,67 +41,84 @@ class _ElementParentState extends State<ElementParent> {
       );
     } else {
       widgetToReturn = new Column(
-        children: [
+        children: <Widget>[
           new Card(
-            child: new Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                // Symbol (ex: He)
-                new Container(
-                  // TODO: display A and Z like a periodic table
-                  child: new Text(
-                    enumToString(this.selectedElement.symbol),
-                    style: new TextStyle(
-                      fontSize: 56.0,
-                      color: Colors.grey[600]
+            child: new Padding(
+              padding: new EdgeInsets.all(16.0),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  // Symbol (ex: He)
+                  new Container(
+                    // TODO: display A and Z like a periodic table
+                    child: new Text(
+                      enumToString(this.selectedElement.symbol),
+                      style: new TextStyle(
+                        fontSize: 56.0,
+                        fontFamily: 'Rock Salt',
+                        color: Colors.grey[600]
+                      ),
                     ),
+                    decoration: new BoxDecoration(
+                      border: new Border.all(color: Colors.grey[400])
+                    ),
+                    padding: new EdgeInsets.all(16.0),
+                    height: 128.0,
+                    width: 128.0,
+                    alignment: Alignment.center,
                   ),
-                  decoration: new BoxDecoration(
-                    border: new Border.all(color: Colors.grey[400])
-                  ),
-                  padding: new EdgeInsets.all(16.0),
-                  height: 128.0,
-                  width: 128.0,
-                  alignment: Alignment.center,
-                ),
-                // Data table (name, Mr, etc)
-                new Padding(
-                  padding: new EdgeInsets.all(16.0),
-                  child: new Table(
-                    // TODO resize that so that its not stretched
-                    children: [
-                      new TableRow(children: [
-                        new Text("Name"),
-                        new Text(this.selectedElement.name)
-                      ]),
-                      new TableRow(children: [
-                        new Text("Molar mass"),
-                        new Text(
-                          this.selectedElement.relativeAtomicMass.toString()
-                        )
-                      ])
-                    ]
+                  // Data table (name, Mr, etc)
+                  new Padding(
+                    padding: new EdgeInsets.all(16.0),
+                    child: new Table(
+                      border: new TableBorder.all(color: Colors.grey[300]),
+                      // TODO resize that so that its not stretched
+                      children:
+                      tableData.map(
+                        (List<String> row) =>
+                          new TableRow(
+                            children: row.map(
+                              (String stringToDisplay) =>
+                                new Padding(
+                                  padding: new EdgeInsets.all(8.0),
+                                  child: new Text(
+                                    stringToDisplay,
+                                    textAlign: TextAlign.center
+                                  )
+                                )
+                            ).toList()
+                          )
+                      ).toList()
+                    )
                   )
-                )
-              ],
+                ],
+              )
             )
-          ),
-          new RaisedButton(
-            child: new Text(
-              "ADD ELEMENT",
-              style: new TextStyle(color: Colors.white),
-            ),
-            onPressed: _elementPrompt,
-            color: Colors.blueAccent,
           )
         ]
       );
     }
 
     return new Padding(
-      padding: new EdgeInsets.all(8.0),
-      child: widgetToReturn
+      padding: new EdgeInsets.all(16.0),
+      child: new Column(
+        children: <Widget>[
+          // Top part
+          widgetToReturn,
+          // Spacing
+          new SizedBox(height: 16.0),
+          // Element button
+          new RaisedButton(
+            child: new Text(
+              "SELECT AN ELEMENT",
+              style: new TextStyle(color: Colors.white),
+            ),
+            onPressed: _elementPrompt,
+            color: Colors.blueAccent,
+          )
+        ],
+      )
     );
   }
 
@@ -102,9 +126,9 @@ class _ElementParentState extends State<ElementParent> {
     await showDialog<ElementSymbol>(
       context: context,
       child: new SimpleDialog(
-        title: const Text('Select assignment'),
+        title: const Text('Select Element'),
         children: <Widget>[
-          new Text("HEY THERE")
+          new Text("<insert periodic table>")
         ],
       ),
     );
