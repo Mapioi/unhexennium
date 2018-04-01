@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/tabs/equation.dart';
 import 'package:unhexennium/tabs/element.dart';
-import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/tabs/formula.dart';
 
 
 // constants
 enum Mode { Element, Formula, Equation }
 const default_mode = Mode.Element;
 
-// ui
+
 class HomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _HomePageState();
@@ -36,16 +36,11 @@ class _HomePageState extends State<HomePage> {
             }).toList(),
           ),
         ),
-        // bottom right button
-        floatingActionButton: new FloatingActionButton(
-          onPressed: () => null,
-          child: const Icon(Icons.add)
-        ),
         // content
         body: new TabBarView(
           children: [
             new ElementParent(),
-            new Text("COMING"),
+            new FormulaParent(),
             new EquationParent()
           ]
         ),
