@@ -1,13 +1,13 @@
 // Packages
 import 'package:flutter/material.dart';
-// Local
-import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/tabs/equation.dart';
 import 'package:unhexennium/tabs/element.dart';
 import 'package:unhexennium/tabs/formula.dart';
+import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/utils.dart';
 
 
-// constants
+// ui
 enum Mode { Element, Formula, Equation }
 const default_mode = Mode.Element;
 
@@ -19,6 +19,12 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
+
+  /// States are stored here for the child widgets
+  /// So that they don't get lost on tab switch
+  ChemicalElement storedElement = new ChemicalElement(ElementSymbol.He);
+
+
   @override
   Widget build(BuildContext context) {
     return new DefaultTabController(
@@ -39,7 +45,7 @@ class _HomePageState extends State<HomePage> {
         // content
         body: new TabBarView(
           children: [
-            new ElementParent(),
+            new ElementParent(selectedElement: storedElement),
             new FormulaParent(),
             new EquationParent()
           ]

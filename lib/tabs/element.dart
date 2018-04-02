@@ -11,16 +11,12 @@ enum ElementInputOptions {
 }
 
 
-class ElementParent extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new _ElementParentState();
-}
+class ElementParent extends StatelessWidget {
 
-
-class _ElementParentState extends State<ElementParent> {
+  ElementParent({Key key, this.selectedElement}) : super(key: key);
 
   // no element selected => null
-  ChemicalElement selectedElement = new ChemicalElement(ElementSymbol.Fe);
+  final ChemicalElement selectedElement;
 
   @override
   Widget build(BuildContext context) {
@@ -76,19 +72,19 @@ class _ElementParentState extends State<ElementParent> {
                       // TODO resize that so that its not stretched
                       children:
                       tableData.map(
-                        (List<String> row) =>
-                          new TableRow(
-                            children: row.map(
+                          (List<String> row) =>
+                        new TableRow(
+                          children: row.map(
                               (String stringToDisplay) =>
-                                new Padding(
-                                  padding: new EdgeInsets.all(8.0),
-                                  child: new Text(
-                                    stringToDisplay,
-                                    textAlign: TextAlign.center
-                                  )
-                                )
-                            ).toList()
-                          )
+                            new Padding(
+                              padding: new EdgeInsets.all(8.0),
+                              child: new Text(
+                                stringToDisplay,
+                                textAlign: TextAlign.center
+                              )
+                            )
+                          ).toList()
+                        )
                       ).toList()
                     )
                   )
@@ -114,7 +110,7 @@ class _ElementParentState extends State<ElementParent> {
               "SELECT AN ELEMENT",
               style: new TextStyle(color: Colors.white),
             ),
-            onPressed: _elementPrompt,
+            onPressed: () => null,
             color: Colors.blueAccent,
           )
         ],
@@ -122,16 +118,16 @@ class _ElementParentState extends State<ElementParent> {
     );
   }
 
-  Future<Null> _elementPrompt() async {
-    await showDialog<ElementSymbol>(
-      context: context,
-      child: new SimpleDialog(
-        title: const Text('Select Element'),
-        children: <Widget>[
-          new Text("<insert periodic table>")
-        ],
-      ),
-    );
-  }
-}
+//  Future<Null> _elementPrompt() async {
+//    await showDialog<ElementSymbol>(
+//      context: context,
+//      child: new SimpleDialog(
+//        title: const Text('Select Element'),
+//        children: <Widget>[
+//          new Text("<insert periodic table>")
+//        ],
+//      ),
+//    );
+//  }
 
+}
