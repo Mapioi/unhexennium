@@ -1,4 +1,4 @@
-/// Chemical formulae
+import 'package:meta/meta.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
@@ -50,41 +50,43 @@ class FormulaFactory {
   List<ElementSubscriptPair> elementsList = [];
   int charge = 0;
 
+  int get length => elementsList.length;
+
   /// Insert a '(' to the formula at [index].
-  void insertOpeningParenthesis(int index) {
+  void insertOpeningParenthesisAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, -1));
   }
 
   /// Insert a '[' to the formula at [index].
   /// Only used for complex ions.
-  void insertOpeningBracket(int index) {
+  void insertOpeningBracketAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, -2));
   }
 
   /// Insert a ')' and the associated subscript to the formula at [index].
-  void insertClosingParenthesis(int index, int subscript) {
+  void insertClosingParenthesisAt(int index, {int subscript = 1}) {
     elementsList.insert(index, new ElementSubscriptPair(null, subscript));
   }
 
   /// Insert a ']' to the formula at [index].
   /// Used only for complex ions; thus the subscript is set to 1.
-  void insertClosingBracket(int index) {
+  void insertClosingBracketAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, 1));
   }
 
   /// Insert an element to the formula at [index].
-  void insertElement(int index, ElementSymbol elementSymbol) {
+  void insertElementAt(int index, {@required ElementSymbol elementSymbol}) {
     elementsList.add(new ElementSubscriptPair(elementSymbol, 1));
   }
 
   /// Set the subscript of the element / parenthesis at [index].
-  void setSubscript(int index, int newSubscript) {
-    elementsList[index].subscript = newSubscript;
+  void setSubscriptAt(int index, {@required int subscript}) {
+    elementsList[index].subscript = subscript;
   }
 
   /// Set the element at [index].
-  void setElement(int index, ElementSymbol symbol) {
-    elementsList[index].elementSymbol = symbol;
+  void setElementAt(int index, {@required ElementSymbol elementSymbol}) {
+    elementsList[index].elementSymbol = elementSymbol;
   }
 
   /// Set the overall ionic charge of the chemical formula.
@@ -133,6 +135,32 @@ class FormulaFactory {
       formulaString += "^$chargeNumber$sign";
     }
     return formulaString;
+  }
+
+  /// Maps the indices of opening parentheses to the indices of the
+  /// corresponding closing parentheses.
+  Map<int, int> getClosingIndices() {
+    var closingIndices = <int, int>{};
+    var openingIndicesStack = <int>[];
+    int i = 0;
+    for (ElementSubscriptPair pair in elementsList) {
+      if (pair.elementSymbol == null) {
+        if (pair.subscript < 0) {
+          openingIndicesStack.add(i);
+        } else {
+          closingIndices[openingIndicesStack.removeLast()] = i;
+        }
+      }
+      ++i;
+    }
+    return closingIndices;
+  }
+
+  /// Maps the indices of the closing parenthese to the indices of the
+  /// corresponding opening parentheses.
+  Map<int, int> getOpeningIndices() {
+    var closingIndices = getClosingIndices();
+    return new Map.fromIterables(closingIndices.values, closingIndices.keys);
   }
 
   /// Build a [Formula] from this factory's stored [elementsList].
