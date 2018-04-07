@@ -15,12 +15,16 @@ void main() {
 
   group("FormulaFactory", () {
     test("sulfuric acid", () {
+      int i = 0;
       FormulaFactory factory = new FormulaFactory();
-      factory.addElement(ElementSymbol.H);
-      factory.setLastSubscript(2);
-      factory.addElement(ElementSymbol.S);
-      factory.addElement(ElementSymbol.O);
-      factory.setLastSubscript(4);
+      factory.insertElement(i, ElementSymbol.H);
+      factory.setSubscript(i, 2);
+      ++i;
+      factory.insertElement(i, ElementSymbol.S);
+      ++i;
+      factory.insertElement(i, ElementSymbol.O);
+      factory.setSubscript(i, 4);
+      ++i;
       expect(factory.toString(), "H2SO4");
       expect(factory.build().elements, {
         ElementSymbol.S: 1,
@@ -31,14 +35,22 @@ void main() {
 
     test("hexaaquacopper(II) ion", () {
       FormulaFactory factory = new FormulaFactory();
-      factory.addOpeningBracket();
-      factory.addElement(ElementSymbol.Cu);
-      factory.addOpeningParenthesis();
-      factory.addElement(ElementSymbol.H);
-      factory.setLastSubscript(2);
-      factory.addElement(ElementSymbol.O);
-      factory.addClosingParenthesis(6);
-      factory.addClosingBracket();
+      int i = 0;
+      factory.insertOpeningBracket(i);
+      ++i;
+      factory.insertElement(i, ElementSymbol.Cu);
+      ++i;
+      factory.insertOpeningParenthesis(i);
+      ++i;
+      factory.insertElement(i, ElementSymbol.H);
+      factory.setSubscript(i, 2);
+      ++i;
+      factory.insertElement(i, ElementSymbol.O);
+      ++i;
+      factory.insertClosingParenthesis(i, 6);
+      ++i;
+      factory.insertClosingBracket(i);
+      ++i;
       factory.setCharge(2);
       expect(factory.toString(), "[Cu(H2O)6]^2+");
       expect(factory.build().elements, {
