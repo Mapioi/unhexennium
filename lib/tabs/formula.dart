@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:unhexennium/utils.dart';
-import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
 // TODO Improve alignment.
@@ -15,7 +15,10 @@ class FormulaChild extends StatelessWidget {
   static const Color highlightedColor = Colors.lightBlueAccent;
 
   FormulaChild(
-      this.symbolString, this.subscript, this.selected, this.highlighted);
+      {@required this.symbolString,
+      this.subscript = 1,
+      this.selected = false,
+      this.highlighted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -37,88 +40,70 @@ class FormulaChild extends StatelessWidget {
   }
 }
 
-class FormulaParent extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new _FormulaParentState();
-}
+typedef void Callback();
 
-class _FormulaParentState extends State<FormulaParent> {
-  // TODO Remove this, it's here for testing purposes only.
-  FormulaFactory _factory = new FormulaFactory();
-  int _index = 0;
-  Map<int, int> closeIndex = {};
+class FormulaParent extends StatelessWidget {
+  final FormulaFactory formulaFactory;
+  final int cursorIndex;
+  final Callback onGoLeft, onGoRight, onDelete, onEdit, onAdd;
 
-  _FormulaParentState() {
-    int i = 0;
-    _factory.insertOpeningBracket(i);
-    ++i;
-    _factory.insertElement(i, ElementSymbol.Cu);
-    ++i;
-    _factory.insertOpeningParenthesis(i);
-    ++i;
-    _factory.insertElement(i, ElementSymbol.H);
-    _factory.setSubscript(i, 2);
-    ++i;
-    _factory.insertElement(i, ElementSymbol.O);
-    ++i;
-    _factory.insertClosingParenthesis(i, 6);
-    ++i;
-    _factory.insertClosingBracket(i);
-    ++i;
-    _factory.setCharge(2);
-  }
+  FormulaParent(
+      {@required this.formulaFactory,
+      @required this.cursorIndex,
+      @required this.onGoLeft,
+      @required this.onGoRight,
+      @required this.onDelete,
+      @required this.onEdit,
+      @required this.onAdd});
 
   List<Widget> render() {
-    var formula = <Widget>[];
-    var openStack = <String>[];
-    var openIndexStack = <int>[];
-    closeIndex = <int, int>{};
-    var pairIndex = <int, int>{};
-    int index = 0;
-    for (ElementSubscriptPair pair in _factory.elementsList) {
+    var renderedFormula = <FormulaChild>[];
+    var openingIndices = formulaFactory.getOpeningIndices(),
+        closingIndices = formulaFactory.getClosingIndices();
+    int i = 0;
+    for (ElementSubscriptPair pair in formulaFactory.elementsList) {
       if (pair.elementSymbol == null) {
         if (pair.subscript < 0) {
-          if (pair.subscript == -1) {
-            formula.add(new FormulaChild(
-                '(', 1, index == _index, index == pairIndex[_index]));
-            openStack.add('(');
-            openIndexStack.add(index);
-          } else if (pair.subscript == -2) {
-            formula.add(new FormulaChild(
-                '[', 1, index == _index, index == pairIndex[_index]));
-            openStack.add('[');
-            openIndexStack.add(index);
-          }
+          renderedFormula.add(new FormulaChild(
+            symbolString: pair.subscript == -1 ? '(' : '[',
+            selected: i == cursorIndex,
+            highlighted: i == openingIndices[cursorIndex],
+          ));
         } else {
-          String open = openStack.removeLast();
-          String close = open == '(' ? ')' : ']';
-          int openIndex = openIndexStack.removeLast();
-          pairIndex[openIndex] = index;
-          pairIndex[index] = openIndex;
-          closeIndex[openIndex] = index;
-          formula.add(new FormulaChild(close, pair.subscript, index == _index,
-              index == pairIndex[_index]));
+          renderedFormula.add(new FormulaChild(
+              symbolString:
+                  renderedFormula[openingIndices[i]].symbolString == '('
+                      ? ')'
+                      : ']',
+              subscript: pair.subscript,
+              selected: i == cursorIndex,
+              highlighted: i == closingIndices[cursorIndex]));
         }
       } else {
-        formula.add(new FormulaChild(enumToString(pair.elementSymbol),
-            pair.subscript, index == _index, false));
+        renderedFormula.add(new FormulaChild(
+          symbolString: enumToString(pair.elementSymbol),
+          subscript: pair.subscript,
+          selected: i == cursorIndex,
+        ));
       }
-      ++index;
+      ++i;
     }
-    if (_factory.charge != 0) {
-      String sign = _factory.charge > 0 ? "+" : "-";
-      String chargeNumber = _factory.charge == 1
+    if (formulaFactory.charge != 0) {
+      String sign = formulaFactory.charge > 0 ? "+" : "-";
+      String chargeNumber = formulaFactory.charge == 1
           ? ""
-          : (_factory.charge ~/ _factory.charge.sign).toString();
-      formula.add(new FormulaChild("$chargeNumber$sign", 1, false, false));
+          : (formulaFactory.charge ~/ formulaFactory.charge.sign).toString();
+      renderedFormula.add(new FormulaChild(
+        symbolString: "$chargeNumber$sign",
+        selected: i == cursorIndex,
+      ));
     }
-    return formula;
+    return renderedFormula;
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO fix sizing issues (instead on relying on fixed pixels)
-    print(_index);
     return new Column(children: [
       new Container(
         child: new Row(children: render()),
@@ -130,20 +115,12 @@ class _FormulaParentState extends State<FormulaParent> {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.arrow_left),
-            onPressed: () {
-              setState(() {
-                if (_index >= 0) --_index;
-              });
-            },
+            onPressed: onGoLeft,
             tooltip: '',
           ),
           new IconButton(
             icon: new Icon(Icons.arrow_right),
-            onPressed: () {
-              setState(() {
-                if (_index < _factory.elementsList.length - 1) ++_index;
-              });
-            },
+            onPressed: onGoRight,
             tooltip: '',
           )
         ],
@@ -153,30 +130,18 @@ class _FormulaParentState extends State<FormulaParent> {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.delete),
-            onPressed: _factory.elementsList.length >= 1
-                ? () {
-                    setState(() {
-                      if (closeIndex.containsKey(_index)) {
-                        _factory.removeAt(closeIndex[_index]);
-                      }
-                      _factory.removeAt(_index);
-                      if (_index >= _factory.elementsList.length) {
-                        _index = _factory.elementsList.length - 1;
-                      }
-                    });
-                  }
-                : null,
-            tooltip: 'Delete',
+            onPressed: onDelete,
+            tooltip: 'Delete current',
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
-            onPressed: null,
+            onPressed: onEdit,
             tooltip: 'Edit',
           ),
           new IconButton(
             icon: new Icon(Icons.add),
-            onPressed: null,
-            tooltip: 'Add',
+            onPressed: onAdd,
+            tooltip: 'Add after current',
           ),
         ],
       ),
