@@ -34,11 +34,11 @@ class Formula {
 }
 
 /// Utility structure to represent an element-subscript tuple.
-class _ElementSubscriptPair {
+class ElementSubscriptPair {
   ElementSymbol elementSymbol;
   int subscript;
 
-  _ElementSubscriptPair(this.elementSymbol, this.subscript);
+  ElementSubscriptPair(this.elementSymbol, this.subscript);
 }
 
 /// Used to construct chemical formulae within the app.
@@ -47,34 +47,34 @@ class _ElementSubscriptPair {
 /// and use the methods below to add elements, parentheses, brackets,
 /// and set the subscript and charge of the chemical formula.
 class FormulaFactory {
-  List<_ElementSubscriptPair> elementsList = [];
+  List<ElementSubscriptPair> elementsList = [];
   int charge = 0;
 
   /// Insert a '(' to the formula at [index].
   void insertOpeningParenthesis(int index) {
-    elementsList.insert(index, new _ElementSubscriptPair(null, -1));
+    elementsList.insert(index, new ElementSubscriptPair(null, -1));
   }
 
   /// Insert a '[' to the formula at [index].
   /// Only used for complex ions.
   void insertOpeningBracket(int index) {
-    elementsList.insert(index, new _ElementSubscriptPair(null, -2));
+    elementsList.insert(index, new ElementSubscriptPair(null, -2));
   }
 
   /// Insert a ')' and the associated subscript to the formula at [index].
   void insertClosingParenthesis(int index, int subscript) {
-    elementsList.insert(index, new _ElementSubscriptPair(null, subscript));
+    elementsList.insert(index, new ElementSubscriptPair(null, subscript));
   }
 
   /// Insert a ']' to the formula at [index].
   /// Used only for complex ions; thus the subscript is set to 1.
   void insertClosingBracket(int index) {
-    elementsList.insert(index, new _ElementSubscriptPair(null, 1));
+    elementsList.insert(index, new ElementSubscriptPair(null, 1));
   }
 
   /// Insert an element to the formula at [index].
   void insertElement(int index, ElementSymbol elementSymbol) {
-    elementsList.add(new _ElementSubscriptPair(elementSymbol, 1));
+    elementsList.add(new ElementSubscriptPair(elementSymbol, 1));
   }
 
   /// Set the subscript of the element / parenthesis at [index].
@@ -101,7 +101,7 @@ class FormulaFactory {
   String toString() {
     String formulaString = "";
     List<String> closingParentheses = [];
-    for (_ElementSubscriptPair pair in elementsList) {
+    for (ElementSubscriptPair pair in elementsList) {
       if (pair.elementSymbol == null) {
         if (pair.subscript < 0) {
           switch (pair.subscript) {
@@ -141,7 +141,7 @@ class FormulaFactory {
     int nestedSubscripts = 1;
     List<int> subscripts = [];
 
-    for (_ElementSubscriptPair pair in elementsList.reversed) {
+    for (ElementSubscriptPair pair in elementsList.reversed) {
       if (pair.elementSymbol == null) {
         if (pair.subscript > 0) {
           subscripts.add(pair.subscript);
