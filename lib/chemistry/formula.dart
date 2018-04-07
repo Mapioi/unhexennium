@@ -50,36 +50,41 @@ class FormulaFactory {
   List<_ElementSubscriptPair> elementsList = [];
   int charge = 0;
 
-  /// Add a '(' to the formula.
-  void addOpeningParenthesis() {
-    elementsList.add(new _ElementSubscriptPair(null, -1));
+  /// Insert a '(' to the formula at [index].
+  void insertOpeningParenthesis(int index) {
+    elementsList.insert(index, new _ElementSubscriptPair(null, -1));
   }
 
-  /// Add a '[' to the formula.
-  /// Used only for complex ions.
-  void addOpeningBracket() {
-    elementsList.add(new _ElementSubscriptPair(null, -2));
+  /// Insert a '[' to the formula at [index].
+  /// Only used for complex ions.
+  void insertOpeningBracket(int index) {
+    elementsList.insert(index, new _ElementSubscriptPair(null, -2));
   }
 
-  /// Add a ')' and the associated subscript to the formula.
-  void addClosingParenthesis(int subscript) {
-    elementsList.add(new _ElementSubscriptPair(null, subscript));
+  /// Insert a ')' and the associated subscript to the formula at [index].
+  void insertClosingParenthesis(int index, int subscript) {
+    elementsList.insert(index, new _ElementSubscriptPair(null, subscript));
   }
 
-  /// Add a ']' to the formula.
+  /// Insert a ']' to the formula at [index].
   /// Used only for complex ions; thus the subscript is set to 1.
-  void addClosingBracket() {
-    elementsList.add(new _ElementSubscriptPair(null, 1));
+  void insertClosingBracket(int index) {
+    elementsList.insert(index, new _ElementSubscriptPair(null, 1));
   }
 
-  /// Add an element to the formula.
-  void addElement(ElementSymbol elementSymbol) {
+  /// Insert an element to the formula at [index].
+  void insertElement(int index, ElementSymbol elementSymbol) {
     elementsList.add(new _ElementSubscriptPair(elementSymbol, 1));
   }
 
-  /// Set the subscript of the last added element / parenthesis.
-  void setLastSubscript(int newSubscript) {
-    elementsList[elementsList.length - 1].subscript = newSubscript;
+  /// Set the subscript of the element / parenthesis at [index].
+  void setSubscript(int index, int newSubscript) {
+    elementsList[index].subscript = newSubscript;
+  }
+
+  /// Set the element at [index].
+  void setElement(int index, ElementSymbol symbol) {
+    elementsList[index].elementSymbol = symbol;
   }
 
   /// Set the overall ionic charge of the chemical formula.
@@ -87,9 +92,9 @@ class FormulaFactory {
     charge = newCharge;
   }
 
-  /// Remove the last entry in [elementsList].
-  void removeEntry() {
-    elementsList.removeLast();
+  /// Remove the entry at [index] in [elementsList].
+  void removeAt(int index) {
+    elementsList.removeAt(index);
   }
 
   @override
