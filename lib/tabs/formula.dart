@@ -3,6 +3,7 @@ import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
+// TODO Improve alignment.
 class FormulaChild extends StatelessWidget {
   final String symbolString;
   final int subscript;
@@ -42,8 +43,10 @@ class FormulaParent extends StatefulWidget {
 }
 
 class _FormulaParentState extends State<FormulaParent> {
+  // TODO Remove this, it's here for testing purposes only.
   FormulaFactory _factory = new FormulaFactory();
   int _index = 0;
+  Map<int, int> closeIndex = {};
 
   _FormulaParentState() {
     int i = 0;
@@ -69,6 +72,7 @@ class _FormulaParentState extends State<FormulaParent> {
     var formula = <Widget>[];
     var openStack = <String>[];
     var openIndexStack = <int>[];
+    closeIndex = <int, int>{};
     var pairIndex = <int, int>{};
     int index = 0;
     for (ElementSubscriptPair pair in _factory.elementsList) {
@@ -91,6 +95,7 @@ class _FormulaParentState extends State<FormulaParent> {
           int openIndex = openIndexStack.removeLast();
           pairIndex[openIndex] = index;
           pairIndex[index] = openIndex;
+          closeIndex[openIndex] = index;
           formula.add(new FormulaChild(close, pair.subscript, index == _index,
               index == pairIndex[_index]));
         }
@@ -148,7 +153,19 @@ class _FormulaParentState extends State<FormulaParent> {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.delete),
-            onPressed: null,
+            onPressed: _factory.elementsList.length >= 1
+                ? () {
+                    setState(() {
+                      if (closeIndex.containsKey(_index)) {
+                        _factory.removeAt(closeIndex[_index]);
+                      }
+                      _factory.removeAt(_index);
+                      if (_index >= _factory.elementsList.length) {
+                        _index = _factory.elementsList.length - 1;
+                      }
+                    });
+                  }
+                : null,
             tooltip: 'Delete',
           ),
           new IconButton(
