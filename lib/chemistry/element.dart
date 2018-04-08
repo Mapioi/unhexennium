@@ -132,7 +132,7 @@ enum ElementSymbol {
 ///
 /// For elements with no stable isotopes,
 /// the mass number of the isotope with the longest half-life is given.
-final List<num> _relativeAtomicMasses = [
+const List<num> _relativeAtomicMasses = const [
   1.01,
   4.00,
   6.94,
@@ -254,7 +254,7 @@ final List<num> _relativeAtomicMasses = [
 ];
 
 /// Names of the elements
-final List<String> _names = [
+const List<String> _names = const [
   "Hydrogen",
   "Helium",
   "Lithium",
