@@ -20,6 +20,10 @@ void main() {
     });
   });
 
+  test("lcm", () {
+    expect(lcmMultiple(Iterable.castFrom([1, 2, 3, 4, 5, 6])), 60);
+  });
+
   group("Rational", () {
     test("initiator + canonical form", () {
       var f = new Rational(6, 10);
