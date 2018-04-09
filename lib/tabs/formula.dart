@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
@@ -14,11 +14,12 @@ class FormulaChild extends StatelessWidget {
   static const Color selectedColor = Colors.blueAccent;
   static const Color highlightedColor = Colors.lightBlueAccent;
 
-  FormulaChild(
-      {@required this.symbolString,
-      this.subscript = 1,
-      this.selected = false,
-      this.highlighted = false});
+  FormulaChild({
+    @required this.symbolString,
+    this.subscript = 1,
+    this.selected = false,
+    this.highlighted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,17 +45,19 @@ typedef void Callback();
 
 class FormulaParent extends StatelessWidget {
   final FormulaFactory formulaFactory;
+  final Formula formula;
   final int cursorIndex;
   final Callback onGoLeft, onGoRight, onDelete, onEdit, onAdd;
 
-  FormulaParent(
-      {@required this.formulaFactory,
-      @required this.cursorIndex,
-      @required this.onGoLeft,
-      @required this.onGoRight,
-      @required this.onDelete,
-      @required this.onEdit,
-      @required this.onAdd});
+  FormulaParent({
+    @required this.formulaFactory,
+    @required this.cursorIndex,
+    @required this.onGoLeft,
+    @required this.onGoRight,
+    @required this.onDelete,
+    @required this.onEdit,
+    @required this.onAdd,
+  }) : formula = formulaFactory.build();
 
   List<Widget> render() {
     var renderedFormula = <FormulaChild>[];
@@ -105,6 +108,7 @@ class FormulaParent extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO fix sizing issues (instead on relying on fixed pixels)
     return new Column(children: [
+      /// Rendered formula
       new Container(
         child: new Row(children: render()),
         padding: new EdgeInsets.all(8.0),
@@ -125,6 +129,8 @@ class FormulaParent extends StatelessWidget {
           )
         ],
       ),
+
+      /// Formula Editor
       new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[

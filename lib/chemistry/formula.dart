@@ -1,5 +1,8 @@
+/// Chemical formulae: representation of chemical compounds and molecules
+
 import 'package:meta/meta.dart';
 import 'package:unhexennium/utils.dart';
+import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
 /// A chemical formula is a way of information about the chemical proportions
@@ -17,7 +20,7 @@ class Formula {
   Formula(this.elements, [this.charge = 0]);
 
   /// Calculate the relative formula mass of this chemical formula.
-  num rfm() {
+  num get rfm {
     num formulaMass = 0;
     elements.forEach((element, subscript) {
       formulaMass +=
@@ -26,11 +29,33 @@ class Formula {
     return formulaMass;
   }
 
+  /// Derive the empirical formula.
+  Formula get empiricalFormula {
+    if (elements.length == 0) return new Formula({});
+    int divisor = gcdMultiple(elements.values);
+    return new Formula(
+      new Map.fromIterable(elements.keys,
+          key: (symbol) => symbol,
+          value: (symbol) => elements[symbol] ~/ divisor),
+    );
+  }
+
+  /// Calculate the percentages by mass of constituent elements.
+  Map<ElementSymbol, num> get percentages => new Map.fromIterable(
+        elements.keys,
+        key: (symbol) => symbol,
+        value: (symbol) =>
+            new ChemicalElement(symbol).relativeAtomicMass *
+            elements[symbol] /
+            rfm *
+            100,
+      );
+
   /// Calculate the mass in grams from the number of moles.
-  num mass(num mole) => mole * rfm();
+  num mass(num mole) => mole * rfm;
 
   /// Calculate the number of moles from mass in grams.
-  num mole(num mass) => mass / rfm();
+  num mole(num mass) => mass / rfm;
 }
 
 /// Utility structure to represent an element-subscript tuple.
@@ -175,7 +200,11 @@ class FormulaFactory {
           subscripts.add(pair.subscript);
           nestedSubscripts *= pair.subscript;
         } else {
-          nestedSubscripts ~/= subscripts.removeLast();
+          /// If the list of subscripts is empty,
+          /// this factory contains an unpaired opening parenthesis / bracket.
+          /// In this case, the opening parenthesis / bracket is ignored.
+          if (subscripts.length > 1)
+            nestedSubscripts ~/= subscripts.removeLast();
         }
       } else {
         if (!elements.containsKey(pair.elementSymbol)) {
