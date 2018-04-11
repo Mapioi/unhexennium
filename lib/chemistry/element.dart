@@ -375,6 +375,20 @@ const List<String> _names = const [
   "Oganesson (Ununoctium)",
 ];
 
+class Orbital {
+  final String name;
+  final int numberElectrons;
+
+  const Orbital(this.name, this.numberElectrons);
+}
+
+class AbbreviatedElectronConfiguration {
+  final ElementSymbol core;
+  final List<Orbital> valence;
+
+  const AbbreviatedElectronConfiguration(this.core, this.valence);
+}
+
 /// A species of atoms having the same number of protons in their atomic nuclei.
 /// Construct using [new ChemicalElement] with an [ElementSymbol].
 /// Provides information about the name, symbol, atomic number and relative
@@ -383,8 +397,18 @@ class ChemicalElement {
   final ElementSymbol symbol;
 
   String get name => _names[symbol.index];
+
   int get atomicNumber => symbol.index + 1;
+
   num get relativeAtomicMass => _relativeAtomicMasses[symbol.index];
+
+  List<Orbital> get electronConfiguration {
+    return [];
+  }
+
+  AbbreviatedElectronConfiguration get abbreviatedElectronConfiguration {
+    return null;
+  }
 
   const ChemicalElement(this.symbol);
 }
