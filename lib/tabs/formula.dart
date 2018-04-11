@@ -1,136 +1,155 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/formula.dart';
+import 'package:unhexennium/utils.dart';
 
-// TODO Improve alignment.
-class FormulaChild extends StatelessWidget {
-  final String symbolString;
+
+// Type declarations
+typedef void Callback();
+typedef void SingleArgCallback(x);
+
+
+/// [InputBox] renders the top for whatever the top is
+///   - Can be an element Text or a Row of more elements
+/// And renders the subscript on the bottom
+class InputBox extends StatelessWidget {
+  final Widget widgetToDisplay;
   final int subscript;
   final bool selected;
+  final Callback onInputBoxTap;
 
   /// Highlight pairing parentheses / brackets.
-  final bool highlighted;
+  static const Color defaultColor = Colors.grey;
   static const Color selectedColor = Colors.blueAccent;
-  static const Color highlightedColor = Colors.lightBlueAccent;
 
-  FormulaChild({
-    @required this.symbolString,
-    this.subscript = 1,
-    this.selected = false,
-    this.highlighted = false,
-  });
+  InputBox(
+    {@required this.widgetToDisplay,
+      this.onInputBoxTap,
+      this.subscript = 1,
+      this.selected = false});
 
   @override
   Widget build(BuildContext context) {
-    return new Card(
-      child: new Column(
-        children: <Widget>[
-          new Text(
-            symbolString,
-            textAlign: TextAlign.center,
-          ),
-          new Text(
-            subscript != 1 ? subscript.toString() : '',
-            textAlign: TextAlign.right,
-          )
-        ],
-      ),
-      color: selected ? selectedColor : highlighted ? highlightedColor : null,
+    return new GestureDetector(
+      onTap: onInputBoxTap,
+      child: new Container(
+        // Structure
+        child: new Column(
+          children: <Widget>[
+            widgetToDisplay,
+            new Container(
+              child: new Text(this.subscript.toString()),
+            )
+          ],
+        ),
+        // Style
+        decoration: new BoxDecoration(
+          border: new Border.all(color: selected ? selectedColor : defaultColor)
+        ),
+        padding: new EdgeInsets.all(3.0),
+        margin: new EdgeInsets.all(3.0),
+        alignment: Alignment(0.0, 0.0),
+      )
     );
   }
 }
 
-typedef void Callback();
 
+/// Formula Parent handles the top level
 class FormulaParent extends StatelessWidget {
   final FormulaFactory formulaFactory;
   final Formula formula;
-  final int cursorIndex;
-  final Callback onGoLeft, onGoRight, onDelete, onEdit, onAdd;
+  final Callback onDelete, onEdit, onAdd;
+  final SingleArgCallback onBoxTap;
+  final int selectedBlockIndex;
 
   FormulaParent({
     @required this.formulaFactory,
-    @required this.cursorIndex,
-    @required this.onGoLeft,
-    @required this.onGoRight,
+    @required this.selectedBlockIndex,
     @required this.onDelete,
     @required this.onEdit,
     @required this.onAdd,
+    @required this.onBoxTap,
   }) : formula = formulaFactory.build();
 
-  List<Widget> render() {
-    var renderedFormula = <FormulaChild>[];
-    var openingIndices = formulaFactory.getOpeningIndices(),
-        closingIndices = formulaFactory.getClosingIndices();
-    int i = 0;
-    for (ElementSubscriptPair pair in formulaFactory.elementsList) {
+  /// Used to build the recursive input structure
+  Row recursiveInputBuilder(int startIndex, int endIndex) {
+    List<Widget> renderedFormula = [];
+    Map<int, int> openingIndices = formulaFactory.getOpeningIndices();
+    Map<int, int> closingIndices = formulaFactory.getClosingIndices();
+
+    for (var i = startIndex; i < endIndex; i++) {
+      ElementSubscriptPair pair = formulaFactory.elementsList[i];
+
       if (pair.elementSymbol == null) {
+        // parentheses
         if (pair.subscript < 0) {
-          renderedFormula.add(new FormulaChild(
-            symbolString: pair.subscript == -1 ? '(' : '[',
-            selected: i == cursorIndex,
-            highlighted: i == openingIndices[cursorIndex],
-          ));
+          // opening parentheses
+          int closingParenthesis = closingIndices[i];
+          renderedFormula.add(
+            new InputBox(
+              widgetToDisplay: this.recursiveInputBuilder(
+                i + 1, closingParenthesis
+              ),
+              subscript: formulaFactory.elementsList[
+                closingParenthesis
+              ].subscript,
+              selected: (i == selectedBlockIndex)
+                || (i == closingIndices[selectedBlockIndex]),
+              onInputBoxTap: () => onBoxTap(i),
+            )
+          );
+          i = closingParenthesis;
         } else {
-          renderedFormula.add(new FormulaChild(
-              symbolString:
-                  renderedFormula[openingIndices[i]].symbolString == '('
-                      ? ')'
-                      : ']',
-              subscript: pair.subscript,
-              selected: i == cursorIndex,
-              highlighted: i == closingIndices[cursorIndex]));
+          continue;
         }
       } else {
-        renderedFormula.add(new FormulaChild(
-          symbolString: enumToString(pair.elementSymbol),
-          subscript: pair.subscript,
-          selected: i == cursorIndex,
-        ));
+        print(pair.elementSymbol);
+        print(startIndex);
+        renderedFormula.add(
+          new InputBox(
+            widgetToDisplay: new Text(enumToString(pair.elementSymbol)),
+            subscript: pair.subscript,
+            selected: i == selectedBlockIndex,
+            onInputBoxTap: () => onBoxTap(i)
+          )
+        );
       }
-      ++i;
     }
-    if (formulaFactory.charge != 0) {
-      String sign = formulaFactory.charge > 0 ? "+" : "-";
-      String chargeNumber = formulaFactory.charge == 1
-          ? ""
-          : (formulaFactory.charge ~/ formulaFactory.charge.sign).toString();
-      renderedFormula.add(new FormulaChild(
-        symbolString: "$chargeNumber$sign",
-        selected: i == cursorIndex,
-      ));
-    }
-    return renderedFormula;
+
+    return new Row(children: renderedFormula);
+  }
+
+  /// Used to initiate the recursion
+  InputBox render() {
+    print(formulaFactory.elementsList.toString());
+    Row inputBoxesRow = recursiveInputBuilder(
+      0, formulaFactory.elementsList.length
+    );
+
+    InputBox parentInputBox = new InputBox(
+      widgetToDisplay: inputBoxesRow,
+      subscript: formulaFactory.charge,
+      selected: selectedBlockIndex == -1,
+      onInputBoxTap: () => onBoxTap(-1)
+    );
+
+    return parentInputBox;
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO fix sizing issues (instead on relying on fixed pixels)
     return new Column(children: [
-      /// Rendered formula
-      new Container(
-        child: new Row(children: render()),
-        padding: new EdgeInsets.all(8.0),
-        height: 100.0,
+      // Rendered formula
+      new Padding(
+        child: new Row(
+          children: [render()], // TODO use a container instead
+          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        padding: EdgeInsets.all(8.0),
       ),
-      new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.arrow_left),
-            onPressed: onGoLeft,
-            tooltip: '',
-          ),
-          new IconButton(
-            icon: new Icon(Icons.arrow_right),
-            onPressed: onGoRight,
-            tooltip: '',
-          )
-        ],
-      ),
-
-      /// Formula Editor
+      // Formula Editor
       new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[

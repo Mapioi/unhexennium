@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   /// So that they don't get lost on tab switch
   ChemicalElement _storedElement;
   FormulaFactory formulaFactory;
-  int formulaCursorIndex;
+  int formulaSelectedBlockIndex;
 
   _HomePageState() {
     // Element ---
@@ -30,55 +30,46 @@ class _HomePageState extends State<HomePage> {
 
     // Formula ---
     formulaFactory = new FormulaFactory();
-    formulaFactory.insertOpeningBracketAt(0);
-    formulaFactory.insertElementAt(1, elementSymbol: ElementSymbol.Fe);
-    formulaFactory.insertOpeningParenthesisAt(2);
-    formulaFactory.insertElementAt(3, elementSymbol: ElementSymbol.O);
-    formulaFactory.insertElementAt(4, elementSymbol: ElementSymbol.H);
-    formulaFactory.insertClosingParenthesisAt(5, subscript: 2);
-    formulaFactory.insertOpeningParenthesisAt(6);
-    formulaFactory.insertElementAt(7, elementSymbol: ElementSymbol.H);
-    formulaFactory.setSubscriptAt(7, subscript: 2);
-    formulaFactory.insertElementAt(8, elementSymbol: ElementSymbol.O);
-    formulaFactory.insertClosingParenthesisAt(9, subscript: 4);
-    formulaFactory.insertClosingBracketAt(10);
+    formulaFactory.insertElementAt(0, elementSymbol: ElementSymbol.Fe);
+    formulaFactory.insertOpeningParenthesisAt(1);
+    formulaFactory.insertElementAt(2, elementSymbol: ElementSymbol.O);
+    formulaFactory.insertElementAt(3, elementSymbol: ElementSymbol.H);
+    formulaFactory.insertClosingParenthesisAt(4, subscript: 2);
+    formulaFactory.insertOpeningParenthesisAt(5);
+    formulaFactory.insertElementAt(6, elementSymbol: ElementSymbol.H);
+    formulaFactory.setSubscriptAt(6, subscript: 2);
+    formulaFactory.insertElementAt(7, elementSymbol: ElementSymbol.O);
+    formulaFactory.insertClosingParenthesisAt(8, subscript: 4);
     formulaFactory.setCharge(2);
 
-    formulaCursorIndex = 0;
-  }
-
-  /// Formula tab callbacks
-  void formulaShiftCursorLeft() {
-    setState(() {
-      --formulaCursorIndex;
-    });
-  }
-
-  void formulaShiftCursorRight() {
-    setState(() {
-      ++formulaCursorIndex;
-    });
+    formulaSelectedBlockIndex = -1;
   }
 
   void formulaRemoveAtCursor() {
     setState(() {
-      if (formulaCursorIndex < formulaFactory.length) {
+      if (formulaSelectedBlockIndex < formulaFactory.length) {
         var closingIndices = formulaFactory.getClosingIndices();
-        if (closingIndices.containsKey(formulaCursorIndex)) {
-          formulaFactory.removeAt(closingIndices[formulaCursorIndex]);
+        if (closingIndices.containsKey(formulaSelectedBlockIndex)) {
+          formulaFactory.removeAt(closingIndices[formulaSelectedBlockIndex]);
         }
-        formulaFactory.removeAt(formulaCursorIndex);
-      } else if (formulaCursorIndex == formulaFactory.length &&
+        formulaFactory.removeAt(formulaSelectedBlockIndex);
+      } else if (formulaSelectedBlockIndex == formulaFactory.length &&
           formulaFactory.charge != 0) {
         formulaFactory.setCharge(0);
       }
-      --formulaCursorIndex;
+      --formulaSelectedBlockIndex;
     });
   }
 
   void formulaEditAtCursor() {}
 
   void formulaInsertAfterCursor() {}
+
+  void formulaOnInputBoxTap(currentBlock) {
+    setState(() {
+      formulaSelectedBlockIndex = currentBlock;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,18 +93,14 @@ class _HomePageState extends State<HomePage> {
           new ElementParent(selectedElement: _storedElement),
           new FormulaParent(
               formulaFactory: formulaFactory,
-              cursorIndex: formulaCursorIndex,
-              onGoLeft: formulaCursorIndex >= 0 ? formulaShiftCursorLeft : null,
-              onGoRight: formulaCursorIndex < formulaFactory.length - 1 ||
-                      (formulaCursorIndex == formulaFactory.length - 1 &&
-                          formulaFactory.charge != 0)
-                  ? formulaShiftCursorRight
-                  : null,
-              onDelete: formulaCursorIndex >= 0 ? formulaRemoveAtCursor : null,
-              onEdit: formulaCursorIndex >= 0 ? formulaEditAtCursor : null,
-              onAdd: formulaCursorIndex < formulaFactory.length
+              onDelete: formulaSelectedBlockIndex >= 0 ? formulaRemoveAtCursor : null,
+              onEdit: formulaSelectedBlockIndex >= 0 ? formulaEditAtCursor : null,
+              onAdd: formulaSelectedBlockIndex < formulaFactory.length
                   ? formulaInsertAfterCursor
-                  : null),
+                  : null,
+            selectedBlockIndex: formulaSelectedBlockIndex,
+            onBoxTap: formulaOnInputBoxTap,
+          ),
           new EquationParent()
         ]),
       ),

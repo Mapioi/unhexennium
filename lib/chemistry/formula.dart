@@ -64,6 +64,17 @@ class ElementSubscriptPair {
   int subscript;
 
   ElementSubscriptPair(this.elementSymbol, this.subscript);
+
+  @override
+  String toString() {
+    if (elementSymbol != null) {
+      return "(${enumToString(elementSymbol)},${subscript.toString()})";
+    } else {
+      // using square parens to avoid confusion with list paren
+      String paren = subscript < 0 ? "[" : "]";
+      return "($paren,${subscript.toString()})";
+    }
+  }
 }
 
 /// Used to construct chemical formulae within the app.

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unhexennium/tabs/periodic_table.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/utils.dart';
 import 'dart:async';
@@ -110,7 +111,7 @@ class ElementParent extends StatelessWidget {
               "SELECT AN ELEMENT",
               style: new TextStyle(color: Colors.white),
             ),
-            onPressed: () => null,
+            onPressed: () => _elementPrompt(context),
             color: Colors.blueAccent,
           )
         ],
@@ -118,16 +119,19 @@ class ElementParent extends StatelessWidget {
     );
   }
 
-//  Future<Null> _elementPrompt() async {
-//    await showDialog<ElementSymbol>(
-//      context: context,
-//      child: new SimpleDialog(
-//        title: const Text('Select Element'),
-//        children: <Widget>[
-//          new Text("<insert periodic table>")
-//        ],
-//      ),
-//    );
-//  }
+  Future<Null> _elementPrompt(BuildContext context) async {
+    await showModalBottomSheet<ElementSymbol>(
+      context: context,
+      builder: (context) => new Container(
+        height: 300.0,
+        child: new ListView(
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+
+          ],
+        )
+      )
+    );
+  }
 
 }
