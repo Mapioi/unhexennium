@@ -380,13 +380,11 @@ const List<String> _names = const [
 /// Provides information about the name, symbol, atomic number and relative
 /// atomic mass about the element.
 class ChemicalElement {
-  final String name;
   final ElementSymbol symbol;
-  final int atomicNumber;
-  final num relativeAtomicMass;
 
-  ChemicalElement(this.symbol)
-      : name = _names[symbol.index],
-        atomicNumber = symbol.index + 1,
-        relativeAtomicMass = _relativeAtomicMasses[symbol.index];
+  String get name => _names[symbol.index];
+  int get atomicNumber => symbol.index + 1;
+  num get relativeAtomicMass => _relativeAtomicMasses[symbol.index];
+
+  const ChemicalElement(this.symbol);
 }
