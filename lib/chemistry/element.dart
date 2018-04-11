@@ -389,12 +389,26 @@ class AbbreviatedElectronConfiguration {
   const AbbreviatedElectronConfiguration(this.core, this.valence);
 }
 
-/// A species of atoms having the same number of protons in their atomic nuclei.
+/// A species of atoms having the same number of protons in their atomic nuclei
+///
 /// Construct using [new ChemicalElement] with an [ElementSymbol].
 /// Provides information about the name, symbol, atomic number and relative
 /// atomic mass about the element.
 class ChemicalElement {
   final ElementSymbol symbol;
+  static final Map<ElementSymbol, ChemicalElement> _cache = {};
+
+  ChemicalElement._internal(this.symbol);
+
+  factory ChemicalElement(ElementSymbol symbol) {
+    if (_cache.containsKey(symbol)) {
+      return _cache[symbol];
+    } else {
+      final ChemicalElement element = new ChemicalElement._internal(symbol);
+      _cache[symbol] = element;
+      return element;
+    }
+  }
 
   String get name => _names[symbol.index];
 
@@ -409,6 +423,4 @@ class ChemicalElement {
   AbbreviatedElectronConfiguration get abbreviatedElectronConfiguration {
     return null;
   }
-
-  const ChemicalElement(this.symbol);
 }
