@@ -24,5 +24,36 @@ void main() {
       expect(new ChemicalElement(ElementSymbol.H).relativeAtomicMass, 1.01);
       expect(new ChemicalElement(ElementSymbol.Uuo).relativeAtomicMass, 294);
     });
+
+    test("electron configuration", () {
+      expect(
+        new ChemicalElement(ElementSymbol.H).electronConfiguration,
+        [new Orbital("1s", 1)],
+      );
+      expect(
+        new ChemicalElement(ElementSymbol.Cr).electronConfiguration,
+        [
+          new Orbital("1s", 2),
+          new Orbital("2s", 2),
+          new Orbital("2p", 6),
+          new Orbital("3s", 2),
+          new Orbital("3p", 6),
+          new Orbital("3d", 5),
+          new Orbital("4s", 1),
+        ],
+      );
+      expect(
+        new ChemicalElement(ElementSymbol.Cu).electronConfiguration,
+        [
+          new Orbital("1s", 2),
+          new Orbital("2s", 2),
+          new Orbital("2p", 6),
+          new Orbital("3s", 2),
+          new Orbital("3p", 6),
+          new Orbital("3d", 10),
+          new Orbital("4s", 1),
+        ],
+      );
+    });
   });
 }
