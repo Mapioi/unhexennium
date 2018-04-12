@@ -173,7 +173,7 @@ class FormulaParent extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO fix sizing issues (instead on relying on fixed pixels)
     return new Column(children: [
-      // Rendered formula
+      // Input space
       new Padding(
         child: new Row(
           children: [render()], // TODO use a container instead
@@ -202,7 +202,16 @@ class FormulaParent extends StatelessWidget {
           ),
         ],
       ),
-      new Text(formulaFactory.toString())
+      new Container(height: 20.0),
+      // Render
+      new Text(
+        formulaFactory.toString(),
+        style: new TextStyle(
+          fontFamily: 'CMU',
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold
+        ),
+      )
     ]);
   }
 }
