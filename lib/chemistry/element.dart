@@ -8,8 +8,11 @@ import 'package:unhexennium/utils.dart';
 /// Nh, Fl, Mc, Ts, Og so that this app is compliant with table 6 of
 /// the IB chemistry data booklet.
 enum ElementSymbol {
+  // Period 1
   H,
   He,
+
+  // Period 2
   Li,
   Be,
   B,
@@ -18,6 +21,8 @@ enum ElementSymbol {
   O,
   F,
   Ne,
+
+  // Period 3
   Na,
   Mg,
   Al,
@@ -26,6 +31,8 @@ enum ElementSymbol {
   S,
   Cl,
   Ar,
+
+  // Period 4
   K,
   Ca,
   Sc,
@@ -44,6 +51,8 @@ enum ElementSymbol {
   Se,
   Br,
   Kr,
+
+  // Period 5
   Rb,
   Sr,
   Y,
@@ -62,8 +71,11 @@ enum ElementSymbol {
   Te,
   I,
   Xe,
+
+  // Period 6
   Cs,
   Ba,
+  // Lathinides
   La,
   Ce,
   Pr,
@@ -79,6 +91,7 @@ enum ElementSymbol {
   Tm,
   Yb,
   Lu,
+  //
   Hf,
   Ta,
   W,
@@ -94,8 +107,11 @@ enum ElementSymbol {
   Po,
   At,
   Rn,
+
+  // Period 7
   Fr,
   Ra,
+  // Actinides
   Ac,
   Th,
   Pa,
@@ -111,6 +127,7 @@ enum ElementSymbol {
   Md,
   No,
   Lr,
+  //
   Rf,
   Db,
   Sg,
@@ -135,8 +152,11 @@ enum ElementSymbol {
 /// For elements with no stable isotopes,
 /// the mass number of the isotope with the longest half-life is given.
 const List<num> _relativeAtomicMasses = const [
+  // Period 1
   1.01,
   4.00,
+
+  // Period 2
   6.94,
   9.01,
   10.81,
@@ -145,6 +165,8 @@ const List<num> _relativeAtomicMasses = const [
   16.00,
   19.00,
   20.18,
+
+  // Period 3
   22.99,
   24.31,
   26.98,
@@ -153,6 +175,8 @@ const List<num> _relativeAtomicMasses = const [
   32.07,
   35.45,
   39.95,
+
+  // Period 4
   39.10,
   40.08,
   44.96,
@@ -171,6 +195,8 @@ const List<num> _relativeAtomicMasses = const [
   78.96,
   79.90,
   83.90,
+
+  // Period 5
   85.47,
   87.62,
   88.91,
@@ -189,8 +215,11 @@ const List<num> _relativeAtomicMasses = const [
   127.60,
   126.90,
   131.29,
+
+  // Period 6
   132.91,
   137.33,
+  // Lathinides
   138.91,
   140.12,
   140.91,
@@ -206,6 +235,7 @@ const List<num> _relativeAtomicMasses = const [
   168.93,
   173.05,
   174.97,
+  //
   178.49,
   180.95,
   183.84,
@@ -221,8 +251,11 @@ const List<num> _relativeAtomicMasses = const [
   209,
   210,
   222,
+
+  // Period 7
   223,
   226,
+  // Actinides
   227,
   232.04,
   231.04,
@@ -238,6 +271,7 @@ const List<num> _relativeAtomicMasses = const [
   258,
   259,
   262,
+  //
   267,
   268,
   269,
@@ -255,10 +289,103 @@ const List<num> _relativeAtomicMasses = const [
   294,
 ];
 
+/// A measure of the tendency of an atom to attract a bonding pair of electrons
+///
+/// Table 8 - First ionization energy, electron affinity and electronegativity
+/// of the elements
+const Map<ElementSymbol, num> _electronegativities = const {
+  // Period 1
+  ElementSymbol.H: 2.2,
+
+  // Period 2
+  ElementSymbol.Li: 1.0,
+  ElementSymbol.Be: 1.6,
+  ElementSymbol.B: 2.0,
+  ElementSymbol.C: 2.6,
+  ElementSymbol.N: 3.0,
+  ElementSymbol.O: 3.4,
+  ElementSymbol.F: 4.0,
+
+  // Period 3
+  ElementSymbol.Na: 0.9,
+  ElementSymbol.Mg: 1.3,
+  ElementSymbol.Al: 1.6,
+  ElementSymbol.Si: 1.9,
+  ElementSymbol.P: 2.2,
+  ElementSymbol.S: 2.6,
+  ElementSymbol.Cl: 3.2,
+
+  // Period 4
+  ElementSymbol.K: 0.8,
+  ElementSymbol.Ca: 1.0,
+  ElementSymbol.Sc: 1.4,
+  ElementSymbol.Ti: 1.5,
+  ElementSymbol.V: 1.6,
+  ElementSymbol.Cr: 1.7,
+  ElementSymbol.Mn: 1.6,
+  ElementSymbol.Fe: 1.8,
+  ElementSymbol.Co: 1.9,
+  ElementSymbol.Ni: 1.9,
+  ElementSymbol.Cu: 1.9,
+  ElementSymbol.Zn: 1.6,
+  ElementSymbol.Ga: 1.8,
+  ElementSymbol.Ge: 2.0,
+  ElementSymbol.As: 2.2,
+  ElementSymbol.Se: 2.6,
+  ElementSymbol.Br: 3.0,
+
+  // Period 5
+  ElementSymbol.Rb: 0.8,
+  ElementSymbol.Sr: 1.0,
+  ElementSymbol.Y: 1.2,
+  ElementSymbol.Zr: 1.3,
+  ElementSymbol.Nb: 1.6,
+  ElementSymbol.Mo: 2.2,
+  ElementSymbol.Tc: 2.1,
+  ElementSymbol.Ru: 2.2,
+  ElementSymbol.Rh: 2.3,
+  ElementSymbol.Pd: 2.2,
+  ElementSymbol.Ag: 1.9,
+  ElementSymbol.Cd: 1.7,
+  ElementSymbol.In: 1.8,
+  ElementSymbol.Sn: 2.0,
+  ElementSymbol.Sb: 2.0,
+  ElementSymbol.Te: 2.1,
+  ElementSymbol.I: 2.7,
+  ElementSymbol.Xe: 2.6,
+
+  // Period 6
+  ElementSymbol.Cs: 0.8,
+  ElementSymbol.Ba: 0.9,
+  ElementSymbol.La: 1.1,
+  ElementSymbol.Hf: 1.3,
+  ElementSymbol.Ta: 1.5,
+  ElementSymbol.W: 1.7,
+  ElementSymbol.Re: 1.9,
+  ElementSymbol.Os: 2.2,
+  ElementSymbol.Ir: 2.2,
+  ElementSymbol.Pt: 2.2,
+  ElementSymbol.Au: 2.4,
+  ElementSymbol.Hg: 1.9,
+  ElementSymbol.Tl: 1.8,
+  ElementSymbol.Pb: 1.8,
+  ElementSymbol.Bi: 1.9,
+  ElementSymbol.Po: 2.0,
+  ElementSymbol.At: 2.2,
+
+  // Period 7
+  ElementSymbol.Fr: 0.7,
+  ElementSymbol.Ra: 0.9,
+  ElementSymbol.Ac: 1.1,
+};
+
 /// Names of the elements
 const List<String> _names = const [
+  // Period 1
   "Hydrogen",
   "Helium",
+
+  // Period 2
   "Lithium",
   "Beryllium",
   "Boron",
@@ -267,6 +394,8 @@ const List<String> _names = const [
   "Oxygen",
   "Fluorine",
   "Neon",
+
+  // Period 3
   "Sodium",
   "Magnesium",
   "Aluminium",
@@ -275,6 +404,8 @@ const List<String> _names = const [
   "Sulfur",
   "Chlorine",
   "Argon",
+
+  // Period 4
   "Potassium",
   "Calcium",
   "Scandium",
@@ -293,6 +424,8 @@ const List<String> _names = const [
   "Selenium",
   "Bromine",
   "Krypton",
+
+  // Period 5
   "Rubidium",
   "Strontium",
   "Yttrium",
@@ -311,8 +444,11 @@ const List<String> _names = const [
   "Tellurium",
   "Iodine",
   "Xenon",
+
+  // Period 6
   "Cesium",
   "Barium",
+  // Lathinides
   "Lanthanum",
   "Cerium",
   "Praseodymium",
@@ -328,6 +464,7 @@ const List<String> _names = const [
   "Thulium",
   "Ytterbium",
   "Lutetium",
+  //
   "Hafnium",
   "Tantalum",
   "Tungsten",
@@ -343,8 +480,11 @@ const List<String> _names = const [
   "Polonium",
   "Astatine",
   "Radon",
+
+  // Period 7
   "Francium",
   "Radium",
+  // Actinides
   "Actinium",
   "Thorium",
   "Protactinium",
@@ -360,6 +500,7 @@ const List<String> _names = const [
   "Mendelevium",
   "Nobelium",
   "Lawrencium",
+  //
   "Rutherfordium",
   "Dubnium",
   "Seaborgium",
@@ -411,8 +552,11 @@ const List<String> _orbitalNames = const [
 /// source:
 /// en.wikipedia.org/wiki/Electron_configurations_of_the_elements_(data_page)
 const List<List<int>> _electronConfigurations = const [
+  // Period 1
   [1],
   [2],
+
+  // Period 2
   [2, 1],
   [2, 2],
   [2, 2, 1],
@@ -421,6 +565,8 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 4],
   [2, 2, 5],
   [2, 2, 6],
+
+  // Period 3
   [2, 2, 6, 1],
   [2, 2, 6, 2],
   [2, 2, 6, 2, 1],
@@ -429,6 +575,8 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 4],
   [2, 2, 6, 2, 5],
   [2, 2, 6, 2, 6],
+
+  // Period 4
   [2, 2, 6, 2, 6, 0, 1],
   [2, 2, 6, 2, 6, 0, 2],
   [2, 2, 6, 2, 6, 1, 2],
@@ -447,6 +595,8 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 4],
   [2, 2, 6, 2, 6, 10, 2, 5],
   [2, 2, 6, 2, 6, 10, 2, 6],
+
+  // Period 5
   [2, 2, 6, 2, 6, 10, 2, 6, 0, 0, 1],
   [2, 2, 6, 2, 6, 10, 2, 6, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 1, 0, 2],
@@ -465,8 +615,11 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 4],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 5],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 6],
+
+  // Period 6
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 6, 0, 0, 0, 1],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 6, 0, 0, 0, 2],
+  // Lathinides
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 0, 2, 6, 1, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 1, 2, 6, 1, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 3, 2, 6, 0, 0, 0, 2],
@@ -482,6 +635,7 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 13, 2, 6, 0, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 0, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 1, 0, 0, 2],
+  //
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 2, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 3, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 4, 0, 0, 2],
@@ -497,8 +651,11 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 4],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 5],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 6],
+
+  // Period 7
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 6, 0, 0, 1],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 6, 0, 0, 2],
+  // Actinides
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 6, 1, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 0, 0, 2, 6, 2, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 2, 0, 2, 6, 1, 0, 2],
@@ -514,6 +671,7 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 13, 0, 2, 6, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 0, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 0, 0, 2, 1],
+  //
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 2, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 3, 0, 2],
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 4, 0, 2],
@@ -668,6 +826,8 @@ class ChemicalElement {
   int get atomicNumber => symbol.index + 1;
 
   num get relativeAtomicMass => _relativeAtomicMasses[symbol.index];
+
+  num get electronegativity => _electronegativities[symbol];
 
   List<Orbital> get electronConfiguration {
     List<Orbital> orbitals = [];

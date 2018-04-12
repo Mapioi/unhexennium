@@ -25,6 +25,30 @@ void main() {
       expect(new ChemicalElement(ElementSymbol.Uuo).relativeAtomicMass, 294);
     });
 
+    test("electronegativity", () {
+      ElementSymbol leastElectronegativeElement, mostElectronegativeElement;
+      num lowestElectronegativity = double.infinity,
+          highestElectronegativity = double.negativeInfinity;
+
+      for (ElementSymbol element in ElementSymbol.values) {
+        num electronegativity = new ChemicalElement(element).electronegativity;
+        if (electronegativity == null) continue;
+        if (electronegativity < lowestElectronegativity) {
+          lowestElectronegativity = electronegativity;
+          leastElectronegativeElement = element;
+        } else if (electronegativity > highestElectronegativity) {
+          highestElectronegativity = electronegativity;
+          mostElectronegativeElement = element;
+        }
+      }
+
+      expect(leastElectronegativeElement, ElementSymbol.Fr);
+      expect(lowestElectronegativity, 0.7);
+
+      expect(mostElectronegativeElement, ElementSymbol.F);
+      expect(highestElectronegativity, 4.0);
+    });
+
     test("electron configuration", () {
       expect(
         new ChemicalElement(ElementSymbol.H).electronConfiguration,
@@ -114,12 +138,12 @@ void main() {
         new ChemicalElement(ElementSymbol.Mn).ionsElectronConfigurations,
         {
           2: [
-              new Orbital("1s", 2),
-              new Orbital("2s", 2),
-              new Orbital("2p", 6),
-              new Orbital("3s", 2),
-              new Orbital("3p", 6),
-              new Orbital("3d", 5),
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 5),
           ],
           3: [
             new Orbital("1s", 2),
