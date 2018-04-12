@@ -17,37 +17,68 @@ class InputBox extends StatelessWidget {
   final int subscript;
   final bool selected;
   final Callback onInputBoxTap;
+  final bool isCharge;
 
   /// Highlight pairing parentheses / brackets.
   static const Color defaultColor = Colors.grey;
   static const Color selectedColor = Colors.blueAccent;
+  static const Color chargeSelectedColor = Colors.green;
 
   InputBox(
     {@required this.widgetToDisplay,
       this.onInputBoxTap,
       this.subscript = 1,
-      this.selected = false});
+      this.selected = false,
+      this.isCharge = false});
 
   @override
   Widget build(BuildContext context) {
+    String numberToDisplay;
+    if (isCharge) {
+      if (subscript > 0) {
+        numberToDisplay = "$subscript+";
+      } else if (subscript < 0) {
+        numberToDisplay = "$subscript-";
+      }
+    } else {
+      numberToDisplay = subscript.toString();
+    }
+
+    Color currentBorderColor = selected ? (
+      isCharge ? chargeSelectedColor : selectedColor
+    ) : defaultColor;
+
     return new GestureDetector(
       onTap: onInputBoxTap,
       child: new Container(
         // Structure
         child: new Column(
           children: <Widget>[
-            widgetToDisplay,
+            // Top part
             new Container(
-              child: new Text(this.subscript.toString()),
+              child: widgetToDisplay,
+              decoration: new BoxDecoration(
+                border: new Border(
+                  bottom: new BorderSide(color: currentBorderColor)
+                )
+              ),
+            ),
+            // Subscript
+            new Container(
+              child: new Padding(
+                child: new Text(numberToDisplay),
+                padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0))
             )
           ],
         ),
         // Style
         decoration: new BoxDecoration(
-          border: new Border.all(color: selected ? selectedColor : defaultColor)
+          border: new Border.all(
+            color: currentBorderColor = currentBorderColor
+          )
         ),
-        padding: new EdgeInsets.all(3.0),
-        margin: new EdgeInsets.all(3.0),
+//        padding: new EdgeInsets.all(3.0),
+        margin: new EdgeInsets.all(6.0),
         alignment: Alignment(0.0, 0.0),
       )
     );
@@ -92,7 +123,7 @@ class FormulaParent extends StatelessWidget {
                 i + 1, closingParenthesis
               ),
               subscript: formulaFactory.elementsList[
-                closingParenthesis
+              closingParenthesis
               ].subscript,
               selected: i == selectedBlockIndex,
               onInputBoxTap: () => onBoxTap(openingIndices[i]),
@@ -103,11 +134,12 @@ class FormulaParent extends StatelessWidget {
           continue;
         }
       } else {
-        print(pair.elementSymbol);
-        print(startIndex);
         renderedFormula.add(
           new InputBox(
-            widgetToDisplay: new Text(enumToString(pair.elementSymbol)),
+            widgetToDisplay: new Padding(
+              padding: new EdgeInsets.all(6.0),
+              child: new Text(enumToString(pair.elementSymbol))
+            ),
             subscript: pair.subscript,
             selected: i == selectedBlockIndex,
             onInputBoxTap: () => onBoxTap(i)
@@ -130,7 +162,8 @@ class FormulaParent extends StatelessWidget {
       widgetToDisplay: inputBoxesRow,
       subscript: formulaFactory.charge,
       selected: selectedBlockIndex == -1,
-      onInputBoxTap: () => onBoxTap(-1)
+      onInputBoxTap: () => onBoxTap(-1),
+      isCharge: true,
     );
 
     return parentInputBox;
@@ -169,6 +202,7 @@ class FormulaParent extends StatelessWidget {
           ),
         ],
       ),
+      new Text(formulaFactory.toString())
     ]);
   }
 }
