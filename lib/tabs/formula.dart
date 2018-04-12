@@ -94,9 +94,8 @@ class FormulaParent extends StatelessWidget {
               subscript: formulaFactory.elementsList[
                 closingParenthesis
               ].subscript,
-              selected: (i == selectedBlockIndex)
-                || (i == closingIndices[selectedBlockIndex]),
-              onInputBoxTap: () => onBoxTap(i),
+              selected: i == selectedBlockIndex,
+              onInputBoxTap: () => onBoxTap(openingIndices[i]),
             )
           );
           i = closingParenthesis;
