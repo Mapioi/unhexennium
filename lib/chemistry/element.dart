@@ -541,6 +541,55 @@ const Map<int, ElementSymbol> _nobleGasesNumberOrbitals = const {
   19: ElementSymbol.Uuo,
 };
 
+/// Monatomic ions of each element
+const Map<ElementSymbol, List<int>> _monatomicIons = const {
+  // Group 1
+  ElementSymbol.H: [-1, 1],
+  ElementSymbol.Li: [1],
+  ElementSymbol.Na: [1],
+  ElementSymbol.K: [1],
+  ElementSymbol.Rb: [1],
+  ElementSymbol.Cs: [1],
+
+  // Group 2
+  ElementSymbol.Be: [2],
+  ElementSymbol.Mg: [2],
+  ElementSymbol.Ca: [2],
+  ElementSymbol.Sr: [2],
+  ElementSymbol.Ba: [2],
+
+  // Table 14 Common oxidation states of the 3d ions
+  ElementSymbol.Sc: [3],
+  ElementSymbol.Ti: [2, 3, 4],
+  ElementSymbol.V: [2, 3, 4, 5],
+  ElementSymbol.Cr: [2, 3, 6],
+  ElementSymbol.Mn: [2, 3, 4, 6, 7],
+  ElementSymbol.Fe: [2, 3],
+  ElementSymbol.Co: [2, 3],
+  ElementSymbol.Ni: [2],
+  ElementSymbol.Cu: [1, 2],
+  ElementSymbol.Zn: [2],
+
+  ElementSymbol.Ag: [1],
+  ElementSymbol.Pb: [2],
+  ElementSymbol.Cd: [2],
+  ElementSymbol.Hg: [1, 2],
+
+  // Group 15
+  ElementSymbol.N: [-3],
+  ElementSymbol.P: [-3],
+
+  // Group 16
+  ElementSymbol.O: [-2],
+  ElementSymbol.S: [-2],
+
+  // Group 17
+  ElementSymbol.F: [-1],
+  ElementSymbol.Cl: [-1],
+  ElementSymbol.Br: [-1],
+  ElementSymbol.I: [-1],
+};
+
 class Orbital {
   /// This orbital's name
   final String name;
@@ -630,6 +679,43 @@ class ChemicalElement {
       }
     });
     return orbitals;
+  }
+
+  List<Orbital> _getIonElectronConfiguration(int oxidationState) {
+    List<Orbital> orbitals = electronConfiguration;
+    if (oxidationState < 0) {
+      // Anion
+      Orbital valenceOrbital = orbitals.removeLast();
+      orbitals.add(new Orbital(
+        valenceOrbital.name,
+        // The oxidation state for anions are negative.
+        valenceOrbital.numberElectrons + oxidationState.abs(),
+      ));
+      // Anions' valence orbital must be full.
+      assert(orbitals.last.isFull);
+    } else {
+      // Cation
+      while (oxidationState > 0) {
+        Orbital valenceOrbital = orbitals.removeLast();
+        if (oxidationState < valenceOrbital.numberElectrons) {
+          orbitals.add(new Orbital(
+            valenceOrbital.name,
+            valenceOrbital.numberElectrons - oxidationState,
+          ));
+          break;
+        }
+        oxidationState -= valenceOrbital.numberElectrons;
+      }
+    }
+    return orbitals;
+  }
+
+  Map<int, List<Orbital>> get ionsElectronConfigurations {
+    return new Map.fromIterable(
+      _monatomicIons[symbol],
+      key: (oxidationState) => oxidationState,
+      value: (oxidationState) => _getIonElectronConfiguration(oxidationState),
+    );
   }
 
   AbbreviatedElectronConfiguration get abbreviatedElectronConfiguration {

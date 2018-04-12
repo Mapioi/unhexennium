@@ -80,5 +80,80 @@ void main() {
               .toString(),
           "[He] 2s^2 2p^4");
     });
+
+    test("ions electron configurations", () {
+      expect(
+        new ChemicalElement(ElementSymbol.H).ionsElectronConfigurations,
+        {
+          -1: [new Orbital("1s", 2)],
+          1: [],
+        },
+      );
+      expect(
+        new ChemicalElement(ElementSymbol.Cu).ionsElectronConfigurations,
+        {
+          1: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 10),
+          ],
+          2: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 9),
+          ],
+        },
+      );
+      expect(
+        new ChemicalElement(ElementSymbol.Mn).ionsElectronConfigurations,
+        {
+          2: [
+              new Orbital("1s", 2),
+              new Orbital("2s", 2),
+              new Orbital("2p", 6),
+              new Orbital("3s", 2),
+              new Orbital("3p", 6),
+              new Orbital("3d", 5),
+          ],
+          3: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 4),
+          ],
+          4: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 3),
+          ],
+          6: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+            new Orbital("3d", 1),
+          ],
+          7: [
+            new Orbital("1s", 2),
+            new Orbital("2s", 2),
+            new Orbital("2p", 6),
+            new Orbital("3s", 2),
+            new Orbital("3p", 6),
+          ],
+        },
+      );
+    });
   });
 }
