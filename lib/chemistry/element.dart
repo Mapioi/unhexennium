@@ -1,5 +1,7 @@
 /// Chemical elements: building blocks of chemistry
 
+import 'package:unhexennium/utils.dart';
+
 /// Identifiers for elements
 ///
 /// The IUPAC names Uut, Uuq, Uup, Uuh, Uus, Uuo are used instead of
@@ -529,6 +531,16 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 0, 2, 6, 10, 0, 2, 6],
 ];
 
+const Map<int, ElementSymbol> _nobleGasesNumberOrbitals = const {
+  1: ElementSymbol.He,
+  3: ElementSymbol.Ne,
+  5: ElementSymbol.Ar,
+  8: ElementSymbol.Kr,
+  11: ElementSymbol.Xe,
+  15: ElementSymbol.Rn,
+  19: ElementSymbol.Uuo,
+};
+
 class Orbital {
   /// This orbital's name
   final String name;
@@ -541,6 +553,7 @@ class Orbital {
   Orbital._internal(this.name, this.numberElectrons);
 
   factory Orbital(String name, int numberElectrons) {
+    assert(_orbitalNames.contains(name));
     String identifier = "$name^$numberElectrons";
     if (_cache.containsKey(identifier)) {
       return _cache[identifier];
@@ -550,6 +563,11 @@ class Orbital {
       return orbital;
     }
   }
+
+  bool get isEmpty => numberElectrons == 0;
+
+  bool get isFull =>
+      numberElectrons == {"s": 2, "p": 6, "d": 10, "f": 14, "g": 18}[name[1]];
 
   @override
   String toString() {
@@ -564,11 +582,14 @@ class AbbreviatedElectronConfiguration {
   /// The list of orbitals representing the configuration of valence electrons
   final List<Orbital> valence;
 
-  const AbbreviatedElectronConfiguration(this.core, this.valence);
+  AbbreviatedElectronConfiguration(this.core, this.valence) {
+    assert(core == null || _nobleGasesNumberOrbitals.containsValue(core));
+  }
 
   @override
   String toString() {
-    return "[$core]$valence";
+    return (core == null ? "" : "[${enumToString(core)}] ") +
+        "${valence.join(" ")}";
   }
 }
 
@@ -612,6 +633,13 @@ class ChemicalElement {
   }
 
   AbbreviatedElectronConfiguration get abbreviatedElectronConfiguration {
-    return null;
+    List<Orbital> orbitals = electronConfiguration;
+    int i = 0;
+    while (i < orbitals.length && orbitals[i].isFull) ++i;
+    while (i > 0 && !_nobleGasesNumberOrbitals.containsKey(i)) --i;
+    return new AbbreviatedElectronConfiguration(
+      _nobleGasesNumberOrbitals[i],
+      orbitals.getRange(i, orbitals.length).toList(),
+    );
   }
 }
