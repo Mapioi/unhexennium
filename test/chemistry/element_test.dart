@@ -103,7 +103,7 @@ void main() {
           new AbbreviatedElectronConfiguration.of(
                   new ChemicalElement(ElementSymbol.O).electronConfiguration)
               .toString(),
-          "[He] 2s^2 2p^4");
+          "[He]2s²2p⁴");
     });
 
     test("ions electron configurations", () {
