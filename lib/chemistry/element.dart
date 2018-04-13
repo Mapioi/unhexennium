@@ -871,6 +871,7 @@ class ChemicalElement {
   }
 
   Map<int, List<Orbital>> get ionsElectronConfigurations {
+    if (_monatomicIons[symbol] == null) return {};
     return new Map.fromIterable(
       _monatomicIons[symbol],
       key: (oxidationState) => oxidationState,

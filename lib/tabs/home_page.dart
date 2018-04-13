@@ -20,15 +20,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   /// States are stored here for the child widgets
   /// So that they don't get lost on tab switch
-  ChemicalElement _storedElement;
   FormulaFactory formulaFactory;
   int formulaSelectedBlockIndex;
 
   _HomePageState() {
-    // Element ---
-    _storedElement = new ChemicalElement(ElementSymbol.Xe);
-
     // Formula ---
+    ElementState.setState = setState;
     formulaFactory = new FormulaFactory();
     formulaFactory.insertElementAt(0, elementSymbol: ElementSymbol.Fe);
     formulaFactory.insertOpeningParenthesisAt(1);
@@ -90,18 +87,19 @@ class _HomePageState extends State<HomePage> {
         ),
         // content
         body: new TabBarView(children: [
-          new ElementParent(selectedElement: _storedElement),
+          new ElementParent(),
           new FormulaParent(
-              formulaFactory: formulaFactory,
-              onDelete: formulaSelectedBlockIndex >= 0 ? formulaRemoveAtCursor : null,
-              onEdit: formulaSelectedBlockIndex >= 0 ? formulaEditAtCursor : null,
-              onAdd: formulaSelectedBlockIndex < formulaFactory.length
-                  ? formulaInsertAfterCursor
-                  : null,
+            formulaFactory: formulaFactory,
+            onDelete:
+                formulaSelectedBlockIndex >= 0 ? formulaRemoveAtCursor : null,
+            onEdit: formulaSelectedBlockIndex >= 0 ? formulaEditAtCursor : null,
+            onAdd: formulaSelectedBlockIndex < formulaFactory.length
+                ? formulaInsertAfterCursor
+                : null,
             selectedBlockIndex: formulaSelectedBlockIndex,
             onBoxTap: formulaOnInputBoxTap,
           ),
-          new EquationParent()
+          new EquationParent(),
         ]),
       ),
     );
