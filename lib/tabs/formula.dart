@@ -202,14 +202,14 @@ class FormulaParent extends StatelessWidget {
           ),
         ],
       ),
-      new Container(height: 20.0),
+        new Container(height: 20.0),
       // Render
       new Text(
         formulaFactory.toString(),
         style: new TextStyle(
-          fontFamily: 'CMU',
+          fontFamily: 'Stix2Math',
           fontSize: 18.0,
-          fontWeight: FontWeight.bold
+          fontStyle: FontStyle.normal
         ),
       )
     ]);

@@ -137,6 +137,23 @@ class FormulaFactory {
 
   @override
   String toString() {
+
+    // Viva unicode subscripts
+    Map<int, String> subscriptMap = {
+      2: "₂", 3: "₃", 4: "₄",
+      5: "₅", 6: "₆", 7: "₇",
+      8: "₈", 9: "₉"
+    };
+
+    Map<int, String> supscriptMap = {
+      1: "¹", 2: "²", 3: "³",
+      4: "⁴", 5: "⁵", 6: "⁶",
+      7: "⁷", 8: "⁸", 9: "⁹"
+    };
+
+    String supscriptPlus = "⁺";
+    String supscriptMinus = "⁻";
+
     String formulaString = "";
     List<String> closingParentheses = [];
     for (ElementSubscriptPair pair in elementsList) {
@@ -154,21 +171,22 @@ class FormulaFactory {
         } else {
           formulaString += closingParentheses.removeLast();
           if (pair.subscript != 1) {
-            formulaString += pair.subscript.toString();
+            formulaString += subscriptMap[pair.subscript];
           }
         }
       } else {
         String elementSymbol = enumToString(pair.elementSymbol);
         // TODO make subscript
-        String subscript = pair.subscript == 1 ? "" : pair.subscript.toString();
+        String subscript = pair.subscript == 1 ?
+          "" : subscriptMap[pair.subscript];
         formulaString += "$elementSymbol$subscript";
       }
     }
     if (charge != 0) {
-      String sign = charge > 0 ? "+" : "-";
+      String sign = charge > 0 ? supscriptPlus : supscriptMinus;
       String chargeNumber =
-          charge == 1 ? "" : (charge ~/ charge.sign).toString();
-      formulaString += "^$chargeNumber$sign";
+          charge == 1 ? "" : supscriptMap[charge.abs()];
+      formulaString = "[$formulaString]$chargeNumber$sign";
     }
     return formulaString;
   }

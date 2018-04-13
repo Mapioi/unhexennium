@@ -17,7 +17,6 @@ flutter:
   uses-material-design: true
   # fonts
   fonts:
-    - family: CMU
+    - family: Stix2Math
       fonts:
-        - asset: fonts/computer-modern-serif-italics.ttf
-          style: italic
+        - asset: fonts/STIX2Math.otf
