@@ -70,64 +70,10 @@ class ElementParent extends StatelessWidget {
 
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
-    TextStyle boldStyle = new TextStyle(fontWeight: FontWeight.bold);
-    return new StaticTable([
-      [
-        new Text(
-          "Name",
-          textAlign: TextAlign.center,
-          style: boldStyle,
-        ),
-        new Text(
-          element.name,
-          textAlign: TextAlign.center,
-        ),
-      ],
-      [
-        new Text(
-          "Electronegativity",
-          textAlign: TextAlign.center,
-          style: boldStyle,
-        ),
-        new Text(
-          element.electronegativity.toStringAsFixed(1),
-          textAlign: TextAlign.center,
-        ),
-      ],
-      [
-        new Text(
-          "Electron configuration",
-          textAlign: TextAlign.center,
-          style: boldStyle,
-        ),
-        new Text(
-          element.electronConfiguration.join(" "),
-          textAlign: TextAlign.center,
-        ),
-      ],
-      [
-        new Text(
-          "Abbreviated electron configuration",
-          textAlign: TextAlign.center,
-          style: boldStyle,
-        ),
-        new Text(
-          element.abbreviatedElectronConfiguration.toString(),
-          textAlign: TextAlign.center,
-        ),
-      ],
-      [
-        new Text(
-          "Ions",
-          textAlign: TextAlign.center,
-          style: boldStyle,
-        ),
-        new Text(
-          element.ionsElectronConfigurations.toString(),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ]);
+    List<List<String>> data = [
+      ["Name", element.name]
+    ];
+    return new StaticTable(data);
   }
 
   Widget renderSelectionButton(BuildContext context) {
