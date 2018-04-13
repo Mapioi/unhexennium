@@ -82,14 +82,15 @@ void main() {
 
     test("abbreviated electron configuration", () {
       AbbreviatedElectronConfiguration ironElectronConfigShorthand =
-          new ChemicalElement(ElementSymbol.H).abbreviatedElectronConfiguration;
+          new AbbreviatedElectronConfiguration.of(
+              new ChemicalElement(ElementSymbol.H).electronConfiguration);
       expect(ironElectronConfigShorthand.core, null);
       expect(ironElectronConfigShorthand.valence, [
         new Orbital("1s", 1),
       ]);
       AbbreviatedElectronConfiguration chromiumElectronConfigShorthand =
-          new ChemicalElement(ElementSymbol.Cr)
-              .abbreviatedElectronConfiguration;
+          new AbbreviatedElectronConfiguration.of(
+              new ChemicalElement(ElementSymbol.Cr).electronConfiguration);
       expect(chromiumElectronConfigShorthand.core, ElementSymbol.Ar);
       expect(chromiumElectronConfigShorthand.valence, [
         new Orbital("3d", 5),
@@ -99,8 +100,8 @@ void main() {
 
     test("abbreviated electron configuration - toString", () {
       expect(
-          new ChemicalElement(ElementSymbol.O)
-              .abbreviatedElectronConfiguration
+          new AbbreviatedElectronConfiguration.of(
+                  new ChemicalElement(ElementSymbol.O).electronConfiguration)
               .toString(),
           "[He] 2s^2 2p^4");
     });

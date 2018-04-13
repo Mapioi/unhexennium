@@ -793,6 +793,16 @@ class AbbreviatedElectronConfiguration {
     assert(core == null || _nobleGasesNumberOrbitals.containsValue(core));
   }
 
+  factory AbbreviatedElectronConfiguration.of(List<Orbital> orbitals) {
+    int i = 0;
+    while (i < orbitals.length && orbitals[i].isFull) ++i;
+    while (i > 0 && !_nobleGasesNumberOrbitals.containsKey(i)) --i;
+    return new AbbreviatedElectronConfiguration(
+      _nobleGasesNumberOrbitals[i],
+      orbitals.getRange(i, orbitals.length).toList(),
+    );
+  }
+
   @override
   String toString() {
     return (core == null ? "" : "[${enumToString(core)}] ") +
@@ -876,17 +886,6 @@ class ChemicalElement {
       _monatomicIons[symbol],
       key: (oxidationState) => oxidationState,
       value: (oxidationState) => _getIonElectronConfiguration(oxidationState),
-    );
-  }
-
-  AbbreviatedElectronConfiguration get abbreviatedElectronConfiguration {
-    List<Orbital> orbitals = electronConfiguration;
-    int i = 0;
-    while (i < orbitals.length && orbitals[i].isFull) ++i;
-    while (i > 0 && !_nobleGasesNumberOrbitals.containsKey(i)) --i;
-    return new AbbreviatedElectronConfiguration(
-      _nobleGasesNumberOrbitals[i],
-      orbitals.getRange(i, orbitals.length).toList(),
     );
   }
 }
