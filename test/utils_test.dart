@@ -16,4 +16,13 @@ void main() {
   test("toStringAsSubscript", () {
     expect(asSuperscript("-42"), "⁻⁴²");
   });
+
+  test("toStringAsCharge", () {
+    expect(toStringAsCharge(1, omitOne: false), "1+");
+    expect(toStringAsCharge(1, omitOne: true), "+");
+    expect(toStringAsCharge(-1, omitOne: false), "1-");
+    expect(toStringAsCharge(-1, omitOne: true), "-");
+
+    expect(toStringAsCharge(0), "");
+  });
 }
