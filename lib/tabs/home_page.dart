@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/tabs/equation.dart';
 import 'package:unhexennium/tabs/element.dart';
 import 'package:unhexennium/tabs/formula.dart';
+import 'package:unhexennium/tabs/popups.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/utils.dart';
@@ -60,7 +61,10 @@ class _HomePageState extends State<HomePage> {
 
   void formulaEditAtCursor() {}
 
-  void formulaInsertAfterCursor() {}
+  void formulaInsertAfterIndex(int indexToInsertAt, ElementSymbol toInsert) {
+    askForElementSymbol(context, (e, i) => print(e));
+    print(formulaSelectedBlockIndex);
+  }
 
   void formulaOnInputBoxTap(currentBlock) {
     setState(() {
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                 formulaSelectedBlockIndex >= 0 ? formulaRemoveAtCursor : null,
             onEdit: formulaSelectedBlockIndex >= 0 ? formulaEditAtCursor : null,
             onAdd: formulaSelectedBlockIndex < formulaFactory.length
-                ? formulaInsertAfterCursor
+                ? () => formulaInsertAfterIndex(1, ElementSymbol.Ac)
                 : null,
             selectedBlockIndex: formulaSelectedBlockIndex,
             onBoxTap: formulaOnInputBoxTap,

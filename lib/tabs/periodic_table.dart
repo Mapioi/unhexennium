@@ -32,8 +32,13 @@ class PeriodicTable extends StatelessWidget {
       width: cellSize,
       height: cellSize,
       child: new RaisedButton(
-          child: new Text(enumToString(symbol)),
-          onPressed: () => onClickCallback(symbol)),
+        padding: new EdgeInsets.all(0.0),
+        child: new Text(
+          enumToString(symbol),
+          softWrap: false,
+          style: new TextStyle(fontSize: 14.0),
+        ),
+        onPressed: () => onClickCallback(symbol)),
     );
   }
 
@@ -42,7 +47,7 @@ class PeriodicTable extends StatelessWidget {
     for (_ElementRange range in elementRanges) {
       for (int col = range.startCol; col <= range.endCol; col++) {
         contents[col - 1] = _buildCell(ElementSymbol
-            .values[range.startSymbol.index + (col - range.startCol)]);
+          .values[range.startSymbol.index + (col - range.startCol)]);
       }
     }
     for (int col = 0; col < 18; col++) {
@@ -56,38 +61,46 @@ class PeriodicTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new ListView(
-      scrollDirection: Axis.horizontal,
+      scrollDirection: Axis.vertical,
       children: <Widget>[
-        new Column(
-          children: <Widget>[
-            _buildRow([
-              new _ElementRange(ElementSymbol.H, 1, 1),
-              new _ElementRange(ElementSymbol.He, 18, 18)
-            ]),
-            _buildRow([
-              new _ElementRange(ElementSymbol.Li, 1, 2),
-              new _ElementRange(ElementSymbol.B, 13, 18)
-            ]),
-            _buildRow([
-              new _ElementRange(ElementSymbol.Na, 1, 2),
-              new _ElementRange(ElementSymbol.Al, 13, 18)
-            ]),
-            _buildRow([new _ElementRange(ElementSymbol.K, 1, 18)]),
-            _buildRow([new _ElementRange(ElementSymbol.Rb, 1, 18)]),
-            _buildRow([
-              new _ElementRange(ElementSymbol.Cs, 1, 3),
-              new _ElementRange(ElementSymbol.Hf, 4, 18)
-            ]),
-            _buildRow([
-              new _ElementRange(ElementSymbol.Fr, 1, 3),
-              new _ElementRange(ElementSymbol.Rf, 4, 18)
-            ]),
-            _buildRow([]),
-            _buildRow([new _ElementRange(ElementSymbol.Ce, 4, 17)]),
-            _buildRow([new _ElementRange(ElementSymbol.Th, 4, 17)])
-          ],
+        Container(
+          height: 500.0,
+          child: new ListView(
+            scrollDirection: Axis.horizontal,
+            children: <Widget>[
+              new Column(
+                children: <Widget>[
+                  _buildRow([
+                    new _ElementRange(ElementSymbol.H, 1, 1),
+                    new _ElementRange(ElementSymbol.He, 18, 18)
+                  ]),
+                  _buildRow([
+                    new _ElementRange(ElementSymbol.Li, 1, 2),
+                    new _ElementRange(ElementSymbol.B, 13, 18)
+                  ]),
+                  _buildRow([
+                    new _ElementRange(ElementSymbol.Na, 1, 2),
+                    new _ElementRange(ElementSymbol.Al, 13, 18)
+                  ]),
+                  _buildRow([new _ElementRange(ElementSymbol.K, 1, 18)]),
+                  _buildRow([new _ElementRange(ElementSymbol.Rb, 1, 18)]),
+                  _buildRow([
+                    new _ElementRange(ElementSymbol.Cs, 1, 3),
+                    new _ElementRange(ElementSymbol.Hf, 4, 18)
+                  ]),
+                  _buildRow([
+                    new _ElementRange(ElementSymbol.Fr, 1, 3),
+                    new _ElementRange(ElementSymbol.Rf, 4, 18)
+                  ]),
+                  _buildRow([]),
+                  _buildRow([new _ElementRange(ElementSymbol.Ce, 4, 17)]),
+                  _buildRow([new _ElementRange(ElementSymbol.Th, 4, 17)])
+                ],
+              )
+            ],
+          )
         )
-      ],
+      ]
     );
   }
 }

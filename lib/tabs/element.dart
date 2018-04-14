@@ -88,19 +88,19 @@ class ElementParent extends StatelessWidget {
       [
         "Electron configuration",
         new AbbreviatedElectronConfiguration.of(element.electronConfiguration)
-            .toString(),
+          .toString(),
       ],
     );
     if (element.ionsElectronConfigurations.length != 0)
       data.add([
         "Ions",
         element.ionsElectronConfigurations.entries
-            .map((MapEntry<int, List<Orbital>> ion) =>
-                toStringAsCharge(ion.key) +
-                ": " +
-                new AbbreviatedElectronConfiguration.of(ion.value).toString())
-            .toList()
-            .join("\n"),
+          .map((MapEntry<int, List<Orbital>> ion) =>
+        toStringAsCharge(ion.key) +
+          ": " +
+          new AbbreviatedElectronConfiguration.of(ion.value).toString())
+          .toList()
+          .join("\n"),
       ]);
     return new Expanded(
       child: StaticTable(data),
@@ -138,14 +138,15 @@ class ElementParent extends StatelessWidget {
   }
 
   Future<Null> _elementPrompt(BuildContext context) async {
-    /*ElementState.selectedElement =
-        ElementSymbol.values[new Random().nextInt(118)];*/
     await showModalBottomSheet<ElementSymbol>(
       context: context,
       builder: (context) => new Container(
-            /*height: 300.0,*/
-            child: new PeriodicTable(null),
-          ),
+        padding: new EdgeInsets.all(16.0),
+        child: new PeriodicTable((x) {
+          ElementState.selectedElement = x;
+          Navigator.pop(context);
+        }),
+      ),
     );
   }
 }

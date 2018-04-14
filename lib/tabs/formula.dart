@@ -94,6 +94,7 @@ class FormulaParent extends StatelessWidget {
   final SingleArgCallback onBoxTap;
   final int selectedBlockIndex;
 
+
   FormulaParent({
     @required this.formulaFactory,
     @required this.selectedBlockIndex,
