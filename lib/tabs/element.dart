@@ -48,24 +48,29 @@ class ElementParent extends StatelessWidget {
           color: Colors.grey[400],
         ),
       ),
-      child: new Column(
-        children: <Widget>[
-          // TODO align left (OR NOT?)
-          new Text(
-            element.atomicNumber.toString(),
-          ),
-          new Text(
-            enumToString(element.symbol),
-            style: new TextStyle(
-              fontSize: 56.0,
-              fontFamily: 'Rock Salt',
-              color: Colors.grey[600],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: new Column(
+          children: <Widget>[
+            // TODO align left (OR NOT?)
+            new Text(element.atomicNumber.toString()),
+            new Expanded(
+              child: new Center(
+                child: Text(
+                  enumToString(element.symbol),
+                  style: new TextStyle(
+                    fontSize: 56.0,
+                    fontFamily: 'Rock Salt',
+                    color: Colors.grey[600],
+                  ),
+                )
+              ),
             ),
-          ),
-          new Text(
-            element.relativeAtomicMass.toString(),
-          ),
-        ],
+            new Text(
+              element.relativeAtomicMass.toString(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,16 +113,13 @@ class ElementParent extends StatelessWidget {
   }
 
   Widget renderSelectionButton(BuildContext context) {
-    return new Padding(
-      padding: new EdgeInsetsDirectional.only(bottom: 64.0),
-      child: new RaisedButton(
-        child: new Text(
-          "Random element",
-          style: new TextStyle(color: Colors.white),
-        ),
-        onPressed: () => _elementPrompt(context),
-        color: Colors.blueAccent,
+    return new RaisedButton(
+      child: new Text(
+        "Change Element",
+        style: new TextStyle(color: Colors.white),
       ),
+      onPressed: () => _elementPrompt(context),
+      color: Colors.blueAccent,
     );
   }
 
@@ -144,7 +146,7 @@ class ElementParent extends StatelessWidget {
         padding: new EdgeInsets.all(16.0),
         child: new PeriodicTable((x) {
           ElementState.selectedElement = x;
-          Navigator.pop(context);
+          Navigator.pop(context);  // exit the modal
         }),
       ),
     );
