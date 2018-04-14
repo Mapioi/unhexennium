@@ -15,7 +15,7 @@ class _ElementRange {
 
 class PeriodicTable extends StatelessWidget {
   final Callback onClickCallback;
-  static const num cellSize = 64.0;
+  static const num cellSize = 40.0;
 
   PeriodicTable(this.onClickCallback);
 
@@ -74,8 +74,14 @@ class PeriodicTable extends StatelessWidget {
             ]),
             _buildRow([new _ElementRange(ElementSymbol.K, 1, 18)]),
             _buildRow([new _ElementRange(ElementSymbol.Rb, 1, 18)]),
-            _buildRow([new _ElementRange(ElementSymbol.Cs, 1, 18)]),
-            _buildRow([new _ElementRange(ElementSymbol.Fr, 1, 18)]),
+            _buildRow([
+              new _ElementRange(ElementSymbol.Cs, 1, 3),
+              new _ElementRange(ElementSymbol.Hf, 4, 18)
+            ]),
+            _buildRow([
+              new _ElementRange(ElementSymbol.Fr, 1, 3),
+              new _ElementRange(ElementSymbol.Rf, 4, 18)
+            ]),
             _buildRow([]),
             _buildRow([new _ElementRange(ElementSymbol.Ce, 4, 17)]),
             _buildRow([new _ElementRange(ElementSymbol.Th, 4, 17)])

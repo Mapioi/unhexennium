@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:math';
+/*import 'dart:math';*/
 import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/tabs/table.dart';
+import 'package:unhexennium/tabs/periodic_table.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
 // Options for the popup input dialog
@@ -137,15 +138,14 @@ class ElementParent extends StatelessWidget {
   }
 
   Future<Null> _elementPrompt(BuildContext context) async {
-    ElementState.selectedElement =
-        ElementSymbol.values[new Random().nextInt(118)];
-    /*await showModalBottomSheet<ElementSymbol>(
-        context: context,
-        builder: (context) => new Container(
-            height: 300.0,
-            child: new ListView(
-              scrollDirection: Axis.horizontal,
-              children: <Widget>[],
-            )));*/
+    /*ElementState.selectedElement =
+        ElementSymbol.values[new Random().nextInt(118)];*/
+    await showModalBottomSheet<ElementSymbol>(
+      context: context,
+      builder: (context) => new Container(
+            /*height: 300.0,*/
+            child: new PeriodicTable(null),
+          ),
+    );
   }
 }
