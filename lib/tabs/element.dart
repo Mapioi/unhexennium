@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/tabs/table.dart';
@@ -70,20 +71,52 @@ class ElementParent extends StatelessWidget {
 
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
-    List<List<String>> data = [
-      ["Name", element.name]
-    ];
-    return new StaticTable(data);
+    List<List<String>> data = [];
+    data.add(
+      [
+        "Name",
+        element.name,
+      ],
+    );
+    if (element.electronegativity != null)
+      data.add([
+        "Electronegativity",
+        element.electronegativity.toString(),
+      ]);
+    data.add(
+      [
+        "Electron configuration",
+        new AbbreviatedElectronConfiguration.of(element.electronConfiguration)
+            .toString(),
+      ],
+    );
+    if (element.ionsElectronConfigurations.length != 0)
+      data.add([
+        "Ions",
+        element.ionsElectronConfigurations.entries
+            .map((MapEntry<int, List<Orbital>> ion) =>
+                toStringAsCharge(ion.key) +
+                ": " +
+                new AbbreviatedElectronConfiguration.of(ion.value).toString())
+            .toList()
+            .join("\n"),
+      ]);
+    return new Expanded(
+      child: StaticTable(data),
+    );
   }
 
   Widget renderSelectionButton(BuildContext context) {
-    return new RaisedButton(
-      child: new Text(
-        "Change to Mn",
-        style: new TextStyle(color: Colors.white),
+    return new Padding(
+      padding: new EdgeInsetsDirectional.only(bottom: 64.0),
+      child: new RaisedButton(
+        child: new Text(
+          "Random element",
+          style: new TextStyle(color: Colors.white),
+        ),
+        onPressed: () => _elementPrompt(context),
+        color: Colors.blueAccent,
       ),
-      onPressed: () => _elementPrompt(context),
-      color: Colors.blueAccent,
     );
   }
 
@@ -92,7 +125,7 @@ class ElementParent extends StatelessWidget {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
       child: new Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           renderElementCell(),
@@ -104,7 +137,8 @@ class ElementParent extends StatelessWidget {
   }
 
   Future<Null> _elementPrompt(BuildContext context) async {
-    ElementState.selectedElement = ElementSymbol.Mn;
+    ElementState.selectedElement =
+        ElementSymbol.values[new Random().nextInt(118)];
     /*await showModalBottomSheet<ElementSymbol>(
         context: context,
         builder: (context) => new Container(

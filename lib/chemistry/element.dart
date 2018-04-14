@@ -778,7 +778,7 @@ class Orbital {
 
   @override
   String toString() {
-    return "$name^$numberElectrons";
+    return "$name${asSuperscript(numberElectrons.toString())}";
   }
 }
 
@@ -805,8 +805,8 @@ class AbbreviatedElectronConfiguration {
 
   @override
   String toString() {
-    return (core == null ? "" : "[${enumToString(core)}] ") +
-        "${valence.join(" ")}";
+    return "${(core == null ? "" : "[${enumToString(core)}]")}${valence
+        .join()}";
   }
 }
 

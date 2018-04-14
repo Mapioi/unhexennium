@@ -19,7 +19,7 @@ class StaticTable extends StatelessWidget {
                       padding: new EdgeInsets.all(8.0),
                       child: new Text(
                         row[0],
-                        textAlign: TextAlign.center,
+                        /*textAlign: TextAlign.center,*/
                         style: bold,
                       ),
                     ),
@@ -27,7 +27,7 @@ class StaticTable extends StatelessWidget {
                       padding: new EdgeInsets.all(8.0),
                       child: new Text(
                         row[1],
-                        textAlign: TextAlign.center,
+                        /*textAlign: TextAlign.center,*/
                       ),
                     ),
                   ],
