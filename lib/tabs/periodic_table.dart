@@ -15,9 +15,10 @@ class _ElementRange {
 
 class PeriodicTable extends StatelessWidget {
   final Callback onClickCallback;
+  final ElementSymbol selectedElement;
   static const num cellSize = 40.0;
 
-  PeriodicTable(this.onClickCallback);
+  PeriodicTable(this.selectedElement, this.onClickCallback);
 
   Widget _buildEmptyCell() {
     return new SizedBox(
@@ -32,13 +33,14 @@ class PeriodicTable extends StatelessWidget {
       width: cellSize,
       height: cellSize,
       child: new RaisedButton(
-        padding: new EdgeInsets.all(0.0),
-        child: new Text(
-          enumToString(symbol),
-          softWrap: false,
-          style: new TextStyle(fontSize: 14.0),
-        ),
-        onPressed: () => onClickCallback(symbol)),
+          padding: new EdgeInsets.all(0.0),
+          child: new Text(
+            enumToString(symbol),
+            softWrap: false,
+            style: new TextStyle(fontSize: 14.0),
+          ),
+          onPressed:
+              symbol == selectedElement ? null : () => onClickCallback(symbol)),
     );
   }
 
@@ -47,7 +49,7 @@ class PeriodicTable extends StatelessWidget {
     for (_ElementRange range in elementRanges) {
       for (int col = range.startCol; col <= range.endCol; col++) {
         contents[col - 1] = _buildCell(ElementSymbol
-          .values[range.startSymbol.index + (col - range.startCol)]);
+            .values[range.startSymbol.index + (col - range.startCol)]);
       }
     }
     for (int col = 0; col < 18; col++) {
@@ -60,10 +62,8 @@ class PeriodicTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(
-      scrollDirection: Axis.vertical,
-      children: <Widget>[
-        Container(
+    return new ListView(scrollDirection: Axis.vertical, children: <Widget>[
+      Container(
           height: 500.0,
           child: new ListView(
             scrollDirection: Axis.horizontal,
@@ -98,9 +98,7 @@ class PeriodicTable extends StatelessWidget {
                 ],
               )
             ],
-          )
-        )
-      ]
-    );
+          ))
+    ]);
   }
 }

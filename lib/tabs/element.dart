@@ -63,7 +63,7 @@ class ElementParent extends StatelessWidget {
                     fontFamily: 'Rock Salt',
                     color: Colors.grey[600],
                   ),
-                )
+                ),
               ),
             ),
             new Text(
@@ -93,22 +93,25 @@ class ElementParent extends StatelessWidget {
       [
         "Electron configuration",
         new AbbreviatedElectronConfiguration.of(element.electronConfiguration)
-          .toString(),
+            .toString(),
       ],
     );
     if (element.ionsElectronConfigurations.length != 0)
       data.add([
         "Ions",
         element.ionsElectronConfigurations.entries
-          .map((MapEntry<int, List<Orbital>> ion) =>
-        toStringAsCharge(ion.key) +
-          ": " +
-          new AbbreviatedElectronConfiguration.of(ion.value).toString())
-          .toList()
-          .join("\n"),
+            .map((MapEntry<int, List<Orbital>> ion) =>
+                toStringAsCharge(ion.key) +
+                ": " +
+                new AbbreviatedElectronConfiguration.of(ion.value).toString())
+            .toList()
+            .join("\n"),
       ]);
     return new Expanded(
-      child: StaticTable(data),
+      child: new ListView(
+        children: [StaticTable(data)],
+        scrollDirection: Axis.vertical,
+      ),
     );
   }
 
@@ -128,7 +131,7 @@ class ElementParent extends StatelessWidget {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
       child: new Column(
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           renderElementCell(),
@@ -143,12 +146,15 @@ class ElementParent extends StatelessWidget {
     await showModalBottomSheet<ElementSymbol>(
       context: context,
       builder: (context) => new Container(
-        padding: new EdgeInsets.all(16.0),
-        child: new PeriodicTable((x) {
-          ElementState.selectedElement = x;
-          Navigator.pop(context);  // exit the modal
-        }),
-      ),
+            padding: new EdgeInsets.all(16.0),
+            child: new PeriodicTable(
+              ElementState.selectedElement,
+              (x) {
+                ElementState.selectedElement = x;
+                Navigator.pop(context); // exit the modal
+              },
+            ),
+          ),
     );
   }
 }
