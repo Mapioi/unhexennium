@@ -27,18 +27,22 @@ class _HomePageState extends State<HomePage> {
   _HomePageState() {
     // Formula ---
     ElementState.setState = setState;
-    formulaFactory = new FormulaFactory();
-    formulaFactory.insertElementAt(0, elementSymbol: ElementSymbol.Fe);
-    formulaFactory.insertOpeningParenthesisAt(1);
-    formulaFactory.insertElementAt(2, elementSymbol: ElementSymbol.O);
-    formulaFactory.insertElementAt(3, elementSymbol: ElementSymbol.H);
-    formulaFactory.insertClosingParenthesisAt(4, subscript: 2);
-    formulaFactory.insertOpeningParenthesisAt(5);
-    formulaFactory.insertElementAt(6, elementSymbol: ElementSymbol.H);
-    formulaFactory.setSubscriptAt(6, subscript: 2);
-    formulaFactory.insertElementAt(7, elementSymbol: ElementSymbol.O);
-    formulaFactory.insertClosingParenthesisAt(8, subscript: 4);
-    formulaFactory.setCharge(2);
+    formulaFactory = new FormulaFactory()
+      ..insertOpeningParenthesisAt(0)
+      ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
+      ..insertOpeningParenthesisAt(2)
+      ..insertElementAt(3, elementSymbol: ElementSymbol.O)
+      ..insertElementAt(4, elementSymbol: ElementSymbol.H)
+      ..insertClosingParenthesisAt(5)
+      ..setSubscriptAt(5, subscript: 2)
+      ..insertOpeningParenthesisAt(6)
+      ..insertElementAt(7, elementSymbol: ElementSymbol.H)
+      ..setSubscriptAt(7, subscript: 2)
+      ..insertElementAt(8, elementSymbol: ElementSymbol.O)
+      ..insertClosingParenthesisAt(9)
+      ..setSubscriptAt(9, subscript: 4)
+      ..insertClosingParenthesisAt(10)
+      ..charge = 2;
 
     formulaSelectedBlockIndex = -1;
   }
@@ -53,7 +57,7 @@ class _HomePageState extends State<HomePage> {
         formulaFactory.removeAt(formulaSelectedBlockIndex);
       } else if (formulaSelectedBlockIndex == formulaFactory.length &&
           formulaFactory.charge != 0) {
-        formulaFactory.setCharge(0);
+        formulaFactory.charge = 0;
       }
       --formulaSelectedBlockIndex;
     });
