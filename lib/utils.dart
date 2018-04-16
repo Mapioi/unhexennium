@@ -32,7 +32,8 @@ const Map<String, String> _superscriptMap = const {
   "-": "⁻",
 };
 
-String asSubscript(String s) {
+String asSubscript(String s, {omitOne = false}) {
+  if (s == '1') return "";
   return s
       .split("")
       .map((String char) =>
@@ -51,7 +52,7 @@ String asSuperscript(String s) {
 /// Convert -2 to '2-' and 2 to '2+'.
 /// If [omitOne] is true, convert -1 to '-' and 1 to '+'.
 /// 0 is converted to ''.
-String toStringAsCharge(int charge, {omitOne: false}) {
+String toStringAsCharge(int charge, {omitOne = false}) {
   // TODO refactor formula to make use of this
   if (charge == 0) return "";
   String sign = charge > 0 ? "+" : "-";

@@ -9,11 +9,12 @@ void main() {
     expect(enumToString(Foo.spam), "spam");
   });
 
-  test("toStringAsSubscript", () {
+  test("asSubscript", () {
     expect(asSubscript("-42"), "₋₄₂");
+    expect(asSubscript("1", omitOne: true), "");
   });
 
-  test("toStringAsSubscript", () {
+  test("asSubscript", () {
     expect(asSuperscript("-42"), "⁻⁴²");
   });
 
