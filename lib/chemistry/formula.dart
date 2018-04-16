@@ -68,11 +68,10 @@ class ElementSubscriptPair {
   @override
   String toString() {
     if (elementSymbol != null) {
-      return "(${enumToString(elementSymbol)},${subscript.toString()})";
+      return "(${enumToString(elementSymbol)}, ${subscript.toString()})";
     } else {
-      // using square parens to avoid confusion with list paren
-      String paren = subscript < 0 ? "[" : "]";
-      return "($paren,${subscript.toString()})";
+      // using brackets to avoid confusion
+      return subscript < 0 ? "([)" : "(], $subscript)";
     }
   }
 }
@@ -93,20 +92,8 @@ class FormulaFactory {
     elementsList.insert(index, new ElementSubscriptPair(null, -1));
   }
 
-  /// Insert a '[' to the formula at [index].
-  /// Only used for complex ions.
-  void insertOpeningBracketAt(int index) {
-    elementsList.insert(index, new ElementSubscriptPair(null, -2));
-  }
-
-  /// Insert a ')' and the associated subscript to the formula at [index].
-  void insertClosingParenthesisAt(int index, {int subscript = 1}) {
-    elementsList.insert(index, new ElementSubscriptPair(null, subscript));
-  }
-
-  /// Insert a ']' to the formula at [index].
-  /// Used only for complex ions; thus the subscript is set to 1.
-  void insertClosingBracketAt(int index) {
+  /// Insert a ')' to the formula at [index].
+  void insertClosingParenthesisAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, 1));
   }
 
@@ -125,11 +112,6 @@ class FormulaFactory {
     elementsList[index].elementSymbol = elementSymbol;
   }
 
-  /// Set the overall ionic charge of the chemical formula.
-  void setCharge(int newCharge) {
-    charge = newCharge;
-  }
-
   /// Remove the entry at [index] in [elementsList].
   void removeAt(int index) {
     elementsList.removeAt(index);
@@ -137,67 +119,27 @@ class FormulaFactory {
 
   @override
   String toString() {
-    // Viva unicode subscripts
-    Map<int, String> subscriptMap = {
-      2: "₂",
-      3: "₃",
-      4: "₄",
-      5: "₅",
-      6: "₆",
-      7: "₇",
-      8: "₈",
-      9: "₉"
-    };
-
-    Map<int, String> supscriptMap = {
-      1: "¹",
-      2: "²",
-      3: "³",
-      4: "⁴",
-      5: "⁵",
-      6: "⁶",
-      7: "⁷",
-      8: "⁸",
-      9: "⁹"
-    };
-
-    String supscriptPlus = "⁺";
-    String supscriptMinus = "⁻";
-
-    String formulaString = "";
-    List<String> closingParentheses = [];
-    for (ElementSubscriptPair pair in elementsList) {
-      if (pair.elementSymbol == null) {
-        if (pair.subscript < 0) {
-          switch (pair.subscript) {
-            case -1:
-              closingParentheses.add(')');
-              formulaString += '(';
-              break;
-            case -2:
-              closingParentheses.add(']');
-              formulaString += '[';
-          }
-        } else {
-          formulaString += closingParentheses.removeLast();
-          if (pair.subscript != 1) {
-            formulaString += subscriptMap[pair.subscript];
-          }
-        }
-      } else {
-        String elementSymbol = enumToString(pair.elementSymbol);
-        // TODO make subscript
+    var closingIndices = getClosingIndices();
+    String formula = elementsList.asMap().keys.map((int i) {
+      ElementSubscriptPair pair = elementsList[i];
+      if (pair.elementSymbol != null) {
+        String element = enumToString(pair.elementSymbol);
         String subscript =
-            pair.subscript == 1 ? "" : subscriptMap[pair.subscript];
-        formulaString += "$elementSymbol$subscript";
+            asSubscript(pair.subscript.toString(), omitOne: true);
+        return "$element$subscript";
+      } else {
+        if (pair.subscript < 0) {
+          return elementsList[closingIndices[i]].subscript != 1 ? "(" : "[";
+        } else {
+          String parenthesis = pair.subscript == 1 ? "]" : ")";
+          String subscript =
+              asSubscript(pair.subscript.toString(), omitOne: true);
+          return "$parenthesis$subscript";
+        }
       }
-    }
-    if (charge != 0) {
-      String sign = charge > 0 ? supscriptPlus : supscriptMinus;
-      String chargeNumber = charge == 1 ? "" : supscriptMap[charge.abs()];
-      formulaString = "[$formulaString]$chargeNumber$sign";
-    }
-    return formulaString;
+    }).join();
+    String charge = asSuperscript(toStringAsCharge(this.charge, omitOne: true));
+    return "$formula$charge";
   }
 
   /// Maps the indices of opening parentheses to the indices of the
@@ -219,7 +161,7 @@ class FormulaFactory {
     return closingIndices;
   }
 
-  /// Maps the indices of the closing parenthese to the indices of the
+  /// Maps the indices of the closing parentheses to the indices of the
   /// corresponding opening parentheses.
   Map<int, int> getOpeningIndices() {
     var closingIndices = getClosingIndices();

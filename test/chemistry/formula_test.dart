@@ -49,7 +49,7 @@ void main() {
       factory.insertElementAt(i, elementSymbol: ElementSymbol.O);
       factory.setSubscriptAt(i, subscript: 4);
       ++i;
-      expect(factory.toString(), "H2SO4");
+      expect(factory.toString(), "H₂SO₄");
       expect(factory.build().elements, {
         ElementSymbol.S: 1,
         ElementSymbol.O: 4,
@@ -60,7 +60,7 @@ void main() {
     test("hexaaquacopper(II) ion", () {
       FormulaFactory factory = new FormulaFactory();
       int i = 0;
-      factory.insertOpeningBracketAt(i);
+      factory.insertOpeningParenthesisAt(i);
       ++i;
       factory.insertElementAt(i, elementSymbol: ElementSymbol.Cu);
       ++i;
@@ -71,12 +71,12 @@ void main() {
       ++i;
       factory.insertElementAt(i, elementSymbol: ElementSymbol.O);
       ++i;
-      factory.insertClosingParenthesisAt(i, subscript: 6);
+      factory.insertClosingParenthesisAt(i);
+      factory.setSubscriptAt(i, subscript: 6);
       ++i;
-      factory.insertClosingBracketAt(i);
-      ++i;
-      factory.setCharge(2);
-      expect(factory.toString(), "[Cu(H2O)6]^2+");
+      factory.insertClosingParenthesisAt(i);
+      factory.charge = 2;
+      expect(factory.toString(), "[Cu(H₂O)₆]²⁺");
       expect(factory.build().elements, {
         ElementSymbol.Cu: 1,
         ElementSymbol.H: 12,
