@@ -2,7 +2,7 @@
 
 String enumToString(enumElement) => enumElement.toString().split(".")[1];
 
-const Map<String, String> subscriptMap = const {
+const Map<String, String> _subscriptMap = const {
   "0": "₀",
   "1": "₁",
   "2": "₂",
@@ -17,7 +17,7 @@ const Map<String, String> subscriptMap = const {
   "-": "₋",
 };
 
-const Map<String, String> superscriptMap = const {
+const Map<String, String> _superscriptMap = const {
   "0": "⁰",
   "1": "¹",
   "2": "²",
@@ -36,7 +36,7 @@ String asSubscript(String s) {
   return s
       .split("")
       .map((String char) =>
-          subscriptMap.containsKey(char) ? subscriptMap[char] : char)
+          _subscriptMap.containsKey(char) ? _subscriptMap[char] : char)
       .join();
 }
 
@@ -44,7 +44,7 @@ String asSuperscript(String s) {
   return s
       .split("")
       .map((String char) =>
-          superscriptMap.containsKey(char) ? superscriptMap[char] : char)
+          _superscriptMap.containsKey(char) ? _superscriptMap[char] : char)
       .join();
 }
 
