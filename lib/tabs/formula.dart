@@ -1,11 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/utils.dart';
-
-// Type declarations
-typedef void Callback();
-typedef void SingleArgCallback(x);
+import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/chemistry/formula.dart';
 
 /// [InputBox] renders the top for whatever the top is
 ///   - Can be an element Text or a Row of more elements
@@ -22,22 +19,19 @@ class InputBox extends StatelessWidget {
   static const Color selectedColor = Colors.blueAccent;
   static const Color chargeSelectedColor = Colors.green;
 
-  InputBox(
-      {@required this.widgetToDisplay,
-      this.onInputBoxTap,
-      this.subscript = 1,
-      this.selected = false,
-      this.isCharge = false});
+  InputBox({
+    @required this.widgetToDisplay,
+    this.onInputBoxTap,
+    this.subscript = 1,
+    this.selected = false,
+    this.isCharge = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     String numberToDisplay;
     if (isCharge) {
-      if (subscript > 0) {
-        numberToDisplay = "$subscript+";
-      } else if (subscript < 0) {
-        numberToDisplay = "$subscript-";
-      }
+      numberToDisplay = toStringAsCharge(subscript);
     } else {
       numberToDisplay = subscript.toString();
     }
@@ -81,31 +75,61 @@ class InputBox extends StatelessWidget {
   }
 }
 
+class FormulaState {
+  static SetStateCallback setState;
+  static final FormulaFactory formulaFactory = new FormulaFactory()
+    ..insertOpeningParenthesisAt(0)
+    ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
+    ..insertOpeningParenthesisAt(2)
+    ..insertElementAt(3, elementSymbol: ElementSymbol.O)
+    ..insertElementAt(4, elementSymbol: ElementSymbol.H)
+    ..insertClosingParenthesisAt(5)
+    ..setSubscriptAt(5, subscript: 2)
+    ..insertOpeningParenthesisAt(6)
+    ..insertElementAt(7, elementSymbol: ElementSymbol.H)
+    ..setSubscriptAt(7, subscript: 2)
+    ..insertElementAt(8, elementSymbol: ElementSymbol.O)
+    ..insertClosingParenthesisAt(9)
+    ..setSubscriptAt(9, subscript: 4)
+    ..insertClosingParenthesisAt(10)
+    ..charge = 2;
+  static Formula formula = formulaFactory.build();
+  static int selectedBlockIndex = 0;
+
+  static void removeAtCursor() {
+    setState(() {
+      var closingIndices = FormulaState.formulaFactory.getClosingIndices();
+      if (closingIndices.containsKey(selectedBlockIndex))
+        FormulaState.formulaFactory
+            .removeAt(closingIndices[selectedBlockIndex]);
+      FormulaState.formulaFactory.removeAt(selectedBlockIndex);
+      selectedBlockIndex--;
+    });
+  }
+
+  static void onEdit() {}
+
+  static void onAdd() {}
+
+  static void onBoxTap(int index) {
+    setState(() {
+      selectedBlockIndex = index;
+    });
+  }
+}
+
 /// Formula Parent handles the top level
 class FormulaParent extends StatelessWidget {
-  final FormulaFactory formulaFactory;
-  final Formula formula;
-  final Callback onDelete, onEdit, onAdd;
-  final SingleArgCallback onBoxTap;
-  final int selectedBlockIndex;
-
-  FormulaParent({
-    @required this.formulaFactory,
-    @required this.selectedBlockIndex,
-    @required this.onDelete,
-    @required this.onEdit,
-    @required this.onAdd,
-    @required this.onBoxTap,
-  }) : formula = formulaFactory.build();
-
   /// Used to build the recursive input structure
   Row recursiveInputBuilder(int startIndex, int endIndex) {
     List<Widget> renderedFormula = [];
-    Map<int, int> openingIndices = formulaFactory.getOpeningIndices();
-    Map<int, int> closingIndices = formulaFactory.getClosingIndices();
+    Map<int, int> openingIndices =
+        FormulaState.formulaFactory.getOpeningIndices();
+    Map<int, int> closingIndices =
+        FormulaState.formulaFactory.getClosingIndices();
 
     for (var i = startIndex; i < endIndex; i++) {
-      ElementSubscriptPair pair = formulaFactory.elementsList[i];
+      ElementSubscriptPair pair = FormulaState.formulaFactory.elementsList[i];
 
       if (pair.elementSymbol == null) {
         // parentheses
@@ -114,12 +138,11 @@ class FormulaParent extends StatelessWidget {
           int closingParenthesis = closingIndices[i];
           renderedFormula.add(
             new InputBox(
-              widgetToDisplay:
-                  this.recursiveInputBuilder(i + 1, closingParenthesis),
-              subscript:
-                  formulaFactory.elementsList[closingParenthesis].subscript,
-              selected: i == selectedBlockIndex,
-              onInputBoxTap: () => onBoxTap(openingIndices[i]),
+              widgetToDisplay: recursiveInputBuilder(i + 1, closingParenthesis),
+              subscript: FormulaState
+                  .formulaFactory.elementsList[closingParenthesis].subscript,
+              selected: i == FormulaState.selectedBlockIndex,
+              onInputBoxTap: () => FormulaState.onBoxTap(openingIndices[i]),
             ),
           );
           i = closingParenthesis;
@@ -136,8 +159,8 @@ class FormulaParent extends StatelessWidget {
               ),
             ),
             subscript: pair.subscript,
-            selected: i == selectedBlockIndex,
-            onInputBoxTap: () => onBoxTap(i),
+            selected: i == FormulaState.selectedBlockIndex,
+            onInputBoxTap: () => FormulaState.onBoxTap(i),
           ),
         );
       }
@@ -148,15 +171,15 @@ class FormulaParent extends StatelessWidget {
 
   /// Used to initiate the recursion
   InputBox render() {
-    print(formulaFactory.elementsList.toString());
+    /*print(FormulaState.formulaFactory.elementsList.toString());*/
     Row inputBoxesRow =
-        recursiveInputBuilder(0, formulaFactory.elementsList.length);
+        recursiveInputBuilder(0, FormulaState.formulaFactory.length);
 
     InputBox parentInputBox = new InputBox(
       widgetToDisplay: inputBoxesRow,
-      subscript: formulaFactory.charge,
-      selected: selectedBlockIndex == -1,
-      onInputBoxTap: () => onBoxTap(-1),
+      subscript: FormulaState.formulaFactory.charge,
+      selected: FormulaState.selectedBlockIndex == -1,
+      onInputBoxTap: () => FormulaState.onBoxTap(-1),
       isCharge: true,
     );
 
@@ -180,17 +203,19 @@ class FormulaParent extends StatelessWidget {
         children: <Widget>[
           new IconButton(
             icon: new Icon(Icons.delete),
-            onPressed: onDelete,
+            onPressed: FormulaState.selectedBlockIndex >= 0
+                ? FormulaState.removeAtCursor
+                : null,
             tooltip: 'Delete current',
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
-            onPressed: onEdit,
+            onPressed: FormulaState.onEdit,
             tooltip: 'Edit',
           ),
           new IconButton(
             icon: new Icon(Icons.add),
-            onPressed: onAdd,
+            onPressed: FormulaState.onAdd,
             tooltip: 'Add after current',
           ),
         ],
@@ -198,7 +223,7 @@ class FormulaParent extends StatelessWidget {
       new Container(height: 20.0),
       // Render
       new Text(
-        formulaFactory.toString(),
+        FormulaState.formulaFactory.toString(),
         style: new TextStyle(
           fontFamily: 'Stix2Math',
           fontSize: 18.0,

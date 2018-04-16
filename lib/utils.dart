@@ -1,5 +1,8 @@
 // Utils. These should be self explanatory.
 
+typedef void Callback();
+typedef void SetStateCallback(Callback callback);
+
 String enumToString(enumElement) => enumElement.toString().split(".")[1];
 
 const Map<String, String> _subscriptMap = const {

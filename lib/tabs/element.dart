@@ -7,11 +7,9 @@ import 'package:unhexennium/chemistry/element.dart';
 // Options for the popup input dialog
 enum ElementInputOptions { enter, cancel }
 
-typedef void _Callback();
-typedef void Callback(_Callback callback);
 
 class ElementState {
-  static Callback setState;
+  static SetStateCallback setState;
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
 
