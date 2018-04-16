@@ -11,7 +11,6 @@ void main() {
 
   test("asSubscript", () {
     expect(asSubscript("-42"), "₋₄₂");
-    expect(asSubscript("1", omitOne: true), "");
   });
 
   test("asSubscript", () {

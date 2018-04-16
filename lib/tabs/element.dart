@@ -50,7 +50,6 @@ class ElementParent extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: new Column(
           children: <Widget>[
-            // TODO align left (OR NOT?)
             new Text(element.atomicNumber.toString()),
             new Expanded(
               child: new Center(

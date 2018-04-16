@@ -122,18 +122,25 @@ class FormulaFactory {
     var closingIndices = getClosingIndices();
     String formula = elementsList.asMap().keys.map((int i) {
       ElementSubscriptPair pair = elementsList[i];
+      // Element
       if (pair.elementSymbol != null) {
         String element = enumToString(pair.elementSymbol);
-        String subscript =
-            asSubscript(pair.subscript.toString(), omitOne: true);
-        return "$element$subscript";
+        if (pair.subscript == 1) {
+          return "$element";
+        } else {
+          String subscript = asSubscript(
+            pair.subscript.toString(),
+          );
+          return "$element$subscript";
+        }
+      // Parenthesis
       } else {
         if (pair.subscript < 0) {
           return elementsList[closingIndices[i]].subscript != 1 ? "(" : "[";
         } else {
           String parenthesis = pair.subscript == 1 ? "]" : ")";
           String subscript =
-              asSubscript(pair.subscript.toString(), omitOne: true);
+              asSubscript(pair.subscript.toString());
           return "$parenthesis$subscript";
         }
       }

@@ -32,8 +32,7 @@ const Map<String, String> _superscriptMap = const {
   "-": "⁻",
 };
 
-String asSubscript(String s, {omitOne = false}) {
-  if (s == '1') return "";
+String asSubscript(String s) {
   return s
       .split("")
       .map((String char) =>
