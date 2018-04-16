@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
-import 'package:unhexennium/utils.dart';
+import 'package:unhexennium/tabs/periodic_table.dart';
+import "package:unhexennium/tabs/element.dart" show ElementState;
 
 typedef void ElementChooserCallback(ElementSymbol x, int subscript);
 
@@ -16,36 +17,7 @@ class _ElementSelector extends State<ElementSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return new SimpleDialog(
-        title: const Text('Select element & stuff'),
-        children: <Widget>[
-          new Container(
-              width: 100.0,
-              height: 100.0,
-              padding: new EdgeInsets.all(4.0),
-              child: new ListView(
-                  padding: const EdgeInsets.all(16.0),
-                  children: ElementSymbol.values
-                      .map((e) => new FlatButton(
-                          onPressed: () {
-                            setState(() {
-                              selectedElementSymbol = e;
-                            });
-                          },
-                          // Navigator.pop(context, [e, 1])
-                          color: selectedElementSymbol == e
-                              ? Colors.blueGrey
-                              : null,
-                          child: new Text(enumToString(e))))
-                      .toList())),
-          new SimpleDialogOption(
-            onPressed: () {
-              Navigator
-                  .pop(context, [selectedElementSymbol, selectedSubscript]);
-            },
-            child: const Text('CONTINUE'),
-          )
-        ]);
+    return null;
   }
 }
 
@@ -58,4 +30,20 @@ Future<Null> askForElementSymbol(
       });
 
   f(result[0], result[1]);
+}
+
+Future<Null> elementPrompt(BuildContext context) async {
+  await showModalBottomSheet<ElementSymbol>(
+    context: context,
+    builder: (context) => new Container(
+          padding: new EdgeInsets.all(16.0),
+          child: new PeriodicTable(
+            ElementState.selectedElement,
+            (x) {
+              ElementState.selectedElement = x;
+              Navigator.pop(context); // exit the modal
+            },
+          ),
+        ),
+  );
 }

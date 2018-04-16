@@ -1,9 +1,7 @@
-import 'dart:async';
-/*import 'dart:math';*/
 import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/tabs/table.dart';
-import 'package:unhexennium/tabs/periodic_table.dart';
+import 'package:unhexennium/tabs/popups.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
 // Options for the popup input dialog
@@ -121,7 +119,7 @@ class ElementParent extends StatelessWidget {
         "Change Element",
         style: new TextStyle(color: Colors.white),
       ),
-      onPressed: () => _elementPrompt(context),
+      onPressed: () => elementPrompt(context),
       color: Colors.blueAccent,
     );
   }
@@ -139,22 +137,6 @@ class ElementParent extends StatelessWidget {
           renderSelectionButton(context),
         ],
       ),
-    );
-  }
-
-  Future<Null> _elementPrompt(BuildContext context) async {
-    await showModalBottomSheet<ElementSymbol>(
-      context: context,
-      builder: (context) => new Container(
-            padding: new EdgeInsets.all(16.0),
-            child: new PeriodicTable(
-              ElementState.selectedElement,
-              (x) {
-                ElementState.selectedElement = x;
-                Navigator.pop(context); // exit the modal
-              },
-            ),
-          ),
     );
   }
 }

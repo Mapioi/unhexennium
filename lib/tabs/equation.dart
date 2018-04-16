@@ -20,7 +20,8 @@ class _EquationParentState extends State<EquationParent> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
           _buildEquationInputColumn(
-              EquationSide.Reactant, this.inputtedReactants),
+              EquationSide.Reactant, this.inputtedReactants,
+          ),
           _buildEquationInputColumn(EquationSide.Product, this.inputtedProducts)
         ]));
   }
@@ -34,9 +35,12 @@ class _EquationParentState extends State<EquationParent> {
     textBoxes
         .addAll(alreadyInputted.map((String element) => new Text(element)));
 
-    textBoxes.add(new FlatButton(
+    textBoxes.add(
+      new FlatButton(
         onPressed: () => this.addElement(colName, "TEST"),
-        child: new Text("ADD ELEMENT")));
+        child: new Text("ADD ELEMENT"),
+      ),
+    );
 
     return new Column(children: textBoxes);
   }

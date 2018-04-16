@@ -56,14 +56,18 @@ class InputBox extends StatelessWidget {
               new Container(
                 child: widgetToDisplay,
                 decoration: new BoxDecoration(
-                    border: new Border(
-                        bottom: new BorderSide(color: currentBorderColor))),
+                  border: new Border(
+                    bottom: new BorderSide(color: currentBorderColor),
+                  ),
+                ),
               ),
               // Subscript
               new Container(
-                  child: new Padding(
-                      child: new Text(numberToDisplay),
-                      padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0)))
+                child: new Padding(
+                  child: new Text(numberToDisplay),
+                  padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
+                ),
+              ),
             ],
           ),
           // Style
@@ -108,26 +112,34 @@ class FormulaParent extends StatelessWidget {
         if (pair.subscript < 0) {
           // opening parentheses
           int closingParenthesis = closingIndices[i];
-          renderedFormula.add(new InputBox(
-            widgetToDisplay:
-                this.recursiveInputBuilder(i + 1, closingParenthesis),
-            subscript:
-                formulaFactory.elementsList[closingParenthesis].subscript,
-            selected: i == selectedBlockIndex,
-            onInputBoxTap: () => onBoxTap(openingIndices[i]),
-          ));
+          renderedFormula.add(
+            new InputBox(
+              widgetToDisplay:
+                  this.recursiveInputBuilder(i + 1, closingParenthesis),
+              subscript:
+                  formulaFactory.elementsList[closingParenthesis].subscript,
+              selected: i == selectedBlockIndex,
+              onInputBoxTap: () => onBoxTap(openingIndices[i]),
+            ),
+          );
           i = closingParenthesis;
         } else {
           continue;
         }
       } else {
-        renderedFormula.add(new InputBox(
+        renderedFormula.add(
+          new InputBox(
             widgetToDisplay: new Padding(
-                padding: new EdgeInsets.all(6.0),
-                child: new Text(enumToString(pair.elementSymbol))),
+              padding: new EdgeInsets.all(6.0),
+              child: new Text(
+                enumToString(pair.elementSymbol),
+              ),
+            ),
             subscript: pair.subscript,
             selected: i == selectedBlockIndex,
-            onInputBoxTap: () => onBoxTap(i)));
+            onInputBoxTap: () => onBoxTap(i),
+          ),
+        );
       }
     }
 
@@ -153,7 +165,6 @@ class FormulaParent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO fix sizing issues (instead on relying on fixed pixels)
     return new Column(children: [
       // Input space
       new Padding(
@@ -189,9 +200,10 @@ class FormulaParent extends StatelessWidget {
       new Text(
         formulaFactory.toString(),
         style: new TextStyle(
-            fontFamily: 'Stix2Math',
-            fontSize: 18.0,
-            fontStyle: FontStyle.normal),
+          fontFamily: 'Stix2Math',
+          fontSize: 18.0,
+          fontStyle: FontStyle.normal,
+        ),
       )
     ]);
   }
