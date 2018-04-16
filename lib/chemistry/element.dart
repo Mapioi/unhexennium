@@ -806,7 +806,7 @@ class AbbreviatedElectronConfiguration {
   @override
   String toString() {
     return "${(core == null ? "" : "[${enumToString(core)}]")}${valence
-        .join()}";
+      .join()}";
   }
 }
 

@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/utils.dart';
 
-
 // Type declarations
 typedef void Callback();
 typedef void SingleArgCallback(x);
-
 
 /// [InputBox] renders the top for whatever the top is
 ///   - Can be an element Text or a Row of more elements
@@ -25,7 +23,7 @@ class InputBox extends StatelessWidget {
   static const Color chargeSelectedColor = Colors.green;
 
   InputBox(
-    {@required this.widgetToDisplay,
+      {@required this.widgetToDisplay,
       this.onInputBoxTap,
       this.subscript = 1,
       this.selected = false,
@@ -44,47 +42,40 @@ class InputBox extends StatelessWidget {
       numberToDisplay = subscript.toString();
     }
 
-    Color currentBorderColor = selected ? (
-      isCharge ? chargeSelectedColor : selectedColor
-    ) : defaultColor;
+    Color currentBorderColor = selected
+        ? (isCharge ? chargeSelectedColor : selectedColor)
+        : defaultColor;
 
     return new GestureDetector(
-      onTap: onInputBoxTap,
-      child: new Container(
-        // Structure
-        child: new Column(
-          children: <Widget>[
-            // Top part
-            new Container(
-              child: widgetToDisplay,
-              decoration: new BoxDecoration(
-                border: new Border(
-                  bottom: new BorderSide(color: currentBorderColor)
-                )
+        onTap: onInputBoxTap,
+        child: new Container(
+          // Structure
+          child: new Column(
+            children: <Widget>[
+              // Top part
+              new Container(
+                child: widgetToDisplay,
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        bottom: new BorderSide(color: currentBorderColor))),
               ),
-            ),
-            // Subscript
-            new Container(
-              child: new Padding(
-                child: new Text(numberToDisplay),
-                padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0))
-            )
-          ],
-        ),
-        // Style
-        decoration: new BoxDecoration(
-          border: new Border.all(
-            color: currentBorderColor = currentBorderColor
-          )
-        ),
+              // Subscript
+              new Container(
+                  child: new Padding(
+                      child: new Text(numberToDisplay),
+                      padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0)))
+            ],
+          ),
+          // Style
+          decoration: new BoxDecoration(
+              border: new Border.all(
+                  color: currentBorderColor = currentBorderColor)),
 //        padding: new EdgeInsets.all(3.0),
-        margin: new EdgeInsets.all(6.0),
-        alignment: Alignment(0.0, 0.0),
-      )
-    );
+          margin: new EdgeInsets.all(6.0),
+          alignment: Alignment(0.0, 0.0),
+        ));
   }
 }
-
 
 /// Formula Parent handles the top level
 class FormulaParent extends StatelessWidget {
@@ -93,7 +84,6 @@ class FormulaParent extends StatelessWidget {
   final Callback onDelete, onEdit, onAdd;
   final SingleArgCallback onBoxTap;
   final int selectedBlockIndex;
-
 
   FormulaParent({
     @required this.formulaFactory,
@@ -118,34 +108,26 @@ class FormulaParent extends StatelessWidget {
         if (pair.subscript < 0) {
           // opening parentheses
           int closingParenthesis = closingIndices[i];
-          renderedFormula.add(
-            new InputBox(
-              widgetToDisplay: this.recursiveInputBuilder(
-                i + 1, closingParenthesis
-              ),
-              subscript: formulaFactory.elementsList[
-              closingParenthesis
-              ].subscript,
-              selected: i == selectedBlockIndex,
-              onInputBoxTap: () => onBoxTap(openingIndices[i]),
-            )
-          );
+          renderedFormula.add(new InputBox(
+            widgetToDisplay:
+                this.recursiveInputBuilder(i + 1, closingParenthesis),
+            subscript:
+                formulaFactory.elementsList[closingParenthesis].subscript,
+            selected: i == selectedBlockIndex,
+            onInputBoxTap: () => onBoxTap(openingIndices[i]),
+          ));
           i = closingParenthesis;
         } else {
           continue;
         }
       } else {
-        renderedFormula.add(
-          new InputBox(
+        renderedFormula.add(new InputBox(
             widgetToDisplay: new Padding(
-              padding: new EdgeInsets.all(6.0),
-              child: new Text(enumToString(pair.elementSymbol))
-            ),
+                padding: new EdgeInsets.all(6.0),
+                child: new Text(enumToString(pair.elementSymbol))),
             subscript: pair.subscript,
             selected: i == selectedBlockIndex,
-            onInputBoxTap: () => onBoxTap(i)
-          )
-        );
+            onInputBoxTap: () => onBoxTap(i)));
       }
     }
 
@@ -155,9 +137,8 @@ class FormulaParent extends StatelessWidget {
   /// Used to initiate the recursion
   InputBox render() {
     print(formulaFactory.elementsList.toString());
-    Row inputBoxesRow = recursiveInputBuilder(
-      0, formulaFactory.elementsList.length
-    );
+    Row inputBoxesRow =
+        recursiveInputBuilder(0, formulaFactory.elementsList.length);
 
     InputBox parentInputBox = new InputBox(
       widgetToDisplay: inputBoxesRow,
@@ -203,15 +184,14 @@ class FormulaParent extends StatelessWidget {
           ),
         ],
       ),
-        new Container(height: 20.0),
+      new Container(height: 20.0),
       // Render
       new Text(
         formulaFactory.toString(),
         style: new TextStyle(
-          fontFamily: 'Stix2Math',
-          fontSize: 18.0,
-          fontStyle: FontStyle.normal
-        ),
+            fontFamily: 'Stix2Math',
+            fontSize: 18.0,
+            fontStyle: FontStyle.normal),
       )
     ]);
   }
