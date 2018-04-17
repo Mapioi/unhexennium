@@ -133,7 +133,6 @@ class FormulaFactory {
   void insertElementAt(int index, {@required ElementSymbol elementSymbol}) {
     elementsList.insert(index, new ElementSubscriptPair(elementSymbol, 1));
   }
-
   /// Set the subscript of the element / parenthesis at [index].
   void setSubscriptAt(int index, {@required int subscript}) {
     elementsList[index].subscript = subscript;

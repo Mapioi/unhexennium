@@ -111,13 +111,28 @@ class FormulaState {
   }
 
   static void onEdit(ElementSymbol element, int subscript) {
-    print(element);
-    print(subscript);
+    setState(() {
+      if (selectedBlockIndex == -1) {
+        formulaFactory.charge = subscript;
+      } else if (element != null) {
+        formulaFactory.setElementAt(
+          selectedBlockIndex,
+          elementSymbol: element,
+        );
+        formulaFactory.setSubscriptAt(
+          selectedBlockIndex,
+          subscript: subscript,
+        );
+      } else {
+        int closingParenIndex =
+            formulaFactory.getClosingIndices()[selectedBlockIndex];
+        formulaFactory.setSubscriptAt(closingParenIndex, subscript: subscript);
+      }
+    });
   }
 
   static void onAdd(ElementSymbol element, int subscript) {
-    Map<int, int> openingParens =
-        FormulaState.formulaFactory.getClosingIndices();
+    Map<int, int> openingParens = formulaFactory.getClosingIndices();
 
     int position;
     if (selectedBlockIndex == -1) {
@@ -131,23 +146,23 @@ class FormulaState {
     setState(() {
       if (element != null) {
         // Add element
-        FormulaState.formulaFactory.insertElementAt(
+        formulaFactory.insertElementAt(
           position,
           elementSymbol: element,
         );
 
         if (subscript != 1) {
-          FormulaState.formulaFactory.setSubscriptAt(
+          formulaFactory.setSubscriptAt(
             position,
             subscript: subscript,
           );
         }
       } else {
         // Add parentheses
-        FormulaState.formulaFactory.insertOpeningParenthesisAt(position);
-        FormulaState.formulaFactory.insertClosingParenthesisAt(position + 1);
+        formulaFactory.insertOpeningParenthesisAt(position);
+        formulaFactory.insertClosingParenthesisAt(position + 1);
         if (subscript != 1) {
-          FormulaState.formulaFactory.setSubscriptAt(
+          formulaFactory.setSubscriptAt(
             position + 1,
             subscript: subscript,
           );
@@ -238,6 +253,18 @@ class FormulaParent extends StatelessWidget {
         : FormulaState
             .formulaFactory.elementsList[FormulaState.selectedBlockIndex];
 
+    int currentSubscript;
+    if (currentPair == null) {
+      currentSubscript = FormulaState.formulaFactory.charge;
+    } else if (currentPair.subscript < 0) {
+      int closingParenIndex = FormulaState.formulaFactory
+          .getClosingIndices()[FormulaState.selectedBlockIndex];
+      currentSubscript =
+          FormulaState.formulaFactory.elementsList[closingParenIndex].subscript;
+    } else {
+      currentSubscript = currentPair.subscript;
+    }
+
     return new Column(children: [
       // Input space
       new Padding(
@@ -260,12 +287,28 @@ class FormulaParent extends StatelessWidget {
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
-            onPressed: () => elementFormulaPrompt(
-                  context,
-                  FormulaState.onEdit,
-                  currentPair.elementSymbol,
-                  currentPair.subscript,
-                ),
+            onPressed: currentPair == null
+                // Charge selected
+                ? () => parenSubscriptPrompt(
+                      context,
+                      (a) => FormulaState.onEdit(null, a),
+                      currentSubscript,
+                      true
+                    )
+                : (currentPair.elementSymbol == null
+                    // Parentheses selected
+                    ? () => parenSubscriptPrompt(
+                          context,
+                          (a) => FormulaState.onEdit(null, a),
+                          currentSubscript,
+                        )
+                    // Element selected
+                    : () => elementFormulaPrompt(
+                          context,
+                          FormulaState.onEdit,
+                          currentPair.elementSymbol,
+                          currentSubscript,
+                        )),
             tooltip: 'Edit',
           ),
           new IconButton(

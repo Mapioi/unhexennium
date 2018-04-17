@@ -8,10 +8,13 @@ typedef void ElementCallback(ElementSymbol x);
 typedef void SubscriptCallback(int subscript);
 typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
 
-Future<Null> elementFormulaPrompt(BuildContext context,
-  ElementAndSubscriptCallback callback,
-  ElementSymbol currentElementSymbol,
-  int currentSubscript) async {
+// TODO switch to named args
+// TODO more DRY
+Future<Null> elementFormulaPrompt(
+    BuildContext context,
+    ElementAndSubscriptCallback callback,
+    ElementSymbol currentElementSymbol,
+    int currentSubscript) async {
   await showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -27,38 +30,39 @@ Future<Null> elementFormulaPrompt(BuildContext context,
   );
 }
 
-Future<Null> parenSubscriptPrompt(BuildContext context,
-  SubscriptCallback callback, int currentSubscript) async {
+Future<Null> parenSubscriptPrompt(
+    BuildContext context, SubscriptCallback callback, int currentSubscript,
+    [bool isCharge = false]) async {
   await showModalBottomSheet(
+    // TODO give user the option: () or []
     context: context,
-    builder: (context) =>
-    new Padding(
-      padding: new EdgeInsets.all(16.0),
-      child: new ParenSubscriptSelector(
-        currentSubscript: currentSubscript,
-        onFinish: (a) {
-          callback(a);
-          Navigator.pop(context);
-        }
-      )
-    )
+    builder: (context) => new Padding(
+          padding: new EdgeInsets.all(16.0),
+          child: new ParenSubscriptSelector(
+            currentSubscript: currentSubscript,
+            onFinish: (a) {
+              callback(a);
+              Navigator.pop(context);
+            },
+            isCharge: isCharge,
+          ),
+        ),
   );
 }
 
 Future<Null> elementSymbolPrompt(BuildContext context) async {
   await showModalBottomSheet(
     context: context,
-    builder: (context) =>
-    new Container(
-      padding: new EdgeInsets.all(16.0),
-      child: new PeriodicTable(
-        ElementState.selectedElement,
-          (x) {
-          ElementState.selectedElement = x;
-          Navigator.pop(context); // exit the modal
-        },
-      ),
-    ),
+    builder: (context) => new Container(
+          padding: new EdgeInsets.all(16.0),
+          child: new PeriodicTable(
+            ElementState.selectedElement,
+            (x) {
+              ElementState.selectedElement = x;
+              Navigator.pop(context); // exit the modal
+            },
+          ),
+        ),
   );
 }
 
@@ -101,8 +105,8 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
             new SizedBox(width: 20.0),
             new IconButton(
               onPressed: selectedSubscript == 1
-                ? null
-                : () => setState(() => --selectedSubscript),
+                  ? null
+                  : () => setState(() => --selectedSubscript),
               icon: new Icon(Icons.arrow_left),
             ),
             new IconButton(
@@ -115,13 +119,12 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
                 "GO!",
                 style: new TextStyle(color: Colors.white),
               ),
-              onPressed: () =>
-              selectedElementSymbol == null
-                ? null
-                : widget.onFinish(
-                selectedElementSymbol,
-                selectedSubscript,
-              ),
+              onPressed: () => selectedElementSymbol == null
+                  ? null
+                  : widget.onFinish(
+                      selectedElementSymbol,
+                      selectedSubscript,
+                    ),
               color: Colors.blueAccent,
             )
           ]),
@@ -130,10 +133,9 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
           height: 300.0, // TODO something about these heights
           child: new PeriodicTable(
             selectedElementSymbol,
-              (element) =>
-              setState(() {
-                selectedElementSymbol = element;
-              }),
+            (element) => setState(() {
+                  selectedElementSymbol = element;
+                }),
           ),
         )
       ],
@@ -141,14 +143,14 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
   }
 }
 
-
 class ParenSubscriptSelector extends StatefulWidget {
   final int currentSubscript;
   final SubscriptCallback onFinish;
+  final bool isCharge;
 
-  ParenSubscriptSelector({
-    Key key, this.currentSubscript, this.onFinish
-  }) : super(key: key);
+  ParenSubscriptSelector(
+      {Key key, this.currentSubscript, this.onFinish, this.isCharge})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _ParenSubscriptSelector();
@@ -161,18 +163,22 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
   Widget build(BuildContext context) {
     selectedSubscript ??= widget.currentSubscript;
 
+    String numberText = selectedSubscript.toString();
+    if (widget.isCharge && selectedSubscript > 0) {
+      numberText = "+$selectedSubscript";
+    }
+
+    String leftText = "Set ${widget.isCharge ? "charge" : "subscript"}";
+
     return new Row(children: <Widget>[
-      new Text(
-        "Select subscript:",
-        style: new TextStyle(fontWeight: FontWeight.bold),
-      ),
-      new SizedBox(width: 40.0),
-      new Text(selectedSubscript.toString()),
+      new Text(leftText, style: new TextStyle(fontWeight: FontWeight.bold),),
+      new SizedBox(width: 20.0),
+      new Text(numberText),
       new SizedBox(width: 20.0),
       new IconButton(
-        onPressed: selectedSubscript == 1
-          ? null
-          : () => setState(() => --selectedSubscript),
+        onPressed: (selectedSubscript == 1 && !widget.isCharge)
+            ? null
+            : () => setState(() => --selectedSubscript),
         icon: new Icon(Icons.arrow_left),
       ),
       new IconButton(
