@@ -70,24 +70,49 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
 
     return new Column(
       children: <Widget>[
-        new Row(children: <Widget>[
-          new Text(selectedSubscript.toString()),
-          new FlatButton(
-            onPressed: selectedSubscript == 1
-                ? null
-                : () => setState(() => --selectedSubscript),
-            child: new Icon(Icons.arrow_left),
-          ),
-          new FlatButton(
-            onPressed: () => setState(() => ++selectedSubscript),
-            child: new Icon(Icons.arrow_right),
-          ),
-        ]),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Row(children: <Widget>[
+            new Text(
+              "Select subscript:",
+              style: new TextStyle(fontWeight: FontWeight.bold),
+            ),
+            new SizedBox(width: 40.0),
+            new Text(selectedSubscript.toString()),
+            new SizedBox(width: 20.0),
+            new IconButton(
+              onPressed: selectedSubscript == 1
+                  ? null
+                  : () => setState(() => --selectedSubscript),
+              icon: new Icon(Icons.arrow_left),
+            ),
+            new IconButton(
+              onPressed: () => setState(() => ++selectedSubscript),
+              icon: new Icon(Icons.arrow_right),
+            ),
+            new SizedBox(width: 20.0),
+            new RaisedButton(
+              child: new Text(
+                "GO!",
+                style: new TextStyle(color: Colors.white),
+              ),
+              onPressed: () => selectedElementSymbol == null
+                  ? null
+                  : widget.onFinish(
+                      selectedElementSymbol,
+                      selectedSubscript,
+                    ),
+              color: Colors.blueAccent,
+            )
+          ]),
+        ),
         new Container(
-          height: 300.0,
+          height: 300.0, // TODO something about these heights
           child: new PeriodicTable(
             selectedElementSymbol,
-            (element) => widget.onFinish(element, selectedSubscript),
+            (element) => setState(() {
+                  selectedElementSymbol = element;
+                }),
           ),
         )
       ],
