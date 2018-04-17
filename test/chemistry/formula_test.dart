@@ -35,6 +35,92 @@ void main() {
       expect(percentages[ElementSymbol.C].toStringAsPrecision(3), '44.4');
       expect(percentages[ElementSymbol.N].toStringAsPrecision(3), '51.8');
     });
+
+    test("type of bonding", () {
+      // Metallic ---
+      // Cs
+      expect(
+        new Formula({
+          ElementSymbol.Cs: 1,
+        }).bondType,
+        BondType.Metallic,
+      );
+      // SrMg
+      expect(
+        new Formula({
+          ElementSymbol.Sr: 1,
+          ElementSymbol.Mg: 1,
+        }).bondType,
+        BondType.Metallic,
+      );
+
+      // Ionic ---
+      // NaCl
+      expect(
+        new Formula({
+          ElementSymbol.Na: 1,
+          ElementSymbol.Cl: 1,
+        }).bondType,
+        BondType.Ionic,
+      );
+      // LiO2
+      expect(
+        new Formula({
+          ElementSymbol.Li: 2,
+          ElementSymbol.O: 1,
+        }).bondType,
+        BondType.Ionic,
+      );
+
+      // Polar covalent ---
+      // BF3
+      expect(
+        new Formula({
+          ElementSymbol.B: 1,
+          ElementSymbol.F: 3,
+        }).bondType,
+        BondType.PolarCovalent,
+      );
+      // HF
+      expect(
+        new Formula({
+          ElementSymbol.H: 1,
+          ElementSymbol.F: 1,
+        }).bondType,
+        BondType.PolarCovalent,
+      );
+
+      // (non-polar) Covalent ---
+      // C
+      expect(
+        new Formula({
+          ElementSymbol.C: 1,
+        }).bondType,
+        BondType.Covalent,
+      );
+      // CH4
+      expect(
+        new Formula({
+          ElementSymbol.C: 1,
+          ElementSymbol.H: 4,
+        }).bondType,
+        BondType.Covalent,
+      );
+
+      // Cannot be determined ---
+      // [Cu(H2O)6]2+
+      expect(
+        new Formula(
+          {
+            ElementSymbol.Cu: 1,
+            ElementSymbol.H: 12,
+            ElementSymbol.O: 6,
+          },
+          2,
+        ).bondType,
+        null,
+      );
+    });
   });
 
   group("FormulaFactory", () {

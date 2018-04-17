@@ -5,6 +5,8 @@ import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
+enum BondType { Covalent, Ionic, Metallic, PolarCovalent }
+
 /// A chemical formula is a way of information about the chemical proportions
 /// of atoms that constitute a particular chemical compound or molecule, using
 /// chemical element symbols, numbers, and sometimes also other symbols, such
@@ -51,11 +53,41 @@ class Formula {
             100,
       );
 
-  /// Calculate the mass in grams from the number of moles.
-  num mass(num mole) => mole * rfm;
+  /// Determine the type of bonding in this molecule using Table 29,
+  /// triangular bonding diagram (van Arkel-Ketelaar triangle of bonding).
+  /// Therefore, the type of bonding can only be determined for molecules with
+  /// only 2 species of atoms; `null` is returned otherwise.
+  BondType get bondType {
+    // The symbol of electronegativity is χ, the greek letter chi.
+    num chi1, chi2;
+    var symbols = elements.keys.toList();
+    if (symbols.length == 1) {
+      chi1 = chi2 = new ChemicalElement(symbols[0]).electronegativity;
+    } else if (symbols.length == 2) {
+      chi1 = new ChemicalElement(symbols[0]).electronegativity;
+      chi2 = new ChemicalElement(symbols[1]).electronegativity;
+    } else
+      return null;
+
+    num chiAv = (chi1 + chi2) / 2;
+    num chiDiff = (chi1 - chi2).abs();
+
+    // Metal / non-metal boundary: χ_av = -0.5 Δχ + 2.28
+    if (chiAv <= -0.5 * chiDiff + 2.28) return BondType.Metallic;
+
+    // Covalent / ionic boundary:  χ_av =  0.5 Δχ + 1.60
+    if (chiAv <= 0.5 * chiDiff + 1.60) return BondType.Ionic;
+
+    // Typically,
+    if (chiDiff <= 0.4) return BondType.Covalent;
+    return BondType.PolarCovalent;
+  }
 
   /// Calculate the number of moles from mass in grams.
   num mole(num mass) => mass / rfm;
+
+  /// Calculate the mass in grams from the number of moles.
+  num mass(num mole) => mole * rfm;
 }
 
 /// Utility structure to represent an element-subscript tuple.
