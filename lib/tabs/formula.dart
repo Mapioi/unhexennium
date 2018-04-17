@@ -304,12 +304,8 @@ class FormulaParent extends StatelessWidget {
                           currentSubscript,
                         )
                     // Element selected
-                    : () => elementFormulaPrompt(
-                          context,
-                          FormulaState.onEdit,
-                          currentPair.elementSymbol,
-                          currentSubscript,
-                        )),
+                    : () => elementFormulaPrompt(context, FormulaState.onEdit,
+                        currentPair.elementSymbol, currentSubscript, false)),
             tooltip: 'Edit',
           ),
           new IconButton(

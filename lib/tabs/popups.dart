@@ -14,7 +14,8 @@ Future<Null> elementFormulaPrompt(
     BuildContext context,
     ElementAndSubscriptCallback callback,
     ElementSymbol currentElementSymbol,
-    int currentSubscript) async {
+    int currentSubscript,
+    [bool isAdding = true]) async {
   await showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -25,6 +26,7 @@ Future<Null> elementFormulaPrompt(
           callback(a, b);
           Navigator.pop(context); // exit the modal
         },
+        isAdding: isAdding,
       );
     },
   );
@@ -70,12 +72,14 @@ class ElementAndSubscriptSelector extends StatefulWidget {
   final int currentSubscript;
   final ElementSymbol currentElementSymbol;
   final ElementAndSubscriptCallback onFinish;
+  final bool isAdding;
 
   ElementAndSubscriptSelector({
     Key key,
     this.currentSubscript,
     this.currentElementSymbol,
     this.onFinish,
+    this.isAdding = true,
   }) : super(key: key);
 
   @override
@@ -116,7 +120,7 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
             new SizedBox(width: 20.0),
             new RaisedButton(
               child: new Text(
-                "GO!",
+                widget.isAdding ? "INSERT" : "MODIFY",
                 style: new TextStyle(color: Colors.white),
               ),
               onPressed: () => selectedElementSymbol == null
