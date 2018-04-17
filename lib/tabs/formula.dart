@@ -110,7 +110,10 @@ class FormulaState {
     });
   }
 
-  static void onEdit() {}
+  static void onEdit(ElementSymbol element, int subscript) {
+    print(element);
+    print(subscript);
+  }
 
   static void onAdd(ElementSymbol element, int subscript) {
     Map<int, int> openingParens =
@@ -126,16 +129,29 @@ class FormulaState {
     }
 
     setState(() {
-      FormulaState.formulaFactory.insertElementAt(
-        position,
-        elementSymbol: element,
-      );
-
-      if (subscript != 1) {
-        FormulaState.formulaFactory.setSubscriptAt(
+      if (element != null) {
+        // Add element
+        FormulaState.formulaFactory.insertElementAt(
           position,
-          subscript: subscript,
+          elementSymbol: element,
         );
+
+        if (subscript != 1) {
+          FormulaState.formulaFactory.setSubscriptAt(
+            position,
+            subscript: subscript,
+          );
+        }
+      } else {
+        // Add parentheses
+        FormulaState.formulaFactory.insertOpeningParenthesisAt(position);
+        FormulaState.formulaFactory.insertClosingParenthesisAt(position + 1);
+        if (subscript != 1) {
+          FormulaState.formulaFactory.setSubscriptAt(
+            position + 1,
+            subscript: subscript,
+          );
+        }
       }
     });
   }
@@ -217,6 +233,11 @@ class FormulaParent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ElementSubscriptPair currentPair = FormulaState.selectedBlockIndex == -1
+        ? null
+        : FormulaState
+            .formulaFactory.elementsList[FormulaState.selectedBlockIndex];
+
     return new Column(children: [
       // Input space
       new Padding(
@@ -239,13 +260,31 @@ class FormulaParent extends StatelessWidget {
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
-            onPressed: FormulaState.onEdit,
+            onPressed: () => elementFormulaPrompt(
+                  context,
+                  FormulaState.onEdit,
+                  currentPair.elementSymbol,
+                  currentPair.subscript,
+                ),
             tooltip: 'Edit',
           ),
           new IconButton(
             icon: new Icon(Icons.add),
-            onPressed: () =>
-                elementFormulaPrompt(context, FormulaState.onAdd, null, 1),
+            onPressed: () => elementFormulaPrompt(
+                  context,
+                  FormulaState.onAdd,
+                  null,
+                  1,
+                ),
+            tooltip: 'Add after current',
+          ),
+          new IconButton(
+            icon: new Icon(Icons.add),
+            onPressed: () => parenSubscriptPrompt(
+                  context,
+                  (a) => FormulaState.onAdd(null, a),
+                  1,
+                ),
             tooltip: 'Add after current',
           ),
         ],
