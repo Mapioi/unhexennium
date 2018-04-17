@@ -33,14 +33,16 @@ class PeriodicTable extends StatelessWidget {
       width: cellSize,
       height: cellSize,
       child: new RaisedButton(
-          padding: new EdgeInsets.all(0.0),
-          child: new Text(
-            enumToString(symbol),
-            softWrap: false,
-            style: new TextStyle(fontSize: 14.0),
-          ),
-          onPressed:
-              symbol == selectedElement ? null : () => onClickCallback(symbol)),
+        padding: new EdgeInsets.all(0.0),
+//          color: symbol == selectedElement ? Colors.green : Colors.grey[400],
+        child: new Text(
+          enumToString(symbol),
+          softWrap: false,
+          style: new TextStyle(fontSize: 14.0),
+        ),
+        onPressed:
+            symbol == selectedElement ? null : () => onClickCallback(symbol),
+      ),
     );
   }
 

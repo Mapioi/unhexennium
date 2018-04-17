@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
+import 'package:unhexennium/tabs/popups.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
@@ -69,7 +70,7 @@ class InputBox extends StatelessWidget {
               border: new Border.all(
                   color: currentBorderColor = currentBorderColor)),
 //        padding: new EdgeInsets.all(3.0),
-          margin: new EdgeInsets.all(6.0),
+          margin: new EdgeInsets.all(4.0),
           alignment: Alignment(0.0, 0.0),
         ));
   }
@@ -95,6 +96,8 @@ class FormulaState {
     ..charge = 2;
   static Formula formula = formulaFactory.build();
   static int selectedBlockIndex = 0;
+  static ElementSymbol underCursor =
+      formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
 
   static void removeAtCursor() {
     setState(() {
@@ -109,7 +112,33 @@ class FormulaState {
 
   static void onEdit() {}
 
-  static void onAdd() {}
+  static void onAdd(ElementSymbol element, int subscript) {
+    Map<int, int> openingParens =
+        FormulaState.formulaFactory.getClosingIndices();
+
+    int position;
+    if (selectedBlockIndex == -1) {
+      position = formulaFactory.length;
+    } else if (openingParens.keys.contains(selectedBlockIndex)) {
+      position = openingParens[selectedBlockIndex];
+    } else {
+      position = selectedBlockIndex + 1;
+    }
+
+    setState(() {
+      FormulaState.formulaFactory.insertElementAt(
+        position,
+        elementSymbol: element,
+      );
+
+      if (subscript != 1) {
+        FormulaState.formulaFactory.setSubscriptAt(
+          position,
+          subscript: subscript,
+        );
+      }
+    });
+  }
 
   static void onBoxTap(int index) {
     setState(() {
@@ -215,7 +244,8 @@ class FormulaParent extends StatelessWidget {
           ),
           new IconButton(
             icon: new Icon(Icons.add),
-            onPressed: FormulaState.onAdd,
+            onPressed: () =>
+                elementFormulaPrompt(context, FormulaState.onAdd, null, 1),
             tooltip: 'Add after current',
           ),
         ],

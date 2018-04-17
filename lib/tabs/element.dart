@@ -116,7 +116,7 @@ class ElementParent extends StatelessWidget {
         "Change Element",
         style: new TextStyle(color: Colors.white),
       ),
-      onPressed: () => elementPrompt(context),
+      onPressed: () => elementSymbolPrompt(context),
       color: Colors.blueAccent,
     );
   }

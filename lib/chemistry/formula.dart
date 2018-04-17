@@ -99,7 +99,7 @@ class FormulaFactory {
 
   /// Insert an element to the formula at [index].
   void insertElementAt(int index, {@required ElementSymbol elementSymbol}) {
-    elementsList.add(new ElementSubscriptPair(elementSymbol, 1));
+    elementsList.insert(index, new ElementSubscriptPair(elementSymbol, 1));
   }
 
   /// Set the subscript of the element / parenthesis at [index].
@@ -133,15 +133,14 @@ class FormulaFactory {
           );
           return "$element$subscript";
         }
-      // Parenthesis
+        // Parenthesis
       } else {
         if (pair.subscript < 0) {
           return elementsList[closingIndices[i]].subscript != 1 ? "(" : "[";
         } else {
           String parenthesis = pair.subscript == 1 ? "]" : ")";
-          String subscript =
-              asSubscript(pair.subscript.toString());
-          return "$parenthesis$subscript";
+          String subscript = asSubscript(pair.subscript.toString());
+          return "$parenthesis${pair.subscript == 1 ? "" : subscript}";
         }
       }
     }).join();

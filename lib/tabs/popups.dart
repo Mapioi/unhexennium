@@ -4,36 +4,31 @@ import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/tabs/periodic_table.dart';
 import "package:unhexennium/tabs/element.dart" show ElementState;
 
-typedef void ElementChooserCallback(ElementSymbol x, int subscript);
+typedef void ElementCallback(ElementSymbol x);
+typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
 
-class ElementSelector extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new _ElementSelector();
+Future<Null> elementFormulaPrompt(
+    BuildContext context,
+    ElementAndSubscriptCallback callback,
+    ElementSymbol currentElementSymbol,
+    int currentSubscript) async {
+  await showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return new ElementAndSubscriptSelector(
+        currentElementSymbol: currentElementSymbol,
+        currentSubscript: currentSubscript,
+        onFinish: (a, b) {
+          callback(a, b);
+          Navigator.pop(context); // exit the modal
+        },
+      );
+    },
+  );
 }
 
-class _ElementSelector extends State<ElementSelector> {
-  ElementSymbol selectedElementSymbol;
-  int selectedSubscript = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    return null;
-  }
-}
-
-Future<Null> askForElementSymbol(
-    BuildContext context, ElementChooserCallback f) async {
-  List result = await showDialog<List>(
-      context: context,
-      builder: (BuildContext context) {
-        return new ElementSelector();
-      });
-
-  f(result[0], result[1]);
-}
-
-Future<Null> elementPrompt(BuildContext context) async {
-  await showModalBottomSheet<ElementSymbol>(
+Future<Null> elementSymbolPrompt(BuildContext context) async {
+  await showModalBottomSheet(
     context: context,
     builder: (context) => new Container(
           padding: new EdgeInsets.all(16.0),
@@ -46,4 +41,56 @@ Future<Null> elementPrompt(BuildContext context) async {
           ),
         ),
   );
+}
+
+class ElementAndSubscriptSelector extends StatefulWidget {
+  ElementAndSubscriptSelector({
+    Key key,
+    this.currentSubscript,
+    this.currentElementSymbol,
+    this.onFinish,
+  }) : super(key: key);
+
+  final int currentSubscript;
+  final ElementSymbol currentElementSymbol;
+  final ElementAndSubscriptCallback onFinish;
+
+  @override
+  State<StatefulWidget> createState() => new _ElementAndSubscriptSelector();
+}
+
+class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
+  ElementSymbol selectedElementSymbol;
+  int selectedSubscript;
+
+  @override
+  Widget build(BuildContext context) {
+    selectedElementSymbol ??= widget.currentElementSymbol;
+    selectedSubscript ??= widget.currentSubscript;
+
+    return new Column(
+      children: <Widget>[
+        new Row(children: <Widget>[
+          new Text(selectedSubscript.toString()),
+          new FlatButton(
+            onPressed: selectedSubscript == 1
+                ? null
+                : () => setState(() => --selectedSubscript),
+            child: new Icon(Icons.arrow_left),
+          ),
+          new FlatButton(
+            onPressed: () => setState(() => ++selectedSubscript),
+            child: new Icon(Icons.arrow_right),
+          ),
+        ]),
+        new Container(
+          height: 300.0,
+          child: new PeriodicTable(
+            selectedElementSymbol,
+            (element) => widget.onFinish(element, selectedSubscript),
+          ),
+        )
+      ],
+    );
+  }
 }
