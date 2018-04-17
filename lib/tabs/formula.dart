@@ -226,7 +226,12 @@ class FormulaParent extends StatelessWidget {
       }
     }
 
-    return new Row(children: renderedFormula);
+    if (startIndex == endIndex) {
+      print("HEY");
+      return new Row(children: [SizedBox(height: 20.0, width: 10.0)]);
+    } else {
+      return new Row(children: renderedFormula);
+    }
   }
 
   /// Used to initiate the recursion
@@ -289,12 +294,8 @@ class FormulaParent extends StatelessWidget {
             icon: new Icon(Icons.edit),
             onPressed: currentPair == null
                 // Charge selected
-                ? () => parenSubscriptPrompt(
-                      context,
-                      (a) => FormulaState.onEdit(null, a),
-                      currentSubscript,
-                      true
-                    )
+                ? () => parenSubscriptPrompt(context,
+                    (a) => FormulaState.onEdit(null, a), currentSubscript, true)
                 : (currentPair.elementSymbol == null
                     // Parentheses selected
                     ? () => parenSubscriptPrompt(
