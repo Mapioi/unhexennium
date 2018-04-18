@@ -7,7 +7,6 @@ import 'package:unhexennium/chemistry/element.dart';
 // Options for the popup input dialog
 enum ElementInputOptions { enter, cancel }
 
-
 class ElementState {
   static SetStateCallback setState;
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
@@ -33,7 +32,7 @@ class ElementState {
 class ElementParent extends StatelessWidget {
   // no element selected => null
 
-  Widget renderElementCell() {
+  Widget renderElementCell(BuildContext context) {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
     return new Container(
       height: 128.0,
@@ -44,27 +43,30 @@ class ElementParent extends StatelessWidget {
           color: Colors.grey[400],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: new Column(
-          children: <Widget>[
-            new Text(element.atomicNumber.toString()),
-            new Expanded(
-              child: new Center(
-                child: Text(
-                  enumToString(element.symbol),
-                  style: new TextStyle(
-                    fontSize: 56.0,
-                    fontFamily: 'Rock Salt',
-                    color: Colors.grey[600],
+      child: new GestureDetector(
+        onTap: () => elementSymbolPrompt(context),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Column(
+            children: <Widget>[
+              new Text(element.atomicNumber.toString()),
+              new Expanded(
+                child: new Center(
+                  child: Text(
+                    enumToString(element.symbol),
+                    style: new TextStyle(
+                      fontSize: 56.0,
+                      fontFamily: 'Rock Salt',
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ),
               ),
-            ),
-            new Text(
-              element.relativeAtomicMass.toString(),
-            ),
-          ],
+              new Text(
+                element.relativeAtomicMass.toString(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -72,36 +74,32 @@ class ElementParent extends StatelessWidget {
 
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
-    List<List<String>> data = [];
-    data.add(
-      [
-        "Name",
-        element.name,
-      ],
-    );
+    Map<Widget, Widget> data = {};
+    data[new Text("Name", style: StaticTable.head)] = new Text(element.name);
     if (element.electronegativity != null)
-      data.add([
-        "Electronegativity",
-        element.electronegativity.toString(),
-      ]);
-    data.add(
-      [
-        "Electron configuration",
-        new AbbreviatedElectronConfiguration.of(element.electronConfiguration)
-            .toString(),
-      ],
-    );
+      data[new Text("Electronegativity", style: StaticTable.head)] =
+          new Text(element.electronegativity.toString());
+    data[new Text("Electron configuration", style: StaticTable.head)] =
+        new Text(new AbbreviatedElectronConfiguration.of(
+                element.electronConfiguration)
+            .toString());
+
     if (element.ionsElectronConfigurations.length != 0)
-      data.add([
-        "Ions",
-        element.ionsElectronConfigurations.entries
-            .map((MapEntry<int, List<Orbital>> ion) =>
-                toStringAsCharge(ion.key) +
-                ": " +
-                new AbbreviatedElectronConfiguration.of(ion.value).toString())
-            .toList()
-            .join("\n"),
-      ]);
+      data[new Text("Ions", style: StaticTable.head)] = new Column(
+        children: element.ionsElectronConfigurations.entries
+            .map((MapEntry<int, List<Orbital>> ion) => new Text(
+                  toStringAsCharge(ion.key) +
+                      ": " +
+                      new AbbreviatedElectronConfiguration.of(ion.value)
+                          .toString(),
+                  style: ion.key == ElementState.oxidationState
+                      ? new TextStyle(fontWeight: FontWeight.w500)
+                      : null,
+                ))
+            .toList(),
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
+
     return new Expanded(
       child: new ListView(
         children: [StaticTable(data)],
@@ -110,28 +108,16 @@ class ElementParent extends StatelessWidget {
     );
   }
 
-  Widget renderSelectionButton(BuildContext context) {
-    return new RaisedButton(
-      child: new Text(
-        "Change Element",
-        style: new TextStyle(color: Colors.white),
-      ),
-      onPressed: () => elementSymbolPrompt(context),
-      color: Colors.blueAccent,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
       child: new Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          renderElementCell(),
+          renderElementCell(context),
           renderStaticData(),
-          renderSelectionButton(context),
         ],
       ),
     );
