@@ -79,8 +79,10 @@ class RationalMatrix {
             break;
           }
         }
-        ++j;
-        continue;
+        if (pivot.numerator == 0) {
+          ++j;
+          continue;
+        }
       }
       pivotRowStack.add(i);
       pivotColStack.add(j);

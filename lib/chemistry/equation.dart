@@ -25,7 +25,8 @@ class Equation {
       List<Formula> reactants, List<Formula> products) {
     var elementsRows = <ElementSymbol, int>{};
     int equationLength = reactants.length + products.length;
-    int i = 0;
+    // Row 0 is reserved for charge.
+    int i = 1;
     for (Formula formula in reactants + products) {
       for (ElementSymbol element in formula.elements.keys) {
         if (!elementsRows.containsKey(element)) {
@@ -34,7 +35,7 @@ class Equation {
         }
       }
     }
-    var matrixItems = create2dArray(elementsRows.length, equationLength,
+    var matrixItems = create2dArray(elementsRows.length + 1, equationLength,
         filled: new Rational.fromInt(0));
     int j = 0;
     int sign = 1;
@@ -44,6 +45,7 @@ class Equation {
         matrixItems[elementsRows[element]][j] =
             new Rational.fromInt(sign * subscript);
       });
+      matrixItems[0][j] = new Rational.fromInt(sign * formula.charge);
       ++j;
     }
     var coefficientVectors = new RationalMatrix(matrixItems).nullSpace;
