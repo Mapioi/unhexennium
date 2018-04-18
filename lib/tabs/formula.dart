@@ -103,10 +103,12 @@ class FormulaState {
     setState(() {
       var closingIndices = FormulaState.formulaFactory.getClosingIndices();
       if (closingIndices.containsKey(selectedBlockIndex))
-        FormulaState.formulaFactory
-            .removeAt(closingIndices[selectedBlockIndex]);
-      FormulaState.formulaFactory.removeAt(selectedBlockIndex);
+        formulaFactory.removeAt(closingIndices[selectedBlockIndex]);
+        formulaFactory.removeAt(selectedBlockIndex);
       selectedBlockIndex--;
+      Map<int, int> openingIndices = formulaFactory.getOpeningIndices();
+      if (openingIndices.containsKey(selectedBlockIndex))
+        selectedBlockIndex = openingIndices[selectedBlockIndex];
     });
   }
 
@@ -132,13 +134,13 @@ class FormulaState {
   }
 
   static void onAdd(ElementSymbol element, int subscript) {
-    Map<int, int> openingParens = formulaFactory.getClosingIndices();
+    Map<int, int> openingParentheses = formulaFactory.getClosingIndices();
 
     int position;
     if (selectedBlockIndex == -1) {
       position = formulaFactory.length;
-    } else if (openingParens.keys.contains(selectedBlockIndex)) {
-      position = openingParens[selectedBlockIndex];
+    } else if (openingParentheses.keys.contains(selectedBlockIndex)) {
+      position = openingParentheses[selectedBlockIndex];
     } else {
       position = selectedBlockIndex + 1;
     }
@@ -288,7 +290,7 @@ class FormulaParent extends StatelessWidget {
             onPressed: FormulaState.selectedBlockIndex >= 0
                 ? FormulaState.removeAtCursor
                 : null,
-            tooltip: 'Delete current',
+            tooltip: 'Delete selected',
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
@@ -306,7 +308,7 @@ class FormulaParent extends StatelessWidget {
                     // Element selected
                     : () => elementFormulaPrompt(context, FormulaState.onEdit,
                         currentPair.elementSymbol, currentSubscript, false)),
-            tooltip: 'Edit',
+            tooltip: 'Edit selected',
           ),
           new IconButton(
             icon: new Icon(Icons.add),
@@ -316,16 +318,16 @@ class FormulaParent extends StatelessWidget {
                   null,
                   1,
                 ),
-            tooltip: 'Add after current',
+            tooltip: 'Add element after selected',
           ),
           new IconButton(
-            icon: new Icon(Icons.add),
+            icon: new Icon(Icons.add_circle_outline),
             onPressed: () => parenSubscriptPrompt(
                   context,
                   (a) => FormulaState.onAdd(null, a),
                   1,
                 ),
-            tooltip: 'Add after current',
+            tooltip: 'Add box after current',
           ),
         ],
       ),
