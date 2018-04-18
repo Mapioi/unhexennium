@@ -25,6 +25,14 @@ void main() {
       expect(empiricalFormula.charge, 0);
     });
 
+    test("toString", () {
+      expect(Formula.e.toString(), "e⁻");
+      expect(new Formula({
+        ElementSymbol.C: 2,
+        ElementSymbol.H: 6,
+      }).empiricalFormula.toString(), "CH₃");
+    });
+
     test("percentages by mass", () {
       Formula hydrogenCyanide = new Formula({
         ElementSymbol.H: 1,
@@ -117,7 +125,7 @@ void main() {
             ElementSymbol.H: 12,
             ElementSymbol.O: 6,
           },
-          2,
+          charge: 2,
         ).bondType,
         null,
       );
@@ -143,7 +151,7 @@ void main() {
             {
               ElementSymbol.O: 2,
             },
-            -1,
+            charge: -1,
           ).oxidationStates,
           {
             ElementSymbol.O: new Rational(-1, 2),

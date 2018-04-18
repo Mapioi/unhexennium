@@ -19,7 +19,24 @@ class Formula {
   final Map<ElementSymbol, int> elements;
   final int charge;
 
-  Formula(this.elements, [this.charge = 0]);
+  Formula(this.elements, {this.charge = 0});
+
+  static final Formula e = new Formula({}, charge: -1);
+
+  @override
+  String toString() {
+    if (elements.isEmpty && charge == -1) return "e${asSuperscript('-')}";
+    return elements.entries
+            .map((MapEntry<ElementSymbol, int> entry) {
+              String symbol = enumToString(entry.key);
+              String subscript =
+                  entry.value != 1 ? asSubscript(entry.value.toString()) : "";
+              return "$symbol$subscript";
+            })
+            .toList()
+            .join() +
+        toStringAsCharge(charge, omitOne: true);
+  }
 
   /// Calculate the relative formula mass of this chemical formula.
   num get rfm {
@@ -33,7 +50,7 @@ class Formula {
 
   /// Derive the empirical formula.
   Formula get empiricalFormula {
-    if (elements.length == 0) return new Formula({});
+    if (elements.isEmpty) return null;
     int divisor = gcdMultiple(elements.values);
     return new Formula(
       new Map.fromIterable(elements.keys,
@@ -43,15 +60,17 @@ class Formula {
   }
 
   /// Calculate the percentages by mass of constituent elements.
-  Map<ElementSymbol, num> get percentages => new Map.fromIterable(
-        elements.keys,
-        key: (symbol) => symbol,
-        value: (symbol) =>
-            new ChemicalElement(symbol).relativeAtomicMass *
-            elements[symbol] /
-            rfm *
-            100,
-      );
+  Map<ElementSymbol, num> get percentages => elements.isNotEmpty
+      ? new Map.fromIterable(
+          elements.keys,
+          key: (symbol) => symbol,
+          value: (symbol) =>
+              new ChemicalElement(symbol).relativeAtomicMass *
+              elements[symbol] /
+              rfm *
+              100,
+        )
+      : null;
 
   /// The oxidation state, sometimes referred to as oxidation number, describes
   /// degree of oxidation (loss of electrons) of an atom in a chemical compound.
@@ -73,6 +92,9 @@ class Formula {
   /// The algorithm is expected to cover most compounds in a textbook's scope.
   /// Returns null if it fails to determine the OS for all elements.
   Map<ElementSymbol, Rational> get oxidationStates {
+    // Handle e^-
+    if (elements.isEmpty) return null;
+
     var symbols = elements.keys.toList();
     int chargeLeft = charge;
     Map<ElementSymbol, Rational> os = {};
@@ -337,6 +359,6 @@ class FormulaFactory {
         elements[pair.elementSymbol] += pair.subscript * nestedSubscripts;
       }
     }
-    return new Formula(elements, charge);
+    return new Formula(elements, charge: charge);
   }
 }
