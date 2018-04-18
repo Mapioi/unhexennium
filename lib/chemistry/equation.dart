@@ -11,6 +11,7 @@ import 'package:unhexennium/chemistry/formula.dart';
 /// and the product entities on the right-hand side.
 class Equation {
   final List<Formula> reactants, products;
+  final bool isEquilibrium;
 
   /// Stoichiometric coefficients of the reactants and products.
   final List<int> coefficients;
@@ -48,6 +49,7 @@ class Equation {
       matrixItems[0][j] = new Rational.fromInt(sign * formula.charge);
       ++j;
     }
+    // TODO handle length > 1
     var coefficientVectors = new RationalMatrix(matrixItems).nullSpace;
     var balancedCoefficients =
         new List<Rational>.filled(equationLength, new Rational.fromInt(0));
@@ -63,6 +65,14 @@ class Equation {
         .toList();
   }
 
-  Equation(this.reactants, this.products)
+  Equation(this.reactants, this.products, {this.isEquilibrium = false})
       : coefficients = getBalancedCoefficients(reactants, products);
+
+  @override
+  String toString() {
+    String arrow = isEquilibrium ? "⇌" : "⟶";
+    String reactants = this.reactants.join(" + ");
+    String products = this.products.join(" + ");
+    return "$reactants $arrow $products";
+  }
 }

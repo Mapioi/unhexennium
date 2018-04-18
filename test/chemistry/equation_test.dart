@@ -5,7 +5,7 @@ import 'package:unhexennium/chemistry/equation.dart';
 
 void main() {
   group("Balancing equations", () {
-    test("2 H2 + O2 -> 2 H2O", () {
+    test("H₂ + O₂ ⟶ H₂O", () {
       Equation eq = new Equation(
         [
           new Formula({ElementSymbol.H: 2}),
@@ -19,7 +19,7 @@ void main() {
     });
 
     // Here the null space consists of 2 vectors.
-    test("C7H6O3 + C4H6O3 -> C9H8O4 + C2H4O2", () {
+    test("C₇H₆O₃ + C₄H₆O₃ ⟶ C₉H₈O₄ + C₂H₄O₂", () {
       Equation eq = new Equation(
         [
           new Formula(
@@ -37,7 +37,7 @@ void main() {
       expect(eq.coefficients, [1, 1, 1, 1]);
     });
 
-    test("Cl2 + 2 e^- -> 2 Cl^-", () {
+    test("Cl₂ + e⁻ ⟶ Cl⁻", () {
       Equation eq = new Equation(
         [
           new Formula(
@@ -55,7 +55,7 @@ void main() {
       expect(eq.coefficients, [1, 2, 2]);
     });
 
-    test("Cl2 + 2 Fe^2+ -> 2 Cl^- + 2 Fe^3+", () {
+    test("Cl₂ + Fe²⁺ ⟶ Cl⁻ + Fe³⁺", () {
       Equation eq = new Equation(
         [
           new Formula(
@@ -71,13 +71,9 @@ void main() {
             {ElementSymbol.Cl: 1},
             charge: -1,
           ),
-          new Formula(
-            {ElementSymbol.Fe: 1},
-            charge: 3
-          ),
+          new Formula({ElementSymbol.Fe: 1}, charge: 3),
         ],
       );
-
       expect(eq.coefficients, [1, 2, 2, 2]);
     });
   });
