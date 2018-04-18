@@ -37,7 +37,7 @@ class Formula {
             })
             .toList()
             .join() +
-        toStringAsCharge(charge, omitOne: true);
+        asSuperscript(toStringAsCharge(charge, omitOne: true));
   }
 
   /// Calculate the relative formula mass of this chemical formula.
