@@ -5,6 +5,8 @@ import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
+/// Gas constant (J k^-1 mol^-1)
+const num R = 8.31;
 enum BondType { Covalent, Ionic, Metallic, PolarCovalent }
 
 /// A chemical formula is a way of information about the chemical proportions
@@ -216,6 +218,42 @@ class Formula {
 
   /// Calculate the mass in grams from the number of moles.
   num mass(num mole) => mole * rfm;
+
+  /// Calculate the pressure of this ideal gas.
+  ///
+  /// * p is in pascals;
+  /// * V is in cubic meters;
+  /// * n is in moles;
+  /// * R = 8.31 J K^-1 mol^-1;
+  /// * T is in kelvins.
+  num p({@required num V, @required num n, @required num T}) => (n * R * T) / V;
+
+  /// Calculate the volume of this ideal gas.
+  ///
+  /// * p is in pascals;
+  /// * V is in cubic meters;
+  /// * n is in moles;
+  /// * R = 8.31 J K^-1 mol^-1;
+  /// * T is in kelvins.
+  num V({@required num p, @required num n, @required num T}) => (n * R * T) / p;
+
+  /// Calculate the number of moles of this ideal gas.
+  ///
+  /// * p is in pascals;
+  /// * V is in cubic meters;
+  /// * n is in moles;
+  /// * R = 8.31 J K^-1 mol^-1;
+  /// * T is in kelvins.
+  num n({@required num p, @required num V, @required num T}) => p * V / (R * T);
+
+  /// Calculate the temperature of this ideal gas.
+  ///
+  /// * p is in pascals;
+  /// * V is in cubic meters;
+  /// * n is in moles;
+  /// * R = 8.31 J K^-1 mol^-1;
+  /// * T is in kelvins.
+  num T({@required num p, @required num V, @required num n}) => p * V / (n * R);
 }
 
 /// Utility structure to represent an element-subscript tuple.
