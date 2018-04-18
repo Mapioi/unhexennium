@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
@@ -120,6 +121,110 @@ void main() {
         ).bondType,
         null,
       );
+    });
+
+    group("oxidation state", () {
+      test("Postulate 1: F2", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.F: 2,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.F: new Rational.fromInt(0),
+          },
+        );
+      });
+
+      test("Postulate 2: O2^-", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.O: 2,
+            },
+            -1,
+          ).oxidationStates,
+          {
+            ElementSymbol.O: new Rational(-1, 2),
+          },
+        );
+      });
+
+      test("Postulate 3: ClF3", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.Cl: 1,
+              ElementSymbol.F: 3,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.F: new Rational.fromInt(-1),
+            ElementSymbol.Cl: new Rational.fromInt(3),
+          },
+        );
+      });
+
+      test("Postulate 4: Na2O2", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.Na: 2,
+              ElementSymbol.O: 2,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.Na: new Rational.fromInt(1),
+            ElementSymbol.O: new Rational.fromInt(-1),
+          },
+        );
+      });
+
+      test("Postulate 5: CH4", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.C: 1,
+              ElementSymbol.H: 4,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.C: new Rational.fromInt(-4),
+            ElementSymbol.H: new Rational.fromInt(1),
+          },
+        );
+      });
+
+      test("Postulate 5: LiH", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.Li: 1,
+              ElementSymbol.H: 1,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.Li: new Rational.fromInt(1),
+            ElementSymbol.H: new Rational.fromInt(-1),
+          },
+        );
+      });
+
+      test("Postulate 6: Fe3O4", () {
+        expect(
+          new Formula(
+            {
+              ElementSymbol.Fe: 3,
+              ElementSymbol.O: 4,
+            },
+          ).oxidationStates,
+          {
+            ElementSymbol.Fe: new Rational(8, 3),
+            ElementSymbol.O: new Rational.fromInt(-2),
+          },
+        );
+      });
     });
   });
 

@@ -53,6 +53,112 @@ class Formula {
             100,
       );
 
+  /// The oxidation state, sometimes referred to as oxidation number, describes
+  /// degree of oxidation (loss of electrons) of an atom in a chemical compound.
+  /// Conceptually, the oxidation state, which may be positive, negative or
+  /// zero, is the hypothetical charge that an atom would have if all bonds to
+  /// atoms of different elements were 100% ionic, with no covalent component.
+  ///
+  /// The oxidation states are determined via an algorithm based on postulates:
+  /// 1. An element in a free form has OS = 0.
+  /// 2. In a compound or ion, the oxidation-state sum equals the total charge
+  ///    of the compound or ion.
+  /// 3. Fluorine in compounds has OS = −1;
+  ///    which extends to Cl and Br only when not bonded to a lighter halogen,
+  ///    oxygen or nitrogen.
+  /// 4. Group 1 and 2 metals in compounds have OS = +1 and +2, respectively.
+  /// 5. Hydrogen has OS = +1, but adopts −1 when bonded to metals or
+  ///    metalloids.
+  /// 6. Oxygen in compounds has OS = −2.
+  /// The algorithm is expected to cover most compounds in a textbook's scope.
+  /// Returns null if it fails to determine the OS for all elements.
+  Map<ElementSymbol, Rational> get oxidationStates {
+    var symbols = elements.keys.toList();
+    int chargeLeft = charge;
+    Map<ElementSymbol, Rational> os = {};
+    // Condition in postulate 5
+    bool bondedToMetalsOrMetalloids = false;
+
+    while (symbols.length > 1) {
+      // Postulate 3: fluorine always has OS of -1
+      if (symbols.contains(ElementSymbol.F)) {
+        os[ElementSymbol.F] = new Rational.fromInt(-1);
+        chargeLeft -= (-1) * elements[ElementSymbol.F];
+        symbols.remove(ElementSymbol.F);
+        continue;
+        // And so does chlorine when not bonded to fluorine, oxygen or nitrogen
+      } else if (!symbols.contains(ElementSymbol.O) &&
+          !symbols.contains(ElementSymbol.N)) {
+        if (symbols.contains(ElementSymbol.Cl)) {
+          os[ElementSymbol.Cl] = new Rational.fromInt(-1);
+          chargeLeft -= (-1) * elements[ElementSymbol.Cl];
+          symbols.remove(ElementSymbol.Cl);
+          continue;
+
+          // For bromine the 'lighter halogen' also includes chlorine
+        } else if (symbols.contains(ElementSymbol.Br)) {
+          os[ElementSymbol.Br] = new Rational.fromInt(-1);
+          chargeLeft -= (-1) * elements[ElementSymbol.Br];
+          symbols.remove(ElementSymbol.Br);
+          continue;
+        }
+      }
+
+      bool postulate4Used = false;
+
+      for (int i = 0; i < symbols.length; ++i) {
+        ElementSymbol symbol = symbols[i];
+        if (!metalloids.contains(symbol) && !nonMetals.contains(symbol)) {
+          bondedToMetalsOrMetalloids = true;
+
+          // Postulate 4
+          if (alkaliMetals.contains(symbol)) {
+            os[symbol] = new Rational.fromInt(1);
+            chargeLeft -= 1 * elements[symbol];
+            symbols.remove(symbol);
+            postulate4Used = true;
+            break;
+          } else if (alkalineEarthMetals.contains(symbol)) {
+            os[symbol] = new Rational.fromInt(2);
+            chargeLeft -= 2 * elements[symbol];
+            symbols.remove(symbol);
+            postulate4Used = true;
+            break;
+          }
+        }
+      }
+
+      if (postulate4Used) continue;
+
+      // Postulate 5
+      if (symbols.contains(ElementSymbol.H)) {
+        int osHydrogen = bondedToMetalsOrMetalloids ? -1 : 1;
+        os[ElementSymbol.H] = new Rational.fromInt(osHydrogen);
+        chargeLeft -= osHydrogen * elements[ElementSymbol.H];
+        symbols.remove(ElementSymbol.H);
+        continue;
+      }
+
+      // Postulate 6
+      if (symbols.contains(ElementSymbol.O)) {
+        os[ElementSymbol.O] = new Rational.fromInt(-2);
+        chargeLeft -= (-2) * elements[ElementSymbol.O];
+        symbols.remove(ElementSymbol.O);
+        continue;
+      }
+
+      if (symbols.length > 1) return null;
+    }
+
+    // Postulate 1 & 2
+    ElementSymbol symbol = symbols[0];
+    int numberOfAtoms = elements[symbol];
+    os[symbol] = new Rational(chargeLeft, numberOfAtoms);
+    symbols.remove(symbol);
+
+    return os;
+  }
+
   /// Determine the type of bonding in this molecule using Table 29,
   /// triangular bonding diagram (van Arkel-Ketelaar triangle of bonding).
   /// Therefore, the type of bonding can only be determined for molecules with
@@ -133,6 +239,7 @@ class FormulaFactory {
   void insertElementAt(int index, {@required ElementSymbol elementSymbol}) {
     elementsList.insert(index, new ElementSubscriptPair(elementSymbol, 1));
   }
+
   /// Set the subscript of the element / parenthesis at [index].
   void setSubscriptAt(int index, {@required int subscript}) {
     elementsList[index].subscript = subscript;
