@@ -102,10 +102,17 @@ class FormulaState {
   static void removeAtCursor() {
     setState(() {
       var closingIndices = FormulaState.formulaFactory.getClosingIndices();
-      if (closingIndices.containsKey(selectedBlockIndex))
-        formulaFactory.removeAt(closingIndices[selectedBlockIndex]);
-        formulaFactory.removeAt(selectedBlockIndex);
+      formulaFactory.removeAt(selectedBlockIndex);
+      if (closingIndices.containsKey(selectedBlockIndex)) {
+        // Upon removal of the opening parenthesis,
+        // which is guaranteed to be situated to the left of its closing counterpart,
+        // everything is shifted to the left by 1, and hence the -1.
+        formulaFactory.removeAt(closingIndices[selectedBlockIndex] - 1);
+        selectedBlockIndex = closingIndices[selectedBlockIndex] - 1;
+      }
+
       selectedBlockIndex--;
+      // Select box, whose index is the opening parenthesis.
       Map<int, int> openingIndices = formulaFactory.getOpeningIndices();
       if (openingIndices.containsKey(selectedBlockIndex))
         selectedBlockIndex = openingIndices[selectedBlockIndex];
@@ -134,13 +141,13 @@ class FormulaState {
   }
 
   static void onAdd(ElementSymbol element, int subscript) {
-    Map<int, int> openingParentheses = formulaFactory.getClosingIndices();
+    Map<int, int> closingParentheses = formulaFactory.getClosingIndices();
 
     int position;
     if (selectedBlockIndex == -1) {
       position = formulaFactory.length;
-    } else if (openingParentheses.keys.contains(selectedBlockIndex)) {
-      position = openingParentheses[selectedBlockIndex];
+    } else if (closingParentheses.keys.contains(selectedBlockIndex)) {
+      position = closingParentheses[selectedBlockIndex];
     } else {
       position = selectedBlockIndex + 1;
     }
@@ -170,6 +177,7 @@ class FormulaState {
           );
         }
       }
+      selectedBlockIndex = position;
     });
   }
 
