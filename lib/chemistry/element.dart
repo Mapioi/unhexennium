@@ -145,6 +145,71 @@ enum ElementSymbol {
   Uuo,
 }
 
+const List<ElementSymbol> alkaliMetals = const [
+  ElementSymbol.Li,
+  ElementSymbol.Na,
+  ElementSymbol.K,
+  ElementSymbol.Rb,
+  ElementSymbol.Cs,
+  ElementSymbol.F
+];
+
+const List<ElementSymbol> alkalineEarthMetals = const [
+  ElementSymbol.Be,
+  ElementSymbol.Mg,
+  ElementSymbol.Ca,
+  ElementSymbol.Sr,
+  ElementSymbol.Ba,
+  ElementSymbol.Ra
+];
+
+const List<ElementSymbol> halogens = const [
+  ElementSymbol.F,
+  ElementSymbol.Cl,
+  ElementSymbol.Br,
+  ElementSymbol.I,
+  ElementSymbol.At,
+];
+
+const List<ElementSymbol> nobleGases = const [
+  ElementSymbol.He,
+  ElementSymbol.Ne,
+  ElementSymbol.Ar,
+  ElementSymbol.Kr,
+  ElementSymbol.Xe,
+  ElementSymbol.Rn,
+];
+
+const List<ElementSymbol> metalloids = const [
+  ElementSymbol.B,
+  ElementSymbol.Si,
+  ElementSymbol.Ge,
+  ElementSymbol.As,
+  ElementSymbol.Sb,
+  ElementSymbol.Te,
+];
+
+const List<ElementSymbol> nonMetals = const [
+  ElementSymbol.H,
+  ElementSymbol.C,
+  ElementSymbol.N,
+  ElementSymbol.P,
+  ElementSymbol.O,
+  ElementSymbol.S,
+  ElementSymbol.Se,
+  ElementSymbol.F,
+  ElementSymbol.Cl,
+  ElementSymbol.Br,
+  ElementSymbol.I,
+  ElementSymbol.At,
+  ElementSymbol.He,
+  ElementSymbol.Ne,
+  ElementSymbol.Ar,
+  ElementSymbol.Kr,
+  ElementSymbol.Xe,
+  ElementSymbol.Rn,
+];
+
 /// Relative atomic masses
 /// from table 6 - The periodic table
 /// of the IB chemistry data booklet (version 2, 2014)
@@ -806,7 +871,7 @@ class AbbreviatedElectronConfiguration {
   @override
   String toString() {
     return "${(core == null ? "" : "[${enumToString(core)}]")}${valence
-      .join()}";
+        .join()}";
   }
 }
 
