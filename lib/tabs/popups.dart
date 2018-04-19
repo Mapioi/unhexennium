@@ -108,12 +108,12 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
           padding: const EdgeInsets.all(8.0),
           child: new Row(children: <Widget>[
             new Text(
-              "Select subscript:",
+              "Select subscript",
               style: new TextStyle(fontWeight: FontWeight.bold),
             ),
-            new SizedBox(width: 40.0),
+            new Expanded(child: Container()),
             new Text(selectedSubscript.toString()),
-            new SizedBox(width: 20.0),
+            new Expanded(child: Container()),
             new IconButton(
               onPressed: selectedSubscript == 1
                   ? null
@@ -124,7 +124,7 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
               onPressed: () => setState(() => ++selectedSubscript),
               icon: new Icon(Icons.arrow_right),
             ),
-            new SizedBox(width: 20.0),
+            new Expanded(child: Container()),
             new RaisedButton(
               child: new Text(
                 widget.isAdding ? "INSERT" : "MODIFY",
@@ -186,9 +186,9 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
         leftText,
         style: new TextStyle(fontWeight: FontWeight.bold),
       ),
-      new SizedBox(width: 20.0),
+      new Expanded(child: Container()),
       new Text(numberText),
-      new SizedBox(width: 20.0),
+      new Expanded(child: Container()),
       new IconButton(
         onPressed: (selectedSubscript == 1 && !widget.isCharge)
             ? null
@@ -199,7 +199,7 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
         onPressed: () => setState(() => ++selectedSubscript),
         icon: new Icon(Icons.arrow_right),
       ),
-      new SizedBox(width: 20.0),
+      new Expanded(child: Container()),
       new RaisedButton(
         child: new Text(
           "GO!",
