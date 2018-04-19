@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/tabs/equation.dart';
 import 'package:unhexennium/tabs/element.dart';
 import 'package:unhexennium/tabs/formula.dart';
-import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/utils.dart';
 
 // ui
@@ -16,40 +15,52 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => new _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  /// States are stored here for the child widgets
-  /// So that they don't get lost on tab switch
-  FormulaFactory formulaFactory;
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  TabController _tabController;
 
   _HomePageState() {
-    // Formula ---
     ElementState.setState = setState;
     FormulaState.setState = setState;
+    FormulaState.switchToElementTab =
+        () => _tabController.animateTo(Mode.Element.index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = new TabController(vsync: this, length: Mode.values.length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new DefaultTabController(
-      length: Mode.values.length,
-      child: new Scaffold(
-        // title
-        appBar: new AppBar(
-          title: new Text("Unhexennium"),
-          bottom: new TabBar(
-            isScrollable: true,
-            tabs: Mode.values.map((Mode tabTitle) {
-              return new Tab(
-                text: enumToString(tabTitle),
-              );
-            }).toList(),
-          ),
+    return new Scaffold(
+      // title
+      appBar: new AppBar(
+        title: new Text("Unhexennium"),
+        bottom: new TabBar(
+          controller: _tabController,
+          tabs: Mode.values.map((Mode tabTitle) {
+            return new Tab(
+              text: enumToString(tabTitle),
+            );
+          }).toList(),
         ),
-        // content
-        body: new TabBarView(children: [
+      ),
+      // content
+      body: new TabBarView(
+        controller: _tabController,
+        children: [
           new ElementParent(),
           new FormulaParent(),
           new EquationParent(),
-        ]),
+        ],
       ),
     );
   }

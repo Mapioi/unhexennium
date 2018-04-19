@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:unhexennium/tabs/popups.dart';
 import 'package:unhexennium/utils.dart';
+import 'package:unhexennium/tabs/popups.dart';
+import 'package:unhexennium/tabs/element.dart';
+import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
@@ -78,6 +80,7 @@ class InputBox extends StatelessWidget {
 
 class FormulaState {
   static SetStateCallback setState;
+  static Callback switchToElementTab;
   static final FormulaFactory formulaFactory = new FormulaFactory()
     ..insertOpeningParenthesisAt(0)
     ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
@@ -185,6 +188,20 @@ class FormulaState {
     setState(() {
       selectedBlockIndex = index;
     });
+  }
+
+  static void onView() {
+    ElementSymbol symbol =
+        formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+    ElementState.selectedElement = symbol;
+    Formula formula = formulaFactory.build();
+    Map<ElementSymbol, Rational> oxidationStates = formula.oxidationStates;
+    if (oxidationStates != null) {
+      Rational os = oxidationStates[symbol];
+      if (os.denominator.abs() == 1)
+        ElementState.oxidationState = os.numerator ~/ os.denominator;
+    }
+    switchToElementTab();
   }
 }
 
@@ -299,6 +316,15 @@ class FormulaParent extends StatelessWidget {
                 ? FormulaState.removeAtCursor
                 : null,
             tooltip: 'Delete selected',
+          ),
+          new IconButton(
+            icon: new Icon(Icons.info),
+            onPressed: FormulaState.selectedBlockIndex == -1 ||
+                    FormulaState.formulaFactory
+                        .getClosingIndices()
+                        .containsKey(FormulaState.selectedBlockIndex)
+                ? null
+                : FormulaState.onView,
           ),
           new IconButton(
             icon: new Icon(Icons.edit),
