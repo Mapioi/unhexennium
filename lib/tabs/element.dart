@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:unhexennium/utils.dart';
-import 'package:unhexennium/tabs/table.dart';
-import 'package:unhexennium/tabs/popups.dart';
 import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/tabs/popups.dart';
+import 'package:unhexennium/tabs/table.dart';
+import 'package:unhexennium/utils.dart';
 
 // Options for the popup input dialog
 enum ElementInputOptions { enter, cancel }
@@ -44,7 +44,11 @@ class ElementParent extends StatelessWidget {
         ),
       ),
       child: new GestureDetector(
-        onTap: () => elementSymbolPrompt(context),
+        onTap: () =>
+          elementSymbolPrompt(
+            context: context,
+            currentElementSymbol: ElementState.selectedElement,
+          ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: new Column(
@@ -75,14 +79,19 @@ class ElementParent extends StatelessWidget {
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
     Map<Widget, Widget> data = {};
+
+    // Render text data in the table
     data[new Text("Name", style: StaticTable.head)] = new Text(element.name);
-    if (element.electronegativity != null)
-      data[new Text("Electronegativity", style: StaticTable.head)] =
-          new Text(element.electronegativity.toString());
+    if (element.electronegativity != null) {
+      data[new Text(
+        "Electronegativity",
+        style: StaticTable.head,
+      )] = new Text(element.electronegativity.toString());
+    }
     data[new Text("Electron configuration", style: StaticTable.head)] =
         new Text(new AbbreviatedElectronConfiguration.of(
-                element.electronConfiguration)
-            .toString());
+          element.electronConfiguration,
+        ).toString());
 
     if (element.ionsElectronConfigurations.length != 0)
       data[new Text("Ions", style: StaticTable.head)] = new Column(

@@ -1,21 +1,22 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
-import 'package:unhexennium/tabs/periodic_table.dart';
 import "package:unhexennium/tabs/element.dart" show ElementState;
+import 'package:unhexennium/tabs/periodic_table.dart';
 
 typedef void ElementCallback(ElementSymbol x);
 typedef void SubscriptCallback(int subscript);
 typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
 
-// TODO switch to named args
 // TODO more DRY
-Future<Null> elementFormulaPrompt(
-    BuildContext context,
-    ElementAndSubscriptCallback callback,
-    ElementSymbol currentElementSymbol,
-    int currentSubscript,
-    [bool isAdding = true]) async {
+Future<Null> elementFormulaPrompt({
+  BuildContext context,
+  ElementAndSubscriptCallback callback,
+  ElementSymbol currentElementSymbol,
+  int currentSubscript,
+  bool isAdding = true,
+}) async {
   await showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -32,9 +33,12 @@ Future<Null> elementFormulaPrompt(
   );
 }
 
-Future<Null> parenSubscriptPrompt(
-    BuildContext context, SubscriptCallback callback, int currentSubscript,
-    [bool isCharge = false]) async {
+Future<Null> parenSubscriptPrompt({
+  BuildContext context,
+  SubscriptCallback callback,
+  int currentSubscript,
+  bool isCharge = false,
+}) async {
   await showModalBottomSheet(
     // TODO give user the option: () or []
     context: context,
@@ -52,13 +56,16 @@ Future<Null> parenSubscriptPrompt(
   );
 }
 
-Future<Null> elementSymbolPrompt(BuildContext context) async {
+Future<Null> elementSymbolPrompt({
+  BuildContext context,
+  ElementSymbol currentElementSymbol,
+}) async {
   await showModalBottomSheet(
     context: context,
     builder: (context) => new Container(
           padding: new EdgeInsets.all(16.0),
           child: new PeriodicTable(
-            ElementState.selectedElement,
+            currentElementSymbol,
             (x) {
               ElementState.selectedElement = x;
               Navigator.pop(context); // exit the modal
@@ -175,7 +182,10 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
     String leftText = "Set ${widget.isCharge ? "charge" : "subscript"}";
 
     return new Row(children: <Widget>[
-      new Text(leftText, style: new TextStyle(fontWeight: FontWeight.bold),),
+      new Text(
+        leftText,
+        style: new TextStyle(fontWeight: FontWeight.bold),
+      ),
       new SizedBox(width: 20.0),
       new Text(numberText),
       new SizedBox(width: 20.0),

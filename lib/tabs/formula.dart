@@ -1,11 +1,11 @@
-import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:unhexennium/utils.dart';
-import 'package:unhexennium/tabs/popups.dart';
-import 'package:unhexennium/tabs/element.dart';
-import 'package:unhexennium/maths/rational.dart';
+import 'package:meta/meta.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
+import 'package:unhexennium/maths/rational.dart';
+import 'package:unhexennium/tabs/element.dart';
+import 'package:unhexennium/tabs/popups.dart';
+import 'package:unhexennium/utils.dart';
 
 /// [InputBox] renders the top for whatever the top is
 ///   - Can be an element Text or a Row of more elements
@@ -330,36 +330,47 @@ class FormulaParent extends StatelessWidget {
             icon: new Icon(Icons.edit),
             onPressed: currentPair == null
                 // Charge selected
-                ? () => parenSubscriptPrompt(context,
-                    (a) => FormulaState.onEdit(null, a), currentSubscript, true)
+              ? () =>
+              parenSubscriptPrompt(
+                context: context,
+                callback: (a) => FormulaState.onEdit(null, a),
+                currentSubscript: currentSubscript,
+                isCharge: true,
+              )
                 : (currentPair.elementSymbol == null
                     // Parentheses selected
                     ? () => parenSubscriptPrompt(
-                          context,
-                          (a) => FormulaState.onEdit(null, a),
-                          currentSubscript,
+              context: context,
+              callback: (a) => FormulaState.onEdit(null, a),
+              currentSubscript: currentSubscript,
                         )
                     // Element selected
-                    : () => elementFormulaPrompt(context, FormulaState.onEdit,
-                        currentPair.elementSymbol, currentSubscript, false)),
+              : () =>
+              elementFormulaPrompt(
+                context: context,
+                callback: FormulaState.onEdit,
+                currentElementSymbol: currentPair.elementSymbol,
+                currentSubscript: currentSubscript,
+                isAdding: false,
+              )),
             tooltip: 'Edit selected',
           ),
           new IconButton(
             icon: new Icon(Icons.add),
             onPressed: () => elementFormulaPrompt(
-                  context,
-                  FormulaState.onAdd,
-                  null,
-                  1,
+              context: context,
+              callback: FormulaState.onAdd,
+              currentElementSymbol: null,
+              currentSubscript: 1,
                 ),
             tooltip: 'Add element after selected',
           ),
           new IconButton(
             icon: new Icon(Icons.add_circle_outline),
             onPressed: () => parenSubscriptPrompt(
-                  context,
-                  (a) => FormulaState.onAdd(null, a),
-                  1,
+              context: context,
+              callback: (a) => FormulaState.onAdd(null, a),
+              currentSubscript: 1,
                 ),
             tooltip: 'Add box after current',
           ),
