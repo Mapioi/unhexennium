@@ -197,6 +197,7 @@ class FormulaState {
     Formula formula = formulaFactory.build();
     Map<ElementSymbol, Rational> oxidationStates = formula.oxidationStates;
     if (oxidationStates != null) {
+      /// Oxidation state
       Rational os = oxidationStates[symbol];
       if (os.denominator.abs() == 1)
         ElementState.oxidationState = os.numerator ~/ os.denominator;
@@ -301,81 +302,88 @@ class FormulaParent extends StatelessWidget {
       // Input space
       new Padding(
         child: new Row(
-          children: [render()], // TODO use a container instead
-          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            new Expanded(
+              child: new Row(
+                children: <Widget>[
+                  render(),
+                ],
+                mainAxisAlignment: MainAxisAlignment.center,
+              ),
+            ),
+            new Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new IconButton(
+                  icon: new Icon(Icons.add),
+                  onPressed: () => elementFormulaPrompt(
+                        context: context,
+                        callback: FormulaState.onAdd,
+                        currentElementSymbol: null,
+                        currentSubscript: 1,
+                      ),
+                  tooltip: 'Add element after selected',
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.add_circle_outline),
+                  onPressed: () => parenSubscriptPrompt(
+                        context: context,
+                        callback: (a) => FormulaState.onAdd(null, a),
+                        currentSubscript: 1,
+                      ),
+                  tooltip: 'Add box after current',
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.info),
+                  onPressed: FormulaState.selectedBlockIndex == -1 ||
+                          FormulaState.formulaFactory
+                              .getClosingIndices()
+                              .containsKey(FormulaState.selectedBlockIndex)
+                      ? null
+                      : FormulaState.onView,
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.edit),
+                  onPressed: currentPair == null
+                      // Charge selected
+                      ? () => parenSubscriptPrompt(
+                            context: context,
+                            callback: (a) => FormulaState.onEdit(null, a),
+                            currentSubscript: currentSubscript,
+                            isCharge: true,
+                          )
+                      : (currentPair.elementSymbol == null
+                          // Parentheses selected
+                          ? () => parenSubscriptPrompt(
+                                context: context,
+                                callback: (a) => FormulaState.onEdit(null, a),
+                                currentSubscript: currentSubscript,
+                              )
+                          // Element selected
+                          : () => elementFormulaPrompt(
+                                context: context,
+                                callback: FormulaState.onEdit,
+                                currentElementSymbol: currentPair.elementSymbol,
+                                currentSubscript: currentSubscript,
+                                isAdding: false,
+                              )),
+                  tooltip: 'Edit selected',
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.delete),
+                  onPressed: FormulaState.selectedBlockIndex >= 0
+                      ? FormulaState.removeAtCursor
+                      : null,
+                  tooltip: 'Delete selected',
+                ),
+              ],
+            ),
+          ],
         ),
         padding: EdgeInsets.all(8.0),
       ),
       // Formula Editor
-      new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.delete),
-            onPressed: FormulaState.selectedBlockIndex >= 0
-                ? FormulaState.removeAtCursor
-                : null,
-            tooltip: 'Delete selected',
-          ),
-          new IconButton(
-            icon: new Icon(Icons.info),
-            onPressed: FormulaState.selectedBlockIndex == -1 ||
-                    FormulaState.formulaFactory
-                        .getClosingIndices()
-                        .containsKey(FormulaState.selectedBlockIndex)
-                ? null
-                : FormulaState.onView,
-          ),
-          new IconButton(
-            icon: new Icon(Icons.edit),
-            onPressed: currentPair == null
-                // Charge selected
-              ? () =>
-              parenSubscriptPrompt(
-                context: context,
-                callback: (a) => FormulaState.onEdit(null, a),
-                currentSubscript: currentSubscript,
-                isCharge: true,
-              )
-                : (currentPair.elementSymbol == null
-                    // Parentheses selected
-                    ? () => parenSubscriptPrompt(
-              context: context,
-              callback: (a) => FormulaState.onEdit(null, a),
-              currentSubscript: currentSubscript,
-                        )
-                    // Element selected
-              : () =>
-              elementFormulaPrompt(
-                context: context,
-                callback: FormulaState.onEdit,
-                currentElementSymbol: currentPair.elementSymbol,
-                currentSubscript: currentSubscript,
-                isAdding: false,
-              )),
-            tooltip: 'Edit selected',
-          ),
-          new IconButton(
-            icon: new Icon(Icons.add),
-            onPressed: () => elementFormulaPrompt(
-              context: context,
-              callback: FormulaState.onAdd,
-              currentElementSymbol: null,
-              currentSubscript: 1,
-                ),
-            tooltip: 'Add element after selected',
-          ),
-          new IconButton(
-            icon: new Icon(Icons.add_circle_outline),
-            onPressed: () => parenSubscriptPrompt(
-              context: context,
-              callback: (a) => FormulaState.onAdd(null, a),
-              currentSubscript: 1,
-                ),
-            tooltip: 'Add box after current',
-          ),
-        ],
-      ),
+
       new Container(height: 20.0),
       // Render
       new Text(

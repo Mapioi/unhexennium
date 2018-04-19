@@ -44,11 +44,10 @@ class ElementParent extends StatelessWidget {
         ),
       ),
       child: new GestureDetector(
-        onTap: () =>
-          elementSymbolPrompt(
-            context: context,
-            currentElementSymbol: ElementState.selectedElement,
-          ),
+        onTap: () => elementSymbolPrompt(
+              context: context,
+              currentElementSymbol: ElementState.selectedElement,
+            ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: new Column(
@@ -90,8 +89,8 @@ class ElementParent extends StatelessWidget {
     }
     data[new Text("Electron configuration", style: StaticTable.head)] =
         new Text(new AbbreviatedElectronConfiguration.of(
-          element.electronConfiguration,
-        ).toString());
+      element.electronConfiguration,
+    ).toString());
 
     if (element.ionsElectronConfigurations.length != 0)
       data[new Text("Ions", style: StaticTable.head)] = new Column(
