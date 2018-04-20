@@ -16,21 +16,23 @@ class StaticTable extends StatelessWidget {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
       child: Table(
-          border: new TableBorder.all(color: Colors.grey[300]),
-          children: data.entries
-              .map((MapEntry<Widget, Widget> row) => new TableRow(
-                    children: <Widget>[
-                      new Padding(
-                        padding: new EdgeInsets.all(8.0),
-                        child: row.key,
-                      ),
-                      new Padding(
-                        padding: new EdgeInsets.all(8.0),
-                        child: row.value,
-                      )
-                    ],
-                  ))
-              .toList()),
+        border: new TableBorder.all(color: Colors.grey[300]),
+        children: data.entries
+            .map((MapEntry<Widget, Widget> row) =>
+        new TableRow(
+          children: <Widget>[
+            new Padding(
+              padding: new EdgeInsets.all(8.0),
+              child: row.key,
+            ),
+            new Padding(
+              padding: new EdgeInsets.all(8.0),
+              child: row.value,
+            )
+          ],
+        ))
+            .toList(),
+      ),
     );
   }
 }

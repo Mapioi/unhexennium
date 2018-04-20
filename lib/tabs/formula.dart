@@ -70,9 +70,9 @@ class InputBox extends StatelessWidget {
           ),
           // Style
           decoration: new BoxDecoration(
-              border: new Border.all(
-                  color: currentBorderColor = currentBorderColor)),
-//        padding: new EdgeInsets.all(3.0),
+            border:
+            new Border.all(color: currentBorderColor = currentBorderColor),
+          ),
           margin: new EdgeInsets.all(4.0),
           alignment: Alignment(0.0, 0.0),
         ));
@@ -102,6 +102,8 @@ class FormulaState {
   static int selectedBlockIndex = 0;
   static ElementSymbol underCursor =
       formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+
+  static List<bool> expansionPanelStates = [false, false];
 
   static void removeAtCursor() {
     setState(() {
@@ -218,6 +220,10 @@ class FormulaState {
       formula = formulaFactory.build();
     });
   }
+
+  static void toggleExpansionPanel(int index) =>
+      setState(
+              () => expansionPanelStates[index] = !expansionPanelStates[index]);
 }
 
 /// Formula Parent handles the top level
@@ -313,6 +319,50 @@ class FormulaParent extends StatelessWidget {
       currentSubscript = currentPair.subscript;
     }
 
+    List<ExpansionPanel> expansions = [
+      new ExpansionPanel(
+        headerBuilder: (BuildContext context, bool isOpen) {
+          return new Padding(
+            padding: new EdgeInsets.all(16.0),
+            child: new Text(
+              "Percentage by mass",
+              style: new TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
+        },
+        body: new Container(
+          padding: new EdgeInsets.all(8.0),
+          child: new MassPercentageCards(
+            percentages: FormulaState.formula.percentages,
+          ),
+        ),
+        isExpanded: FormulaState.expansionPanelStates[0],
+      ),
+    ];
+
+    Map<ElementSymbol, Rational> os = FormulaState.formula.oxidationStates;
+    if (os != null) {
+      expansions.add(
+        new ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isOpen) {
+            return new Padding(
+              padding: new EdgeInsets.all(16.0),
+              child: new Text(
+                "Oxidation",
+                style: new TextStyle(fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+          body: new Container(
+            padding: new EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 10.0),
+            height: 80.0, // required for ListView
+            child: new OxidationCards(os: os),
+          ),
+          isExpanded: FormulaState.expansionPanelStates[1],
+        ),
+      );
+    }
+
     return new Column(children: [
       // Input space
       buildEditor(context, currentPair, currentSubscript),
@@ -323,6 +373,13 @@ class FormulaParent extends StatelessWidget {
         child: ListView(
           children: <Widget>[
             buildStaticData(),
+            new ExpansionPanelList(
+              expansionCallback: (int index, bool isExpanded) {
+                FormulaState.toggleExpansionPanel(index);
+              },
+              children: expansions,
+            ),
+            new SizedBox(height: 60.0) // spacer
           ],
         ),
       )
@@ -356,77 +413,19 @@ class FormulaParent extends StatelessWidget {
       );
     }
 
-    Map<ElementSymbol, num> percentages = FormulaState.formula.percentages;
-    if (percentages != null) {
+    BondType bondType = FormulaState.formula.bondType;
+    if (bondType != null) {
       data[new Text(
-        "Percentages by mass",
+        "Bond type",
         style: StaticTable.head,
-      )] = Container(
-        height: 64.0,
-        child: new ListView(
-          children: percentages.entries
-              .map(
-                (MapEntry<ElementSymbol, num> entry) => Card(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          new Text(enumToString(entry.key)),
-                          new Text(entry.value.toStringAsPrecision(3) + '%'),
-                        ],
-                      ),
-                    ),
-              )
-              .toList(),
-          scrollDirection: Axis.horizontal,
-        ),
-      );
-    }
-
-    Map<ElementSymbol, Rational> os = FormulaState.formula.oxidationStates;
-    if (os != null) {
-      data[new Text(
-        "Oxidation states",
-        style: StaticTable.head,
-      )] = Container(
-        height: 64.0,
-        child: new ListView(
-          children: os.entries
-              .map(
-                (MapEntry<ElementSymbol, Rational> entry) => Card(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          new Text(enumToString(entry.key)),
-                          new Text(
-                            (entry.value.numerator < 0
-                                    ? '-'
-                                    : entry.value.numerator == 0 ? '' : '+') +
-                                (entry.value.denominator == 1
-                                    ? entry.value.numerator.abs().toString()
-                                    : entry.value.abs.toString()),
-                          ),
-                        ],
-                      ),
-                    ),
-              )
-              .toList(),
-          scrollDirection: Axis.horizontal,
-        ),
-      );
-
-      BondType bondType = FormulaState.formula.bondType;
-      if (bondType != null) {
-        data[new Text(
-          "Bond type",
-          style: StaticTable.head,
-        )] = new Text(enumToString(bondType));
-      }
+      )] = new Text(enumToString(bondType));
     }
     return StaticTable(data);
   }
 
-  Widget buildEditor(BuildContext context, ElementSubscriptPair currentPair,
-      int currentSubscript) {
+  Widget buildEditor(BuildContext context,
+      ElementSubscriptPair currentPair,
+      int currentSubscript,) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: new Row(
@@ -518,6 +517,76 @@ class FormulaParent extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class OxidationCards extends StatelessWidget {
+  final Map<ElementSymbol, Rational> os;
+
+  OxidationCards({Key key, this.os}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView(
+      children: os.entries
+          .map(
+            (MapEntry<ElementSymbol, Rational> entry) =>
+            Card(
+              child: Padding(
+                padding: new EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new Text(enumToString(entry.key)),
+                    new Text(
+                      (entry.value.numerator < 0
+                          ? '-'
+                          : entry.value.numerator == 0 ? '' : '+') +
+                          (entry.value.denominator == 1
+                              ? entry.value.numerator.abs().toString()
+                              : entry.value.abs.toString()),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+      )
+          .toList(),
+      scrollDirection: Axis.horizontal,
+    );
+  }
+}
+
+class MassPercentageCards extends StatelessWidget {
+  final Map<ElementSymbol, num> percentages;
+
+  MassPercentageCards({Key key, this.percentages}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      height: 64.0,
+      child: new ListView(
+        children: percentages.entries
+            .map(
+              (MapEntry<ElementSymbol, num> entry) =>
+              Card(
+                child: Padding(
+                  padding: new EdgeInsets.all(3.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      new Text(enumToString(entry.key)),
+                      new Text(entry.value.toStringAsPrecision(3) + '%'),
+                    ],
+                  ),
+                ),
+              ),
+        )
+            .toList(),
+        scrollDirection: Axis.horizontal,
       ),
     );
   }
