@@ -120,6 +120,8 @@ class FormulaState {
       Map<int, int> openingIndices = formulaFactory.getOpeningIndices();
       if (openingIndices.containsKey(selectedBlockIndex))
         selectedBlockIndex = openingIndices[selectedBlockIndex];
+
+      formula = formulaFactory.build();
     });
   }
 
@@ -141,6 +143,8 @@ class FormulaState {
             formulaFactory.getClosingIndices()[selectedBlockIndex];
         formulaFactory.setSubscriptAt(closingParenIndex, subscript: subscript);
       }
+
+      formula = formulaFactory.build();
     });
   }
 
@@ -181,7 +185,9 @@ class FormulaState {
           );
         }
       }
+
       selectedBlockIndex = position;
+      formula = formulaFactory.build();
     });
   }
 
@@ -192,15 +198,12 @@ class FormulaState {
   }
 
   static void onView() {
-    ElementSymbol symbol =
-        formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
-    ElementState.selectedElement = symbol;
-    Formula formula = formulaFactory.build();
-    Map<ElementSymbol, Rational> oxidationStates = formula.oxidationStates;
+    ElementState.selectedElement = underCursor;
+    var oxidationStates = FormulaState.formula.oxidationStates;
     if (oxidationStates != null) {
       /// Oxidation state
-      Rational os = oxidationStates[symbol];
-      if (os.denominator.abs() == 1)
+      Rational os = oxidationStates[underCursor];
+      if (os != null && os.denominator.abs() == 1)
         ElementState.oxidationState = os.numerator ~/ os.denominator;
     }
     switchToElementTab();
@@ -211,6 +214,8 @@ class FormulaState {
       formulaFactory.elementsList.clear();
       formulaFactory.charge = 0;
       selectedBlockIndex = -1;
+
+      formula = formulaFactory.build();
     });
   }
 }
@@ -325,7 +330,6 @@ class FormulaParent extends StatelessWidget {
   }
 
   Widget buildStaticData() {
-    Formula formula = FormulaState.formulaFactory.build();
     Map<Widget, Widget> data = <Widget, Widget>{};
 
     data[new Text(
@@ -339,9 +343,9 @@ class FormulaParent extends StatelessWidget {
     data[new Text(
       "Relative formula mass",
       style: StaticTable.head,
-    )] = new Text(formula.rfm.toStringAsFixed(2));
+    )] = new Text(FormulaState.formula.rfm.toStringAsFixed(2));
 
-    Formula ef = formula.empiricalFormula;
+    Formula ef = FormulaState.formula.empiricalFormula;
     if (ef != null) {
       data[new Text(
         "Empirical formula",
@@ -352,7 +356,7 @@ class FormulaParent extends StatelessWidget {
       );
     }
 
-    Map<ElementSymbol, num> percentages = formula.percentages;
+    Map<ElementSymbol, num> percentages = FormulaState.formula.percentages;
     if (percentages != null) {
       data[new Text(
         "Percentages by mass",
@@ -378,15 +382,15 @@ class FormulaParent extends StatelessWidget {
       );
     }
 
-    Map<ElementSymbol, Rational> oxidationStates = formula.oxidationStates;
-    if (oxidationStates != null) {
+    Map<ElementSymbol, Rational> os = FormulaState.formula.oxidationStates;
+    if (os != null) {
       data[new Text(
         "Oxidation states",
         style: StaticTable.head,
       )] = Container(
         height: 64.0,
         child: new ListView(
-          children: oxidationStates.entries
+          children: os.entries
               .map(
                 (MapEntry<ElementSymbol, Rational> entry) => Card(
                       child: Column(
@@ -410,7 +414,7 @@ class FormulaParent extends StatelessWidget {
         ),
       );
 
-      BondType bondType = formula.bondType;
+      BondType bondType = FormulaState.formula.bondType;
       if (bondType != null) {
         data[new Text(
           "Bond type",
