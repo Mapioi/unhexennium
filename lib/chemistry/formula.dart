@@ -25,6 +25,7 @@ class Formula {
 
   static final Formula e = new Formula({}, charge: -1);
 
+  // TODO hill's
   @override
   String toString() {
     if (elements.isEmpty && charge == -1) return "e${asSuperscript('-')}";
@@ -101,7 +102,7 @@ class Formula {
     int chargeLeft = charge;
     Map<ElementSymbol, Rational> os = {};
     // Condition in postulate 5
-    bool bondedToMetalsOrMetalloids = false;
+    bool isMetalHydride = false;
 
     while (symbols.length > 1) {
       // Postulate 3: fluorine always has OS of -1
@@ -132,8 +133,12 @@ class Formula {
 
       for (int i = 0; i < symbols.length; ++i) {
         ElementSymbol symbol = symbols[i];
-        if (!metalloids.contains(symbol) && !nonMetals.contains(symbol)) {
-          bondedToMetalsOrMetalloids = true;
+        // Due to technical difficulties,
+        // only binary metal hydrides are considered.
+        if (elements.length <= 2) {
+          if (!metalloids.contains(symbol) && !nonMetals.contains(symbol)) {
+            isMetalHydride = true;
+        }
 
           // Postulate 4
           if (alkaliMetals.contains(symbol)) {
@@ -156,7 +161,7 @@ class Formula {
 
       // Postulate 5
       if (symbols.contains(ElementSymbol.H)) {
-        int osHydrogen = bondedToMetalsOrMetalloids ? -1 : 1;
+        int osHydrogen = isMetalHydride ? -1 : 1;
         os[ElementSymbol.H] = new Rational.fromInt(osHydrogen);
         chargeLeft -= osHydrogen * elements[ElementSymbol.H];
         symbols.remove(ElementSymbol.H);
@@ -202,11 +207,11 @@ class Formula {
     num chiAv = (chi1 + chi2) / 2;
     num chiDiff = (chi1 - chi2).abs();
 
-    // Metal / non-metal boundary: χ_av = -0.5 Δχ + 2.28
-    if (chiAv <= -0.5 * chiDiff + 2.28) return BondType.Metallic;
+    // Metal / non-metal boundary
+    if (chiDiff <= -1.86 * chiAv + 3.57) return BondType.Metallic;
 
-    // Covalent / ionic boundary:  χ_av =  0.5 Δχ + 1.60
-    if (chiAv <= 0.5 * chiDiff + 1.60) return BondType.Ionic;
+    // Covalent / ionic boundary
+    if (chiDiff >= 1.86 * chiAv - 2.79) return BondType.Ionic;
 
     // Typically,
     if (chiDiff <= 0.4) return BondType.Covalent;
