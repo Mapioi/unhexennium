@@ -25,6 +25,10 @@ class Rational {
     int d = gcd(numerator, denominator);
     numerator ~/= d;
     denominator ~/= d;
+    if (denominator < 0) {
+      numerator ~/= -1;
+      denominator ~/= -1;
+    }
   }
 
   Rational(this.numerator, this.denominator) {
@@ -43,6 +47,8 @@ class Rational {
   Rational get opposite => new Rational(-numerator, denominator);
 
   Rational get reciprocal => new Rational(denominator, numerator);
+
+  Rational get abs => new Rational(numerator.abs(), denominator);
 
   Rational operator +(Rational other) {
     return new Rational(

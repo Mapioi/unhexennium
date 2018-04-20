@@ -66,7 +66,7 @@ class ElementParent extends StatelessWidget {
                 ),
               ),
               new Text(
-                element.relativeAtomicMass.toString(),
+                element.relativeAtomicMass.toStringAsFixed(2),
               ),
             ],
           ),

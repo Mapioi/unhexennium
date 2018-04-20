@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 class StaticTable extends StatelessWidget {
   final Map<Widget, Widget> data;
   static final TextStyle head = new TextStyle(fontWeight: FontWeight.bold);
+  static final TextStyle formula = new TextStyle(
+    fontFamily: 'Stix2Math',
+    /*fontSize: 18.0,
+    fontStyle: FontStyle.normal,*/
+  );
 
   StaticTable(this.data);
 
@@ -25,8 +30,7 @@ class StaticTable extends StatelessWidget {
                       )
                     ],
                   ))
-              .toList()
-          ),
+              .toList()),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/tabs/element.dart';
 import 'package:unhexennium/tabs/popups.dart';
+import 'package:unhexennium/tabs/table.dart';
 import 'package:unhexennium/utils.dart';
 
 /// [InputBox] renders the top for whatever the top is
@@ -96,7 +97,7 @@ class FormulaState {
     ..insertClosingParenthesisAt(9)
     ..setSubscriptAt(9, subscript: 4)
     ..insertClosingParenthesisAt(10)
-    ..charge = 2;
+    ..charge = 1;
   static Formula formula = formulaFactory.build();
   static int selectedBlockIndex = 0;
   static ElementSymbol underCursor =
@@ -204,6 +205,14 @@ class FormulaState {
     }
     switchToElementTab();
   }
+
+  static void onReset() {
+    setState(() {
+      formulaFactory.elementsList.clear();
+      formulaFactory.charge = 0;
+      selectedBlockIndex = -1;
+    });
+  }
 }
 
 /// Formula Parent handles the top level
@@ -263,11 +272,12 @@ class FormulaParent extends StatelessWidget {
   }
 
   /// Used to initiate the recursion
-  InputBox render() {
+  Widget buildEditorMain() {
     /*print(FormulaState.formulaFactory.elementsList.toString());*/
     Row inputBoxesRow =
         recursiveInputBuilder(0, FormulaState.formulaFactory.length);
 
+    // TODO make scrollable _(:_」∠)_ (　ﾟдﾟ) (￣Д￣)ﾉ
     InputBox parentInputBox = new InputBox(
       widgetToDisplay: inputBoxesRow,
       subscript: FormulaState.formulaFactory.charge,
@@ -300,100 +310,211 @@ class FormulaParent extends StatelessWidget {
 
     return new Column(children: [
       // Input space
-      new Padding(
-        child: new Row(
-          children: [
-            new Expanded(
-              child: new Row(
-                children: <Widget>[
-                  render(),
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-              ),
-            ),
-            new Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new IconButton(
-                  icon: new Icon(Icons.add),
-                  onPressed: () => elementFormulaPrompt(
-                        context: context,
-                        callback: FormulaState.onAdd,
-                        currentElementSymbol: null,
-                        currentSubscript: 1,
-                      ),
-                  tooltip: 'Add element after selected',
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.add_circle_outline),
-                  onPressed: () => parenSubscriptPrompt(
-                        context: context,
-                        callback: (a) => FormulaState.onAdd(null, a),
-                        currentSubscript: 1,
-                      ),
-                  tooltip: 'Add box after current',
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.info),
-                  onPressed: FormulaState.selectedBlockIndex == -1 ||
-                          FormulaState.formulaFactory
-                              .getClosingIndices()
-                              .containsKey(FormulaState.selectedBlockIndex)
-                      ? null
-                      : FormulaState.onView,
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.edit),
-                  onPressed: currentPair == null
-                      // Charge selected
-                      ? () => parenSubscriptPrompt(
-                            context: context,
-                            callback: (a) => FormulaState.onEdit(null, a),
-                            currentSubscript: currentSubscript,
-                            isCharge: true,
-                          )
-                      : (currentPair.elementSymbol == null
-                          // Parentheses selected
-                          ? () => parenSubscriptPrompt(
-                                context: context,
-                                callback: (a) => FormulaState.onEdit(null, a),
-                                currentSubscript: currentSubscript,
-                              )
-                          // Element selected
-                          : () => elementFormulaPrompt(
-                                context: context,
-                                callback: FormulaState.onEdit,
-                                currentElementSymbol: currentPair.elementSymbol,
-                                currentSubscript: currentSubscript,
-                                isAdding: false,
-                              )),
-                  tooltip: 'Edit selected',
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.delete),
-                  onPressed: FormulaState.selectedBlockIndex >= 0
-                      ? FormulaState.removeAtCursor
-                      : null,
-                  tooltip: 'Delete selected',
-                ),
-              ],
-            ),
-          ],
-        ),
-        padding: EdgeInsets.all(8.0),
-      ),
+      buildEditor(context, currentPair, currentSubscript),
       // Formula Editor
 
-      new Container(height: 20.0),
       // Render
-      new Text(
-        FormulaState.formulaFactory.toString(),
-        style: new TextStyle(
-          fontFamily: 'Stix2Math',
-          fontSize: 18.0,
-          fontStyle: FontStyle.normal,
+      Expanded(
+        child: ListView(
+          children: <Widget>[
+            buildStaticData(),
+          ],
         ),
       )
     ]);
+  }
+
+  Widget buildStaticData() {
+    Formula formula = FormulaState.formulaFactory.build();
+    Map<Widget, Widget> data = <Widget, Widget>{};
+
+    data[new Text(
+      "Formula",
+      style: StaticTable.head,
+    )] = new Text(
+      FormulaState.formulaFactory.toString(),
+      style: StaticTable.formula,
+    );
+
+    data[new Text(
+      "Relative formula mass",
+      style: StaticTable.head,
+    )] = new Text(formula.rfm.toStringAsFixed(2));
+
+    Formula ef = formula.empiricalFormula;
+    if (ef != null) {
+      data[new Text(
+        "Empirical formula",
+        style: StaticTable.head,
+      )] = new Text(
+        ef.toString(),
+        style: StaticTable.formula,
+      );
+    }
+
+    Map<ElementSymbol, num> percentages = formula.percentages;
+    if (percentages != null) {
+      data[new Text(
+        "Percentages by mass",
+        style: StaticTable.head,
+      )] = Container(
+        height: 64.0,
+        child: new ListView(
+          children: percentages.entries
+              .map(
+                (MapEntry<ElementSymbol, num> entry) => Card(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Text(enumToString(entry.key)),
+                          new Text(entry.value.toStringAsPrecision(3) + '%'),
+                        ],
+                      ),
+                    ),
+              )
+              .toList(),
+          scrollDirection: Axis.horizontal,
+        ),
+      );
+    }
+
+    Map<ElementSymbol, Rational> oxidationStates = formula.oxidationStates;
+    if (oxidationStates != null) {
+      data[new Text(
+        "Oxidation states",
+        style: StaticTable.head,
+      )] = Container(
+        height: 64.0,
+        child: new ListView(
+          children: oxidationStates.entries
+              .map(
+                (MapEntry<ElementSymbol, Rational> entry) => Card(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Text(enumToString(entry.key)),
+                          new Text(
+                            (entry.value.numerator < 0
+                                    ? '-'
+                                    : entry.value.numerator == 0 ? '' : '+') +
+                                (entry.value.denominator == 1
+                                    ? entry.value.numerator.abs().toString()
+                                    : entry.value.abs.toString()),
+                          ),
+                        ],
+                      ),
+                    ),
+              )
+              .toList(),
+          scrollDirection: Axis.horizontal,
+        ),
+      );
+
+      BondType bondType = formula.bondType;
+      if (bondType != null) {
+        data[new Text(
+          "Bond type",
+          style: StaticTable.head,
+        )] = new Text(enumToString(bondType));
+      }
+    }
+    return StaticTable(data);
+  }
+
+  Widget buildEditor(BuildContext context, ElementSubscriptPair currentPair,
+      int currentSubscript) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new IconButton(
+                icon: new Icon(Icons.info),
+                onPressed: FormulaState.selectedBlockIndex == -1 ||
+                        FormulaState.formulaFactory
+                            .getClosingIndices()
+                            .containsKey(FormulaState.selectedBlockIndex)
+                    ? null
+                    : FormulaState.onView,
+              ),
+              new IconButton(
+                icon: new Icon(Icons.add),
+                onPressed: () => elementFormulaPrompt(
+                      context: context,
+                      callback: FormulaState.onAdd,
+                      currentElementSymbol: null,
+                      currentSubscript: 1,
+                    ),
+                tooltip: 'Add element after selected',
+              ),
+              new IconButton(
+                icon: new Icon(Icons.add_circle_outline),
+                onPressed: () => parenSubscriptPrompt(
+                      context: context,
+                      callback: (a) => FormulaState.onAdd(null, a),
+                      currentSubscript: 1,
+                    ),
+                tooltip: 'Add box after current',
+              ),
+            ],
+          ),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                buildEditorMain(),
+              ],
+              mainAxisAlignment: MainAxisAlignment.center,
+            ),
+          ),
+          new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new IconButton(
+                icon: new Icon(Icons.edit),
+                onPressed: currentPair == null
+                    // Charge selected
+                    ? () => parenSubscriptPrompt(
+                          context: context,
+                          callback: (a) => FormulaState.onEdit(null, a),
+                          currentSubscript: currentSubscript,
+                          isCharge: true,
+                        )
+                    : (currentPair.elementSymbol == null
+                        // Parentheses selected
+                        ? () => parenSubscriptPrompt(
+                              context: context,
+                              callback: (a) => FormulaState.onEdit(null, a),
+                              currentSubscript: currentSubscript,
+                            )
+                        // Element selected
+                        : () => elementFormulaPrompt(
+                              context: context,
+                              callback: FormulaState.onEdit,
+                              currentElementSymbol: currentPair.elementSymbol,
+                              currentSubscript: currentSubscript,
+                              isAdding: false,
+                            )),
+                tooltip: 'Edit selected',
+              ),
+              new IconButton(
+                icon: new Icon(Icons.delete),
+                onPressed: FormulaState.selectedBlockIndex >= 0
+                    ? FormulaState.removeAtCursor
+                    : null,
+                tooltip: 'Delete selected',
+              ),
+              new IconButton(
+                icon: new Icon(Icons.clear),
+                onPressed: FormulaState.onReset,
+                tooltip: 'Reset',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
