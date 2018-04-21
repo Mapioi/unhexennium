@@ -275,7 +275,6 @@ class FormulaParent extends StatelessWidget {
     }
 
     if (startIndex == endIndex) {
-      print("HEY");
       return new Row(children: [SizedBox(height: 20.0, width: 10.0)]);
     } else {
       return new Row(children: renderedFormula);
@@ -335,6 +334,7 @@ class FormulaParent extends StatelessWidget {
           },
           body: new Container(
             padding: new EdgeInsets.all(8.0),
+            height: 80.0,
             child: new MassPercentageCards(
               percentages: FormulaState.formula.percentages,
             ),
@@ -533,7 +533,7 @@ class OxidationCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(
+    return new Row(
       children: os.entries
           .map(
             (MapEntry<ElementSymbol, Rational> entry) =>
@@ -558,7 +558,7 @@ class OxidationCards extends StatelessWidget {
             ),
       )
           .toList(),
-      scrollDirection: Axis.horizontal,
+      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }
@@ -570,28 +570,25 @@ class MassPercentageCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      height: 64.0,
-      child: new ListView(
-        children: percentages.entries
-            .map(
-              (MapEntry<ElementSymbol, num> entry) =>
-              Card(
-                child: Padding(
-                  padding: new EdgeInsets.all(3.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      new Text(enumToString(entry.key)),
-                      new Text(entry.value.toStringAsPrecision(3) + '%'),
-                    ],
-                  ),
+    return new Row(
+      children: percentages.entries
+          .map(
+            (MapEntry<ElementSymbol, num> entry) =>
+            Card(
+              child: Padding(
+                padding: new EdgeInsets.all(3.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new Text(enumToString(entry.key)),
+                    new Text(entry.value.toStringAsPrecision(3) + '%'),
+                  ],
                 ),
               ),
-        )
-            .toList(),
-        scrollDirection: Axis.horizontal,
-      ),
+            ),
+      )
+          .toList(),
+      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }
