@@ -96,6 +96,19 @@ void main() {
         new Orbital("3d", 5),
         new Orbital("4s", 1),
       ]);
+
+      AbbreviatedElectronConfiguration bohriumElectronConfigShorthand =
+          new AbbreviatedElectronConfiguration.of(
+              new ChemicalElement(ElementSymbol.Bh).electronConfiguration);
+      expect(bohriumElectronConfigShorthand.core, ElementSymbol.Rn);
+      expect(
+        bohriumElectronConfigShorthand.valence,
+        [
+          Orbital("5f", 14),
+          Orbital("6d", 5),
+          Orbital("7s", 2),
+        ],
+      );
     });
 
     test("abbreviated electron configuration - toString", () {
