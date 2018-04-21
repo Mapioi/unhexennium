@@ -3,7 +3,22 @@
 typedef void Callback();
 typedef void SetStateCallback(Callback callback);
 
-String enumToString(enumElement) => enumElement.toString().split(".")[1];
+String enumToString(someEnum) => someEnum.toString().split(".")[1];
+
+String enumToReadableString(someEnum) {
+  String result = "";
+  bool isStart = true;
+  enumToString(someEnum).runes.forEach((int rune) {
+    var character = new String.fromCharCode(rune);
+    if (character == character.toUpperCase() && !isStart) {
+      result += " ${character.toLowerCase()}";
+    } else {
+      result += "$character";
+    }
+    isStart = false;
+  });
+  return result;
+}
 
 const Map<String, String> _subscriptMap = const {
   "0": "₀",

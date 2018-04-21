@@ -319,26 +319,30 @@ class FormulaParent extends StatelessWidget {
       currentSubscript = currentPair.subscript;
     }
 
-    List<ExpansionPanel> expansions = [
-      new ExpansionPanel(
-        headerBuilder: (BuildContext context, bool isOpen) {
-          return new Padding(
-            padding: new EdgeInsets.all(16.0),
-            child: new Text(
-              "Percentage by mass",
-              style: new TextStyle(fontWeight: FontWeight.bold),
+    List<ExpansionPanel> expansions = [];
+
+    if (FormulaState.formula.percentages != null) {
+      expansions.add(
+        new ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isOpen) {
+            return new Padding(
+              padding: new EdgeInsets.all(16.0),
+              child: new Text(
+                "Percentage by mass",
+                style: new TextStyle(fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+          body: new Container(
+            padding: new EdgeInsets.all(8.0),
+            child: new MassPercentageCards(
+              percentages: FormulaState.formula.percentages,
             ),
-          );
-        },
-        body: new Container(
-          padding: new EdgeInsets.all(8.0),
-          child: new MassPercentageCards(
-            percentages: FormulaState.formula.percentages,
           ),
+          isExpanded: FormulaState.expansionPanelStates[0],
         ),
-        isExpanded: FormulaState.expansionPanelStates[0],
-      ),
-    ];
+      );
+    }
 
     Map<ElementSymbol, Rational> os = FormulaState.formula.oxidationStates;
     if (os != null) {
@@ -418,7 +422,7 @@ class FormulaParent extends StatelessWidget {
       data[new Text(
         "Bond type",
         style: StaticTable.head,
-      )] = new Text(enumToString(bondType));
+      )] = new Text(enumToReadableString(FormulaState.formula.bondType));
     }
     return StaticTable(data);
   }
