@@ -829,6 +829,12 @@ class Orbital {
   final int numberElectrons;
 
   static final Map<String, Orbital> _cache = {};
+  static final Map<String, int> _maxSizes = {
+    "s": 2,
+    "p": 6,
+    "d": 10,
+    "f": 14,
+  };
 
   Orbital._internal(this.name, this.numberElectrons);
 
@@ -846,8 +852,9 @@ class Orbital {
 
   bool get isEmpty => numberElectrons == 0;
 
-  bool get isFull =>
-      numberElectrons == {"s": 2, "p": 6, "d": 10, "f": 14, "g": 18}[name[1]];
+  bool get isFull => numberElectrons == _maxSizes[name[1]];
+
+  int get size => _maxSizes[name[1]];
 
   @override
   String toString() {

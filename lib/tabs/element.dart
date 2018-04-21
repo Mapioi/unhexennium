@@ -30,8 +30,8 @@ class ElementState {
 }
 
 class ElementParent extends StatelessWidget {
-  // no element selected => null
 
+  /// Renders the top square
   Widget renderElementCell(BuildContext context) {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
     return new Container(
@@ -75,6 +75,28 @@ class ElementParent extends StatelessWidget {
     );
   }
 
+  /// Construct a list of lists for the decoration arrow boxes
+  List<List<int>> constructSubshellBoxesStructure(List<Orbital> orbitals) {
+    List<List<int>> toReturn = [];
+    for (Orbital orbital in orbitals) {
+      int electronsLeft = orbital.numberElectrons;
+      int numberOfBoxes = orbital.size ~/ 2;
+      List<int> boxes;
+      if (electronsLeft > numberOfBoxes) {
+        boxes = List.generate(numberOfBoxes, (_) => 1);
+        electronsLeft -= numberOfBoxes;
+      } else {
+        boxes = List.generate(numberOfBoxes, (_) => 0);
+      }
+      for (int i = 0; i < electronsLeft; i++) {
+        boxes[i] += 1;
+      }
+      toReturn.add(boxes);
+    }
+    return toReturn;
+  }
+
+  /// Renders table + ExpansionPanel
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
     Map<Widget, Widget> data = {};
@@ -88,10 +110,35 @@ class ElementParent extends StatelessWidget {
       )] = new Text(element.electronegativity.toString());
     }
 
+    List<List<int>> boxData =
+    constructSubshellBoxesStructure(element.electronConfiguration);
+
     data[new Text("Electron configuration", style: StaticTable.head)] =
-        new Text(new AbbreviatedElectronConfiguration.of(
-      element.electronConfiguration,
-    ).toString());
+    new SizedBox(
+      height: 50.0,
+      child: new ListView(
+        children: <Widget>[
+          new Row(
+            children: boxData
+                .map(
+                  (List<int> boxes) =>
+                  Row(
+                    children: boxes
+                        .map(
+                          (int boxArrowsNum) =>
+                      new ElectronSublevelBox(
+                        numberOfArrows: boxArrowsNum,
+                      ),
+                    )
+                        .toList(),
+                  ),
+            )
+                .toList(),
+          ),
+        ],
+        scrollDirection: Axis.horizontal,
+      ),
+    );
 
     if (element.ionsElectronConfigurations.length != 0)
       data[new Text("Ions", style: StaticTable.head)] = new Column(
@@ -129,6 +176,25 @@ class ElementParent extends StatelessWidget {
           renderStaticData(),
         ],
       ),
+    );
+  }
+}
+
+class ElectronSublevelBox extends StatelessWidget {
+  final int numberOfArrows;
+  static final Map<int, String> arrowImage = {
+    0: "imgs/arrows/spinempty.gif",
+    1: "imgs/arrows/spinsingle.gif",
+    2: "imgs/arrows/spinpair.gif"
+  };
+
+  ElectronSublevelBox({Key key, this.numberOfArrows}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: new BoxDecoration(border: Border.all(color: Colors.grey)),
+      child: new Image.asset(arrowImage[numberOfArrows]),
     );
   }
 }
