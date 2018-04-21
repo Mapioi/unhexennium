@@ -405,11 +405,14 @@ class FormulaParent extends StatelessWidget {
         child: ListView(
           children: <Widget>[
             buildStaticData(),
-            new ExpansionPanelList(
-              expansionCallback: (int index, bool isExpanded) {
-                FormulaState.toggleExpansionPanel(index);
-              },
-              children: expansions,
+            new Padding(
+              padding: new EdgeInsets.all(16.0),
+              child: new ExpansionPanelList(
+                expansionCallback: (int index, bool isExpanded) {
+                  FormulaState.toggleExpansionPanel(index);
+                },
+                children: expansions,
+              ),
             ),
             new SizedBox(height: 60.0) // spacer
           ],

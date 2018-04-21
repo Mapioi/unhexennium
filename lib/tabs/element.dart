@@ -87,6 +87,7 @@ class ElementParent extends StatelessWidget {
         style: StaticTable.head,
       )] = new Text(element.electronegativity.toString());
     }
+
     data[new Text("Electron configuration", style: StaticTable.head)] =
         new Text(new AbbreviatedElectronConfiguration.of(
       element.electronConfiguration,
