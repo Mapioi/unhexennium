@@ -3,6 +3,7 @@ import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
+import 'package:unhexennium/chemistry/data/formulae.dart';
 
 void main() {
   group("Formula", () {
@@ -36,6 +37,13 @@ void main() {
         FormulaFactory.fromString(iron3BromideHexahydrate).toString(),
         iron3BromideHexahydrate,
       );
+    });
+
+    test("fromString from data/formulae", () {
+      for (String formula in formulaeNames.keys) {
+        String str = FormulaFactory.fromString(formula).toString();
+        expect(str, formula);
+      }
     });
 
     test("empirical", () {

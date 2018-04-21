@@ -4,6 +4,8 @@ import 'package:meta/meta.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/chemistry/data/formulae.dart';
+
 
 /// Gas constant (J k^-1 mol^-1)
 const num R = 8.31;
@@ -413,6 +415,8 @@ class FormulaFactory {
     }
   }
 
+  List<String> get names => formulaeNames[toString()];
+
   /// Insert a '(' to the formula at [index].
   void insertOpeningParenthesisAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, -1));
@@ -445,8 +449,8 @@ class FormulaFactory {
 
   @override
   String toString() {
-    var closingIndices = getClosingIndices();
-    String formula = elementsList.asMap().keys.map((int i) {
+    if (elementsList.isEmpty) return null;
+    List<String> formulaList = elementsList.asMap().keys.map((int i) {
       ElementSubscriptPair pair = elementsList[i];
       // Element
       if (pair.elementSymbol != null) {
@@ -462,30 +466,37 @@ class FormulaFactory {
         // Parenthesis
       } else {
         if (pair.subscript < 0) {
-          return elementsList[closingIndices[i]].subscript != 1 ? "(" : "[";
+          return "(";
         } else {
-          String parenthesis = pair.subscript == 1 ? "]" : ")";
           String subscript = asSubscript(pair.subscript.toString());
-          return "$parenthesis${pair.subscript == 1 ? "" : subscript}";
+          return ")${pair.subscript == 1 ? "" : subscript}";
         }
       }
-    }).join();
+    }).toList();
+    // Change the first pair parentheses into brackets if needed
+    if (elementsList[0].elementSymbol == null && elementsList[0].subscript < 0) {
+      int closingIndex = getClosingIndices()[0];
+      if (elementsList[closingIndex].subscript == 1) {
+        assert(formulaList[0] == '(');
+        formulaList[0] = '[';
+        assert(formulaList[closingIndex] == ')');
+        formulaList[closingIndex] = ']';
+      }
+    }
+    String formula = formulaList.join();
     // Water of crystallization
     String n = "";
     int i = formula.length - 1;
     while (i >= 0 && isSubscriptChar(formula[i])) {
       // Get the subscript of the last cell
-      n += formula[i];
+      n = formula[i] + n;
       i--;
     }
     if (i > 4) {
-      // ...[H₂O]
-      if (formula.substring(i - 4, i + 1) == "[H₂O]" && n.isEmpty) {
-        formula = "${formula.substring(0, i - 4)}·H₂O";
-      } else if (formula.substring(i - 4, i + 1) == "(H₂O)" && n.isNotEmpty) {
+      // ...(H₂O)
+      if (formula.substring(i - 4, i + 1) == "(H₂O)") {
         formula = "${formula.substring(0, i - 4)}·${fromSubscript(n)}H₂O";
       }
-      // ...(H₂O)
     }
 
     String charge = asSuperscript(toStringAsCharge(this.charge, omitOne: true));

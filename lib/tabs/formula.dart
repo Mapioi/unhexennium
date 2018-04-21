@@ -71,7 +71,7 @@ class InputBox extends StatelessWidget {
           // Style
           decoration: new BoxDecoration(
             border:
-            new Border.all(color: currentBorderColor = currentBorderColor),
+                new Border.all(color: currentBorderColor = currentBorderColor),
           ),
           margin: new EdgeInsets.all(4.0),
           alignment: Alignment(0.0, 0.0),
@@ -221,9 +221,8 @@ class FormulaState {
     });
   }
 
-  static void toggleExpansionPanel(int index) =>
-      setState(
-              () => expansionPanelStates[index] = !expansionPanelStates[index]);
+  static void toggleExpansionPanel(int index) => setState(
+      () => expansionPanelStates[index] = !expansionPanelStates[index]);
 }
 
 /// Formula Parent handles the top level
@@ -393,13 +392,26 @@ class FormulaParent extends StatelessWidget {
   Widget buildStaticData() {
     Map<Widget, Widget> data = <Widget, Widget>{};
 
-    data[new Text(
-      "Formula",
-      style: StaticTable.head,
-    )] = new Text(
-      FormulaState.formulaFactory.toString(),
-      style: StaticTable.formula,
-    );
+    List<String> names = FormulaState.formulaFactory.names;
+    if (names != null) {
+      data[new Text(
+        "Name(s)",
+        style: StaticTable.head,
+      )] = new Text(
+        names.join(", "),
+      );
+    }
+
+    String formula = FormulaState.formulaFactory.toString();
+    if (formula != null) {
+      data[new Text(
+        "Formula",
+        style: StaticTable.head,
+      )] = new Text(
+        formula,
+        style: StaticTable.formula,
+      );
+    }
 
     data[new Text(
       "Relative formula mass",
@@ -427,9 +439,11 @@ class FormulaParent extends StatelessWidget {
     return StaticTable(data);
   }
 
-  Widget buildEditor(BuildContext context,
-      ElementSubscriptPair currentPair,
-      int currentSubscript,) {
+  Widget buildEditor(
+    BuildContext context,
+    ElementSubscriptPair currentPair,
+    int currentSubscript,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: new Row(
@@ -536,27 +550,26 @@ class OxidationCards extends StatelessWidget {
     return new Row(
       children: os.entries
           .map(
-            (MapEntry<ElementSymbol, Rational> entry) =>
-            Card(
-              child: Padding(
-                padding: new EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Text(enumToString(entry.key)),
-                    new Text(
-                      (entry.value.numerator < 0
-                          ? '-'
-                          : entry.value.numerator == 0 ? '' : '+') +
-                          (entry.value.denominator == 1
-                              ? entry.value.numerator.abs().toString()
-                              : entry.value.abs.toString()),
+            (MapEntry<ElementSymbol, Rational> entry) => Card(
+                  child: Padding(
+                    padding: new EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        new Text(enumToString(entry.key)),
+                        new Text(
+                          (entry.value.numerator < 0
+                                  ? '-'
+                                  : entry.value.numerator == 0 ? '' : '+') +
+                              (entry.value.denominator == 1
+                                  ? entry.value.numerator.abs().toString()
+                                  : entry.value.abs.toString()),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-      )
+          )
           .toList(),
       mainAxisAlignment: MainAxisAlignment.center,
     );
@@ -573,20 +586,19 @@ class MassPercentageCards extends StatelessWidget {
     return new Row(
       children: percentages.entries
           .map(
-            (MapEntry<ElementSymbol, num> entry) =>
-            Card(
-              child: Padding(
-                padding: new EdgeInsets.all(3.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Text(enumToString(entry.key)),
-                    new Text(entry.value.toStringAsPrecision(3) + '%'),
-                  ],
+            (MapEntry<ElementSymbol, num> entry) => Card(
+                  child: Padding(
+                    padding: new EdgeInsets.all(3.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        new Text(enumToString(entry.key)),
+                        new Text(entry.value.toStringAsPrecision(3) + '%'),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-      )
+          )
           .toList(),
       mainAxisAlignment: MainAxisAlignment.center,
     );
