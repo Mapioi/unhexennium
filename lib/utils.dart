@@ -50,6 +50,12 @@ const Map<String, String> _superscriptMap = const {
   "-": "⁻",
 };
 
+final Map<String, String> _inverseSubscriptMap =
+    Map.fromIterables(_subscriptMap.values, _subscriptMap.keys);
+
+final Map<String, String> _inverseSuperscriptMap =
+    Map.fromIterables(_superscriptMap.values, _superscriptMap.keys);
+
 String asSubscript(String s) {
   return s
       .split("")
@@ -63,6 +69,26 @@ String asSuperscript(String s) {
       .split("")
       .map((String char) =>
           _superscriptMap.containsKey(char) ? _superscriptMap[char] : char)
+      .join();
+}
+
+bool isSubscriptChar(String s) => _inverseSubscriptMap.containsKey(s);
+
+bool isSuperscriptChar(String s) => _inverseSuperscriptMap.containsKey(s);
+
+String fromSubscript(String s) {
+  return s
+      .split("")
+      .map((String char) =>
+          isSubscriptChar(char) ? _inverseSubscriptMap[char] : char)
+      .join();
+}
+
+String fromSuperscript(String s) {
+  return s
+      .split("")
+      .map((String char) =>
+          isSuperscriptChar(char) ? _inverseSuperscriptMap[char] : char)
       .join();
 }
 

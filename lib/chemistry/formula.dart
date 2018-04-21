@@ -138,7 +138,7 @@ class Formula {
         if (elements.length <= 2) {
           if (!metalloids.contains(symbol) && !nonMetals.contains(symbol)) {
             isMetalHydride = true;
-        }
+          }
 
           // Postulate 4
           if (alkaliMetals.contains(symbol)) {
@@ -290,6 +290,129 @@ class FormulaFactory {
 
   int get length => elementsList.length;
 
+  String get name => toString();
+
+  /// Instantiate a [FormulaFactory] with an empty [elementsList].
+  FormulaFactory();
+
+  /// Instantiate a [FormulaFactory] filling [elementsList] from formula string.
+  FormulaFactory.fromString(String formula) {
+    int factoryIndex = -1;
+    int stringIndex = 0;
+    String subscript = "";
+    String element = "";
+    String charge = "";
+    for (stringIndex; stringIndex < formula.length; stringIndex++) {
+      String char = formula[stringIndex];
+      // char can either be:
+      // - an opening parenthesis / bracket
+      // - a closing parenthesis / bracket
+      // - a subscript
+      // - a superscript
+      // - a letter, upper or lower case
+      // - '·': the notation for water of crystallization
+      //
+      // An element symbol starts with an upper case letter,
+      // and continues with lower case letters.
+      //
+      // A subscript follows an element or a closing parenthesis / bracket.
+      //
+      // The superscript can be empty in the case where the charge is 0,
+      // and otherwise ends with '+' or '-' and may contain numbers in superscript.
+
+      // Formula
+      if (char == '·') {
+        // End of formula, start of water of crystallization
+        break;
+      }
+      if (isSuperscriptChar(char)) {
+        // End of formula, start of charge
+        break;
+      } else if (isSubscriptChar(char)) {
+        if (element.isNotEmpty) {
+          insertElementAt(factoryIndex,
+              elementSymbol: new ChemicalElement.fromString(element).symbol);
+          element = "";
+          // To set its subscript, formulaIndex is not incremented
+        }
+        subscript += char;
+      } else {
+        if (['(', '[', ']', ')'].contains(char) || char.toUpperCase() == char) {
+          if (element.isNotEmpty) {
+            insertElementAt(factoryIndex,
+                elementSymbol: new ChemicalElement.fromString(element).symbol);
+            element = "";
+          } else if (subscript.isNotEmpty) {
+            setSubscriptAt(factoryIndex,
+                subscript: int.parse(fromSubscript(subscript)));
+            subscript = "";
+          }
+          factoryIndex++;
+
+          if (char == '(' || char == '[') {
+            insertOpeningParenthesisAt(factoryIndex);
+          } else if (char == ')' || char == ']') {
+            insertClosingParenthesisAt(factoryIndex);
+          } else {
+            element = "";
+            element += char;
+          }
+        } else {
+          element += char;
+        }
+      }
+    }
+    if (element.isNotEmpty) {
+      insertElementAt(factoryIndex,
+          elementSymbol: new ChemicalElement.fromString(element).symbol);
+      element = "";
+    } else if (subscript.isNotEmpty) {
+      setSubscriptAt(factoryIndex,
+          subscript: int.parse(fromSubscript(subscript)));
+      subscript = "";
+    }
+    factoryIndex++;
+
+    if (stringIndex >= formula.length) return;
+    if (formula[stringIndex] == '·') {
+      // Water of crystallization
+      String n = "";
+      for (++stringIndex; stringIndex < formula.length; stringIndex++) {
+        String char = formula[stringIndex];
+        if (char == 'H') {
+          break;
+        }
+        n += char;
+      }
+
+      int subscript = n.isEmpty ? 1 : num.parse(n);
+      insertOpeningParenthesisAt(factoryIndex++);
+      insertElementAt(factoryIndex, elementSymbol: ElementSymbol.H);
+      setSubscriptAt(factoryIndex++, subscript: 2);
+      insertElementAt(factoryIndex++, elementSymbol: ElementSymbol.O);
+      insertClosingParenthesisAt(factoryIndex);
+      setSubscriptAt(factoryIndex++, subscript: subscript);
+    } else {
+      // Charge
+      for (stringIndex; stringIndex < formula.length; stringIndex++) {
+        String char = String.fromCharCode(formula.runes.elementAt(stringIndex));
+        assert(isSuperscriptChar(char));
+        charge += char;
+      }
+      if (charge.isNotEmpty) {
+        charge = fromSuperscript(charge);
+        // this.charge defaults to 0
+        String signChar = String.fromCharCode(charge.runes.last);
+        assert(signChar == '-' || signChar == '+');
+        int sign = {'-': -1, '+': 1}[signChar];
+        int value = charge.length == 1
+            ? 1
+            : int.parse(charge.substring(0, charge.length - 1));
+        this.charge = sign * value;
+      }
+    }
+  }
+
   /// Insert a '(' to the formula at [index].
   void insertOpeningParenthesisAt(int index) {
     elementsList.insert(index, new ElementSubscriptPair(null, -1));
@@ -347,6 +470,24 @@ class FormulaFactory {
         }
       }
     }).join();
+    // Water of crystallization
+    String n = "";
+    int i = formula.length - 1;
+    while (i >= 0 && isSubscriptChar(formula[i])) {
+      // Get the subscript of the last cell
+      n += formula[i];
+      i--;
+    }
+    if (i > 4) {
+      // ...[H₂O]
+      if (formula.substring(i - 4, i + 1) == "[H₂O]" && n.isEmpty) {
+        formula = "${formula.substring(0, i - 4)}·H₂O";
+      } else if (formula.substring(i - 4, i + 1) == "(H₂O)" && n.isNotEmpty) {
+        formula = "${formula.substring(0, i - 4)}·${fromSubscript(n)}H₂O";
+      }
+      // ...(H₂O)
+    }
+
     String charge = asSuperscript(toStringAsCharge(this.charge, omitOne: true));
     return "$formula$charge";
   }

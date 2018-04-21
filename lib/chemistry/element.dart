@@ -896,6 +896,15 @@ class ChemicalElement {
     }
   }
 
+  factory ChemicalElement.fromString(String symbolString) {
+    for (ElementSymbol symbol in ElementSymbol.values) {
+      if (enumToString(symbol) == symbolString) {
+        return ChemicalElement(symbol);
+      }
+    }
+    throw Exception("Unknown element symbol '$symbolString'");
+  }
+
   String get name => _names[symbol.index];
 
   int get atomicNumber => symbol.index + 1;

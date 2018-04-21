@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
@@ -11,6 +12,30 @@ void main() {
         ElementSymbol.O: 1,
       });
       expect(water.rfm, 1.01 * 2 + 16.00);
+    });
+
+    test("fromString", () {
+      String hydrogenPeroxide = asSubscript("H2O2");
+      String ammoniumIon = asSubscript("NH4") + asSuperscript("+");
+      String blueVitriol = asSubscript("[Cu(H2O)4]SO4·H2O");
+      String iron3BromideHexahydrate =
+          asSubscript("FeBr3") + "·6" + asSubscript("H2O");
+      expect(
+        FormulaFactory.fromString(hydrogenPeroxide).toString(),
+        hydrogenPeroxide,
+      );
+      expect(
+        FormulaFactory.fromString(ammoniumIon).toString(),
+        ammoniumIon,
+      );
+      expect(
+        FormulaFactory.fromString(blueVitriol).toString(),
+        blueVitriol,
+      );
+      expect(
+        FormulaFactory.fromString(iron3BromideHexahydrate).toString(),
+        iron3BromideHexahydrate,
+      );
     });
 
     test("empirical", () {
@@ -27,10 +52,12 @@ void main() {
 
     test("toString", () {
       expect(Formula.e.toString(), "e⁻");
-      expect(new Formula({
-        ElementSymbol.C: 2,
-        ElementSymbol.H: 6,
-      }).empiricalFormula.toString(), "CH₃");
+      expect(
+          new Formula({
+            ElementSymbol.C: 2,
+            ElementSymbol.H: 6,
+          }).empiricalFormula.toString(),
+          "CH₃");
     });
 
     test("percentages by mass", () {

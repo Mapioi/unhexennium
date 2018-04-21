@@ -82,7 +82,7 @@ class InputBox extends StatelessWidget {
 class FormulaState {
   static SetStateCallback setState;
   static Callback switchToElementTab;
-  static final FormulaFactory formulaFactory = new FormulaFactory()
+  static FormulaFactory formulaFactory = new FormulaFactory()
     ..insertOpeningParenthesisAt(0)
     ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
     ..insertOpeningParenthesisAt(2)
