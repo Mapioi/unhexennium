@@ -13,6 +13,7 @@ typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
 
 /// Number of decimal places (used for RFM)
 const dp = 2;
+
 /// Number of significant figures (used for user inputs)
 const sf = 5;
 
@@ -254,10 +255,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
     return new Padding(
       padding: const EdgeInsets.all(16.0),
       child: new Container(
-        height: 300.0,
+        height: 400.0,
         child: new Column(
           children: <Widget>[
-            new Text("R = 8.31" + asSuperscript("J mol-1")),
+            new Text("PV = nRT (R = 8.31 ${asSuperscript('J mol-1')})"),
             new Expanded(
               child: new GridView.count(
                 crossAxisCount: 2,
@@ -328,7 +329,6 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                 ],
               ),
             ),
-            new Text("PV = nRT"),
             new Text("Computed value:"),
             new Expanded(
                 child: new GridView.count(
@@ -344,6 +344,8 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                             computed = y;
                           }),
                       title: new Text(enumToString(x)),
+                      subtitle:
+                          new Text(x == IdealGasComputed.P ? "Pa" : "mol"),
                       dense: true,
                     );
                   }).toList(),
@@ -361,6 +363,8 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                             }
                           }),
                       title: new Text(enumToString(x)),
+                      subtitle: new Text(
+                          x == IdealGasComputed.V ? asSuperscript("m3") : "K"),
                       dense: true,
                     );
                   }).toList(),
