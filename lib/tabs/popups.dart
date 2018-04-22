@@ -86,19 +86,21 @@ Future<Null> massMolePrompt(BuildContext context) async {
       });
 }
 
-class MassMoleCalculator extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new _MassMoleCalculatorState();
-}
+class MassMoleCalculator extends StatelessWidget {
+  final TextEditingController massController = new TextEditingController(
+      text: FormulaState.mass == null
+          ? ""
+          : FormulaState.mass.toStringAsPrecision(5));
+  final TextEditingController moleController = new TextEditingController(
+      text: FormulaState.mole == null
+          ? ""
+          : FormulaState.mole.toStringAsPrecision(5));
 
-class _MassMoleCalculatorState extends State<MassMoleCalculator> {
-  TextEditingController massController, moleController;
-
-  _MassMoleCalculatorState() {
-    massController = new TextEditingController(
-        text: FormulaState.mass.toStringAsPrecision(5));
-    moleController = new TextEditingController(
-        text: FormulaState.mole.toStringAsPrecision(5));
+  void clear() {
+    massController.clear();
+    moleController.clear();
+    FormulaState.mass = null;
+    FormulaState.mole = null;
   }
 
   @override
@@ -106,7 +108,7 @@ class _MassMoleCalculatorState extends State<MassMoleCalculator> {
     return new Padding(
       padding: const EdgeInsets.all(16.0),
       child: new Container(
-        height: 100.0,
+        height: 135.0,
         child: new Column(
           children: <Widget>[
             new Text("RFM: " + FormulaState.formula.rfm.toStringAsFixed(2)),
@@ -124,8 +126,6 @@ class _MassMoleCalculatorState extends State<MassMoleCalculator> {
                     onChanged: (String s) {
                       num mass = num.parse(s);
                       FormulaState.mass = mass;
-                      FormulaState.mole = FormulaState.formula.mole(mass);
-
                       moleController.text =
                           FormulaState.mole.toStringAsPrecision(5);
                     },
@@ -140,15 +140,17 @@ class _MassMoleCalculatorState extends State<MassMoleCalculator> {
                     onChanged: (String s) {
                       num mole = num.parse(s);
                       FormulaState.mole = mole;
-                      FormulaState.mass = FormulaState.formula.mass(mole);
-
                       massController.text =
                           FormulaState.mass.toStringAsPrecision(5);
                     },
                   ),
                 ],
               ),
-            )
+            ),
+            new IconButton(
+              icon: new Icon(Icons.clear),
+              onPressed: clear,
+            ),
           ],
         ),
       ),
@@ -157,7 +159,14 @@ class _MassMoleCalculatorState extends State<MassMoleCalculator> {
 }
 
 Future<Null> idealGasPrompt(BuildContext context) async {
-  await showModalBottomSheet(context: null, builder: null);
+  await showDialog(context: null);
+}
+
+class IdeaGasCalculator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return null;
+  }
 }
 
 class ElementAndSubscriptSelector extends StatefulWidget {

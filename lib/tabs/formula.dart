@@ -103,9 +103,27 @@ class FormulaState {
   static ElementSymbol underCursor =
       formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
 
-  static num mass = 0, mole = 0;
+  static num _mass, _mole;
 
-  static num pressure, volume, temperature;
+  static num get mass => _mass;
+
+  static set mass(num m) {
+    _mass = m;
+    _mole = m != null ? formula.mole(m) : null;
+  }
+
+  static get mole => _mole;
+
+  static set mole(num n) {
+    _mole = n;
+    _mass = n != null ? formula.mass(n) : null;
+  }
+
+  static num pressure = 0, volume = 0, temperature = 0;
+
+  static resetProperties() {
+    _mass = _mole = pressure = volume = temperature = 0;
+  }
 
   static List<bool> expansionPanelStates = [false, false];
 
@@ -128,6 +146,7 @@ class FormulaState {
         selectedBlockIndex = openingIndices[selectedBlockIndex];
 
       formula = formulaFactory.build();
+      resetProperties();
     });
   }
 
@@ -151,6 +170,7 @@ class FormulaState {
       }
 
       formula = formulaFactory.build();
+      resetProperties();
     });
   }
 
@@ -194,6 +214,7 @@ class FormulaState {
 
       selectedBlockIndex = position;
       formula = formulaFactory.build();
+      resetProperties();
     });
   }
 
@@ -222,6 +243,7 @@ class FormulaState {
       selectedBlockIndex = -1;
 
       formula = formulaFactory.build();
+      resetProperties();
     });
   }
 
