@@ -103,6 +103,10 @@ class FormulaState {
   static ElementSymbol underCursor =
       formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
 
+  static num mass = 0, mole = 0;
+
+  static num pressure, volume, temperature;
+
   static List<bool> expansionPanelStates = [false, false];
 
   static void removeAtCursor() {
@@ -371,6 +375,9 @@ class FormulaParent extends StatelessWidget {
       buildEditor(context, currentPair, currentSubscript),
       // Formula Editor
 
+      // Calculations
+      buildButtons(context),
+
       // Render
       Expanded(
         child: ListView(
@@ -387,6 +394,26 @@ class FormulaParent extends StatelessWidget {
         ),
       )
     ]);
+  }
+
+  Widget buildButtons(BuildContext context) {
+    return new ButtonBar(
+      alignment: MainAxisAlignment.center,
+      children: <Widget>[
+        new RaisedButton(
+          child: Text("m = nRFM"),
+          onPressed: FormulaState.formula.rfm != 0
+              ? () => massMolePrompt(context)
+              : null,
+        ),
+        new RaisedButton(
+          child: Text("PV = nRT"),
+          onPressed: FormulaState.formula.rfm != 0
+              ? () => idealGasPrompt(context)
+              : null,
+        ),
+      ],
+    );
   }
 
   Widget buildStaticData() {
