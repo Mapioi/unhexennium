@@ -5,10 +5,16 @@ import 'package:unhexennium/chemistry/element.dart';
 import "package:unhexennium/tabs/element.dart" show ElementState;
 import "package:unhexennium/tabs/formula.dart" show FormulaState;
 import 'package:unhexennium/tabs/periodic_table.dart';
+import "package:unhexennium/utils.dart";
 
 typedef void ElementCallback(ElementSymbol x);
 typedef void SubscriptCallback(int subscript);
 typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
+
+/// Number of decimal places (used for RFM)
+const dp = 2;
+/// Number of significant figures (used for user inputs)
+const sf = 5;
 
 // TODO more DRY
 Future<Null> elementFormulaPrompt({
@@ -90,11 +96,11 @@ class MassMoleCalculator extends StatelessWidget {
   final TextEditingController massController = new TextEditingController(
       text: FormulaState.mass == null
           ? ""
-          : FormulaState.mass.toStringAsPrecision(5));
+          : FormulaState.mass.toStringAsPrecision(sf));
   final TextEditingController moleController = new TextEditingController(
       text: FormulaState.mole == null
           ? ""
-          : FormulaState.mole.toStringAsPrecision(5));
+          : FormulaState.mole.toStringAsPrecision(sf));
 
   void clear() {
     massController.clear();
@@ -111,7 +117,7 @@ class MassMoleCalculator extends StatelessWidget {
         height: 135.0,
         child: new Column(
           children: <Widget>[
-            new Text("RFM: " + FormulaState.formula.rfm.toStringAsFixed(2)),
+            new Text("RFM: " + FormulaState.formula.rfm.toStringAsFixed(dp)),
             new Expanded(
               child: new GridView.count(
                 crossAxisCount: 2,
@@ -124,10 +130,10 @@ class MassMoleCalculator extends StatelessWidget {
                     textAlign: TextAlign.center,
                     controller: massController,
                     onChanged: (String s) {
-                      num mass = num.parse(s);
+                      num mass = num.parse(s, (v) => null);
                       FormulaState.mass = mass;
                       moleController.text =
-                          FormulaState.mole.toStringAsPrecision(5);
+                          FormulaState.mole.toStringAsPrecision(sf);
                     },
                   ),
                   new TextField(
@@ -138,10 +144,10 @@ class MassMoleCalculator extends StatelessWidget {
                     textAlign: TextAlign.center,
                     controller: moleController,
                     onChanged: (String s) {
-                      num mole = num.parse(s);
+                      num mole = num.parse(s, (v) => null);
                       FormulaState.mole = mole;
                       massController.text =
-                          FormulaState.mass.toStringAsPrecision(5);
+                          FormulaState.mass.toStringAsPrecision(sf);
                     },
                   ),
                 ],
@@ -159,13 +165,212 @@ class MassMoleCalculator extends StatelessWidget {
 }
 
 Future<Null> idealGasPrompt(BuildContext context) async {
-  await showDialog(context: null);
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: IdealGasCalculator(),
+      );
+    },
+  );
 }
 
-class IdeaGasCalculator extends StatelessWidget {
+class IdealGasCalculator extends StatefulWidget {
+  @override
+  State<IdealGasCalculator> createState() => new _IdealGasCalculatorState();
+}
+
+enum IdealGasComputed { P, V, n, T }
+
+class _IdealGasCalculatorState extends State<IdealGasCalculator> {
+  IdealGasComputed computed = IdealGasComputed.n;
+  Map<IdealGasComputed, TextEditingController> controllers = {
+    IdealGasComputed.P: new TextEditingController(
+        text: FormulaState.pressure != null
+            ? FormulaState.pressure.toStringAsPrecision(sf)
+            : ""),
+    IdealGasComputed.V: new TextEditingController(
+        text: FormulaState.volume != null
+            ? FormulaState.pressure.toStringAsPrecision(sf)
+            : ""),
+    IdealGasComputed.n: new TextEditingController(
+        text: FormulaState.mole != null
+            ? FormulaState.pressure.toStringAsPrecision(sf)
+            : ""),
+    IdealGasComputed.T: new TextEditingController(
+        text: FormulaState.temperature != null
+            ? FormulaState.pressure.toStringAsPrecision(sf)
+            : ""),
+  };
+  Map<IdealGasComputed, FocusNode> focusNodes = {
+    IdealGasComputed.P: new FocusNode(),
+    IdealGasComputed.V: new FocusNode(),
+    IdealGasComputed.n: new FocusNode(),
+    IdealGasComputed.T: new FocusNode(),
+  };
+
+  void updateValue() {
+    num result;
+    try {
+      switch (computed) {
+        case IdealGasComputed.P:
+          result = FormulaState.pressure = FormulaState.formula.P(
+            V: FormulaState.volume,
+            n: FormulaState.mole,
+            T: FormulaState.temperature,
+          );
+          break;
+        case IdealGasComputed.V:
+          result = FormulaState.volume = FormulaState.formula.V(
+            P: FormulaState.pressure,
+            n: FormulaState.mole,
+            T: FormulaState.temperature,
+          );
+          break;
+        case IdealGasComputed.n:
+          result = FormulaState.mole = FormulaState.formula.n(
+            P: FormulaState.pressure,
+            V: FormulaState.volume,
+            T: FormulaState.temperature,
+          );
+          break;
+        case IdealGasComputed.T:
+          result = FormulaState.temperature = FormulaState.formula.T(
+            p: FormulaState.pressure,
+            V: FormulaState.volume,
+            n: FormulaState.mole,
+          );
+          break;
+      }
+      assert(result.isFinite && !result.isNegative);
+      controllers[computed].text = result.toStringAsPrecision(sf);
+    } catch (e) {
+      /*print(e);*/
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return null;
+    return new Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: new Container(
+        height: 300.0,
+        child: new Column(
+          children: <Widget>[
+            new Text("R = 8.31" + asSuperscript("J mol-1")),
+            new Expanded(
+              child: new GridView.count(
+                crossAxisCount: 2,
+                children: <Widget>[
+                  new TextField(
+                    decoration: new InputDecoration(
+                      helperText: "Pressure / Pa",
+                    ),
+                    controller: controllers[IdealGasComputed.P],
+                    focusNode: focusNodes[IdealGasComputed.P],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    enabled: computed != IdealGasComputed.P,
+                    onChanged: (String s) {
+                      FormulaState.pressure = num.parse(s, (v) => null);
+                      updateValue();
+                    },
+                  ),
+                  new TextField(
+                    decoration: new InputDecoration(
+                      helperText: asSuperscript("Volume / m3"),
+                    ),
+                    controller: controllers[IdealGasComputed.V],
+                    focusNode: focusNodes[IdealGasComputed.V],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    enabled: computed != IdealGasComputed.V,
+                    onChanged: (String s) {
+                      FormulaState.volume = num.parse(s, (v) => null);
+                      updateValue();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            new Expanded(
+              child: new GridView.count(
+                crossAxisCount: 2,
+                children: <Widget>[
+                  new TextField(
+                    decoration: new InputDecoration(
+                      helperText: "Number of moles / mol",
+                    ),
+                    controller: controllers[IdealGasComputed.n],
+                    focusNode: focusNodes[IdealGasComputed.n],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    enabled: computed != IdealGasComputed.n,
+                    onChanged: (String s) {
+                      FormulaState.mole = num.parse(s, (v) => null);
+                      updateValue();
+                    },
+                  ),
+                  new TextField(
+                    decoration: new InputDecoration(
+                      helperText: asSuperscript("Temperature / K"),
+                    ),
+                    controller: controllers[IdealGasComputed.T],
+                    focusNode: focusNodes[IdealGasComputed.T],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    enabled: computed != IdealGasComputed.T,
+                    onChanged: (String s) {
+                      FormulaState.temperature = num.parse(s, (v) => null);
+                      updateValue();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            new Text("PV = nRT"),
+            new Text("Computed value:"),
+            new Expanded(
+                child: new GridView.count(
+              crossAxisCount: 2,
+              children: <Widget>[
+                new Column(
+                  children: [IdealGasComputed.P, IdealGasComputed.n]
+                      .map((IdealGasComputed x) {
+                    return new RadioListTile(
+                      value: x,
+                      groupValue: computed,
+                      onChanged: (y) => setState(() {
+                            computed = y;
+                          }),
+                      title: new Text(enumToString(x)),
+                      dense: true,
+                    );
+                  }).toList(),
+                ),
+                new Column(
+                  children: [IdealGasComputed.V, IdealGasComputed.T]
+                      .map((IdealGasComputed x) {
+                    return new RadioListTile(
+                      value: x,
+                      groupValue: computed,
+                      onChanged: (y) => setState(() {
+                            computed = y;
+                            if (focusNodes[y].hasFocus) {
+                              focusNodes[y].unfocus();
+                            }
+                          }),
+                      title: new Text(enumToString(x)),
+                      dense: true,
+                    );
+                  }).toList(),
+                ),
+              ],
+            )),
+          ],
+        ),
+      ),
+    );
   }
 }
 

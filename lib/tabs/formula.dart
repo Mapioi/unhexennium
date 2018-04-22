@@ -119,10 +119,10 @@ class FormulaState {
     _mass = n != null ? formula.mass(n) : null;
   }
 
-  static num pressure = 0, volume = 0, temperature = 0;
+  static num pressure, volume, temperature;
 
   static resetProperties() {
-    _mass = _mole = pressure = volume = temperature = 0;
+    _mass = _mole = pressure = volume = temperature = null;
   }
 
   static List<bool> expansionPanelStates = [false, false];

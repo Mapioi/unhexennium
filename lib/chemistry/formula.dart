@@ -233,7 +233,7 @@ class Formula {
   /// * n is in moles;
   /// * R = 8.31 J K^-1 mol^-1;
   /// * T is in kelvins.
-  num p({@required num V, @required num n, @required num T}) => (n * R * T) / V;
+  num P({@required num V, @required num n, @required num T}) => (n * R * T) / V;
 
   /// Calculate the volume of this ideal gas.
   ///
@@ -242,7 +242,7 @@ class Formula {
   /// * n is in moles;
   /// * R = 8.31 J K^-1 mol^-1;
   /// * T is in kelvins.
-  num V({@required num p, @required num n, @required num T}) => (n * R * T) / p;
+  num V({@required num P, @required num n, @required num T}) => (n * R * T) / P;
 
   /// Calculate the number of moles of this ideal gas.
   ///
@@ -251,7 +251,7 @@ class Formula {
   /// * n is in moles;
   /// * R = 8.31 J K^-1 mol^-1;
   /// * T is in kelvins.
-  num n({@required num p, @required num V, @required num T}) => p * V / (R * T);
+  num n({@required num P, @required num V, @required num T}) => P * V / (R * T);
 
   /// Calculate the temperature of this ideal gas.
   ///
