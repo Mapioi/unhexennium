@@ -140,15 +140,14 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
             )
           ]),
         ),
-        new Container(
-          height: 300.0, // TODO something about these heights
+        Expanded(
           child: new PeriodicTable(
             selectedElementSymbol,
-            (element) => setState(() {
-                  selectedElementSymbol = element;
-                }),
+                (element) => setState(() {
+              selectedElementSymbol = element;
+            }),
           ),
-        )
+        ),
       ],
     );
   }

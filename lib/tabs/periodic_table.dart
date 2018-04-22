@@ -94,7 +94,7 @@ class PeriodicTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return new ListView(scrollDirection: Axis.vertical, children: <Widget>[
       Container(
-          height: 500.0,
+          height: 11.25 * cellSize,
           child: new ListView(
             scrollDirection: Axis.horizontal,
             children: <Widget>[
