@@ -12,7 +12,15 @@ class ElementState {
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false, false];
-  static List<bool> ionExpansionPanelStates = [];  // only because Xe
+
+  // only because Xe
+  static List<bool> ionExpansionPanelStates = [];
+
+  static void collapseExpansionPanels() {
+    expansionPanelStates = [false, false];
+    ionExpansionPanelStates =
+        new List.filled(ionExpansionPanelStates.length, false);
+  }
 
   static ElementSymbol get selectedElement => _selectedElement;
 
@@ -23,6 +31,7 @@ class ElementState {
           List.filled(e.ionsElectronConfigurations.length, false);
       _selectedElement = element;
     });
+    collapseExpansionPanels();
   }
 
   static int get oxidationState => _oxidationState;
@@ -31,6 +40,7 @@ class ElementState {
     setState(() {
       _oxidationState = oxidationState;
     });
+    collapseExpansionPanels();
   }
 
   static void toggleExpansionPanel(int index) => setState(
@@ -89,27 +99,6 @@ class ElementParent extends StatelessWidget {
     );
   }
 
-  /// Construct a list of lists for the decoration arrow boxes
-  List<List<int>> constructSubshellBoxesStructure(List<Orbital> orbitals) {
-    List<List<int>> toReturn = [];
-    for (Orbital orbital in orbitals) {
-      int electronsLeft = orbital.numberElectrons;
-      int numberOfBoxes = orbital.size ~/ 2;
-      List<int> boxes;
-      if (electronsLeft > numberOfBoxes) {
-        boxes = List.filled(numberOfBoxes, 1);
-        electronsLeft -= numberOfBoxes;
-      } else {
-        boxes = List.filled(numberOfBoxes, 0);
-      }
-      for (int i = 0; i < electronsLeft; i++) {
-        boxes[i] += 1;
-      }
-      toReturn.add(boxes);
-    }
-    return toReturn;
-  }
-
   /// Renders table + ExpansionPanel
   Widget renderStaticData() {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
@@ -123,74 +112,50 @@ class ElementParent extends StatelessWidget {
         style: StaticTable.head,
       )] = new Text(element.electronegativity.toString());
     }
-
-    if (element.ionsElectronConfigurations.length != 0) {
-      data[new Text("Ions", style: StaticTable.head)] = new Column(
-        children: element.ionsElectronConfigurations.entries
-            .map((MapEntry<int, List<Orbital>> ion) => new Text(
-                  toStringAsCharge(ion.key) +
-                      ": " +
-                      new AbbreviatedElectronConfiguration.of(ion.value)
-                          .toString(),
-                  style: ion.key == ElementState.oxidationState
-                      ? new TextStyle(fontWeight: FontWeight.w500)
-                      : null,
-                ))
-            .toList(),
-        crossAxisAlignment: CrossAxisAlignment.start,
-      );
-    }
-
     return StaticTable(data);
   }
 
   /// Template for expansion panels to display electron config
   ExpansionPanel electronConfigExpansionPanel(
-    List<Orbital> orbitals,
+    List<Sublevel> sublevels,
     int index,
-    bool isIon,
+    int oxidationState,
+    ElementSymbol symbol,
   ) {
-    List<List<int>> boxData = constructSubshellBoxesStructure(orbitals);
     return new ExpansionPanel(
-      isExpanded: isIon
+      isExpanded: oxidationState != 0
           ? ElementState.ionExpansionPanelStates[index]
           : ElementState.expansionPanelStates[index],
       headerBuilder: (BuildContext context, bool isOpen) {
         return new Padding(
           padding: new EdgeInsets.all(16.0),
-          child: Row(
+          child: ListView(
             children: <Widget>[
               new Text(
-                "Electron configuration:",
+                oxidationState == 0
+                    ? "Electron configuration:"
+                    : enumToString(symbol) +
+                        asSuperscript(
+                            toStringAsCharge(oxidationState, omitOne: true)),
                 style: new TextStyle(fontWeight: FontWeight.bold),
               ),
               new SizedBox(width: 10.0),
               new Text(
-                new AbbreviatedElectronConfiguration.of(orbitals).toString(),
-              )
+                new AbbreviatedElectronConfiguration.of(sublevels).toString(),
+              ),
             ],
+            scrollDirection: Axis.horizontal,
           ),
         );
       },
       body: new Container(
         padding: new EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-        height: 50.0,
+        height: 70.0,
         child: new ListView(
           children: <Widget>[
             new Row(
-              children: boxData
-                  .map(
-                    (List<int> boxes) => Row(
-                          children: boxes
-                              .map(
-                                (int boxArrowsNum) => new ElectronSublevelBox(
-                                      numberOfArrows: boxArrowsNum,
-                                    ),
-                              )
-                              .toList(),
-                        ),
-                  )
-                  .toList(),
+              children:
+                  sublevels.map((Sublevel s) => new SublevelBox(s)).toList(),
             ),
           ],
           scrollDirection: Axis.horizontal,
@@ -206,20 +171,26 @@ class ElementParent extends StatelessWidget {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
 
     // Electronic configuration
-    expansionPanels.add(
-        electronConfigExpansionPanel(element.electronConfiguration, 0, false));
+    expansionPanels.add(electronConfigExpansionPanel(
+      element.electronConfiguration,
+      0,
+      0,
+      ElementState.selectedElement,
+    ));
 
     // Ions
-    Map<int, List<Orbital>> ionsElectronConfig =
+    Map<int, List<Sublevel>> ionsElectronConfig =
         element.ionsElectronConfigurations;
     if (ionsElectronConfig.length != 0) {
       List<ExpansionPanel> ionExpansionPanels = [];
-      for (int i = 0; i < ionsElectronConfig.length; i++) {
+      int i = 0;
+      for (MapEntry<int, List<Sublevel>> entry in ionsElectronConfig.entries) {
         ionExpansionPanels.add(
           electronConfigExpansionPanel(
-            ionsElectronConfig[ionsElectronConfig.keys.toList()[i]],
-            i,
-            true,
+            entry.value,
+            i++,
+            entry.key,
+            ElementState.selectedElement,
           ),
         );
       }
@@ -240,8 +211,6 @@ class ElementParent extends StatelessWidget {
             padding: new EdgeInsets.all(16.0),
             child: new ExpansionPanelList(
               expansionCallback: (int index, bool currentState) {
-                print(index);
-                print(ElementState.ionExpansionPanelStates);
                 ElementState.toggleIonExpansionPanel(index);
               },
               children: ionExpansionPanels,
@@ -269,21 +238,63 @@ class ElementParent extends StatelessWidget {
   }
 }
 
-class ElectronSublevelBox extends StatelessWidget {
-  final int numberOfArrows;
-  static final Map<int, String> arrowImage = {
-    0: "imgs/arrows/spinempty.gif",
-    1: "imgs/arrows/spinsingle.gif",
-    2: "imgs/arrows/spinpair.gif"
-  };
+class OrbitalBox extends StatelessWidget {
+  final int numberOfElectrons;
 
-  ElectronSublevelBox({Key key, this.numberOfArrows}) : super(key: key);
+  OrbitalBox(this.numberOfElectrons);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: new BoxDecoration(border: Border.all(color: Colors.grey)),
-      child: new Image.asset(arrowImage[numberOfArrows]),
+      width: 25.0,
+      height: 25.0,
+      child: new Center(
+        child: new Text(
+          numberOfElectrons == 2 ? "⥮" : numberOfElectrons == 1 ? "↿" : "",
+          style: new TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+class SublevelBox extends StatelessWidget {
+  final Sublevel sublevel;
+
+  SublevelBox(this.sublevel);
+
+  List<int> calculateOrbitals() {
+    int numberOrbitals = sublevel.size ~/ 2;
+    int numberElectrons = 0;
+    List<int> orbitals = new List.filled(numberOrbitals, 0);
+    for (int t = 0; t < 2; t++) {
+      // Satisfies Hund's rule of maximum multiplicity
+      for (int i = 0; i < numberOrbitals; i++) {
+        if (numberElectrons == sublevel.numberElectrons) {
+          break;
+        }
+        orbitals[i]++;
+        numberElectrons++;
+      }
+    }
+    return orbitals;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          new Row(
+            children:
+                calculateOrbitals().map((int n) => new OrbitalBox(n)).toList(),
+          ),
+          new Text(sublevel.toString()),
+        ],
+      ),
     );
   }
 }

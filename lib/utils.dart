@@ -95,7 +95,7 @@ String fromSuperscript(String s) {
 /// Convert -2 to '2-' and 2 to '2+'.
 /// If [omitOne] is true, convert -1 to '-' and 1 to '+'.
 /// 0 is converted to ''.
-String toStringAsCharge(int charge, {omitOne = false}) {
+String toStringAsCharge(int charge, {bool omitOne = false}) {
   if (charge == 0) return "";
   String sign = charge > 0 ? "+" : "-";
   String value = charge.abs() == 1 && omitOne ? "" : charge.abs().toString();

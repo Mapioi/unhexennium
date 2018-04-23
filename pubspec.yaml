@@ -20,7 +20,3 @@ flutter:
     - family: Stix2Math
       fonts:
         - asset: fonts/STIX2Math.otf
-  assets:
-    - imgs/arrows/spinempty.gif
-    - imgs/arrows/spinsingle.gif
-    - imgs/arrows/spinpair.gif

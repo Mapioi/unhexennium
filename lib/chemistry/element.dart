@@ -752,23 +752,23 @@ const List<List<int>> _electronConfigurations = const [
   [2, 2, 6, 2, 6, 10, 2, 6, 10, 14, 2, 6, 10, 14, 2, 6, 10, 2, 6],
 ];
 
-final Map<ElementSymbol, List<Orbital>> _nobleGasesOrbitals = {
-  ElementSymbol.He: [Orbital("1s", 2)],
-  ElementSymbol.Ne: [Orbital("2s", 2), Orbital("2p", 6)],
-  ElementSymbol.Ar: [Orbital("3s", 2), Orbital("3p", 6)],
-  ElementSymbol.Kr: [Orbital("4s", 2), Orbital("3d", 10), Orbital("4p", 6)],
-  ElementSymbol.Xe: [Orbital("5s", 2), Orbital("4d", 10), Orbital("5p", 6)],
+final Map<ElementSymbol, List<Sublevel>> _nobleGasesSublevels = {
+  ElementSymbol.He: [Sublevel("1s", 2)],
+  ElementSymbol.Ne: [Sublevel("2s", 2), Sublevel("2p", 6)],
+  ElementSymbol.Ar: [Sublevel("3s", 2), Sublevel("3p", 6)],
+  ElementSymbol.Kr: [Sublevel("4s", 2), Sublevel("3d", 10), Sublevel("4p", 6)],
+  ElementSymbol.Xe: [Sublevel("5s", 2), Sublevel("4d", 10), Sublevel("5p", 6)],
   ElementSymbol.Rn: [
-    Orbital("6s", 2),
-    Orbital("4f", 14),
-    Orbital("5d", 10),
-    Orbital("6p", 6)
+    Sublevel("6s", 2),
+    Sublevel("4f", 14),
+    Sublevel("5d", 10),
+    Sublevel("6p", 6)
   ],
   ElementSymbol.Uuo: [
-    Orbital("7s", 2),
-    Orbital("5f", 14),
-    Orbital("6d", 10),
-    Orbital("7p", 6)
+    Sublevel("7s", 2),
+    Sublevel("5f", 14),
+    Sublevel("6d", 10),
+    Sublevel("7p", 6)
   ],
 };
 
@@ -821,14 +821,14 @@ const Map<ElementSymbol, List<int>> _monatomicIons = const {
   ElementSymbol.I: [-1],
 };
 
-class Orbital {
+class Sublevel {
   /// This orbital's name
   final String name;
 
   /// The number of electrons occupying this orbital
   final int numberElectrons;
 
-  static final Map<String, Orbital> _cache = {};
+  static final Map<String, Sublevel> _cache = {};
   static final Map<String, int> _maxSizes = {
     "s": 2,
     "p": 6,
@@ -836,15 +836,15 @@ class Orbital {
     "f": 14,
   };
 
-  Orbital._internal(this.name, this.numberElectrons);
+  Sublevel._internal(this.name, this.numberElectrons);
 
-  factory Orbital(String name, int numberElectrons) {
+  factory Sublevel(String name, int numberElectrons) {
     assert(_orbitalNames.contains(name));
     String identifier = "$name^$numberElectrons";
     if (_cache.containsKey(identifier)) {
       return _cache[identifier];
     } else {
-      Orbital orbital = new Orbital._internal(name, numberElectrons);
+      Sublevel orbital = new Sublevel._internal(name, numberElectrons);
       _cache[identifier] = orbital;
       return orbital;
     }
@@ -867,22 +867,22 @@ class AbbreviatedElectronConfiguration {
   final ElementSymbol core;
 
   /// The list of orbitals representing the configuration of valence electrons
-  final List<Orbital> valence;
+  final List<Sublevel> valence;
 
   AbbreviatedElectronConfiguration(this.core, this.valence) {
-    assert(core == null || _nobleGasesOrbitals.containsKey(core));
+    assert(core == null || _nobleGasesSublevels.containsKey(core));
   }
 
-  factory AbbreviatedElectronConfiguration.of(List<Orbital> orbitals) {
+  factory AbbreviatedElectronConfiguration.of(List<Sublevel> orbitals) {
     // Avoid side effects
-    orbitals = new List<Orbital>.from(orbitals);
+    orbitals = new List<Sublevel>.from(orbitals);
     ElementSymbol core;
-    for (var entry in _nobleGasesOrbitals.entries) {
+    for (var entry in _nobleGasesSublevels.entries) {
       ElementSymbol nobleGas = entry.key;
-      List<Orbital> fullOrbitals = entry.value;
+      List<Sublevel> fullSublevels = entry.value;
       bool isMatched = true;
-      for (Orbital fullOrbital in fullOrbitals) {
-        if (!orbitals.contains(fullOrbital)) {
+      for (Sublevel fullSublevel in fullSublevels) {
+        if (!orbitals.contains(fullSublevel)) {
           isMatched = false;
           break;
         }
@@ -891,8 +891,8 @@ class AbbreviatedElectronConfiguration {
         break;
       }
       core = nobleGas;
-      for (Orbital fullOrbital in fullOrbitals) {
-        orbitals.remove(fullOrbital);
+      for (Sublevel fullSublevel in fullSublevels) {
+        orbitals.remove(fullSublevel);
       }
     }
     return new AbbreviatedElectronConfiguration(
@@ -946,48 +946,48 @@ class ChemicalElement {
 
   num get electronegativity => _electronegativities[symbol];
 
-  List<Orbital> get electronConfiguration {
-    List<Orbital> orbitals = [];
+  List<Sublevel> get electronConfiguration {
+    List<Sublevel> orbitals = [];
     _electronConfigurations[symbol.index]
         .asMap()
         .forEach((int i, int numberElectrons) {
       if (numberElectrons != 0) {
-        orbitals.add(new Orbital(_orbitalNames[i], numberElectrons));
+        orbitals.add(new Sublevel(_orbitalNames[i], numberElectrons));
       }
     });
     return orbitals;
   }
 
-  List<Orbital> _getIonElectronConfiguration(int oxidationState) {
-    List<Orbital> orbitals = electronConfiguration;
+  List<Sublevel> _getIonElectronConfiguration(int oxidationState) {
+    List<Sublevel> sublevels = electronConfiguration;
     if (oxidationState < 0) {
       // Anion
-      Orbital valenceOrbital = orbitals.removeLast();
-      orbitals.add(new Orbital(
-        valenceOrbital.name,
+      Sublevel valenceSublevel = sublevels.removeLast();
+      sublevels.add(new Sublevel(
+        valenceSublevel.name,
         // The oxidation state for anions are negative.
-        valenceOrbital.numberElectrons + oxidationState.abs(),
+        valenceSublevel.numberElectrons + oxidationState.abs(),
       ));
       // Anions' valence orbital must be full.
-      assert(orbitals.last.isFull);
+      assert(sublevels.last.isFull);
     } else {
       // Cation
       while (oxidationState > 0) {
-        Orbital valenceOrbital = orbitals.removeLast();
-        if (oxidationState < valenceOrbital.numberElectrons) {
-          orbitals.add(new Orbital(
-            valenceOrbital.name,
-            valenceOrbital.numberElectrons - oxidationState,
+        Sublevel valenceSublevel = sublevels.removeLast();
+        if (oxidationState < valenceSublevel.numberElectrons) {
+          sublevels.add(new Sublevel(
+            valenceSublevel.name,
+            valenceSublevel.numberElectrons - oxidationState,
           ));
           break;
         }
-        oxidationState -= valenceOrbital.numberElectrons;
+        oxidationState -= valenceSublevel.numberElectrons;
       }
     }
-    return orbitals;
+    return sublevels;
   }
 
-  Map<int, List<Orbital>> get ionsElectronConfigurations {
+  Map<int, List<Sublevel>> get ionsElectronConfigurations {
     if (_monatomicIons[symbol] == null) return {};
     return new Map.fromIterable(
       _monatomicIons[symbol],
