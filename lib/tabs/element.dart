@@ -252,7 +252,10 @@ class OrbitalBox extends StatelessWidget {
       child: new Center(
         child: new Text(
           numberOfElectrons == 2 ? "⥮" : numberOfElectrons == 1 ? "↿" : "",
-          style: new TextStyle(fontWeight: FontWeight.bold),
+          style: new TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: "Stix2Math",
+          ),
         ),
       ),
     );
