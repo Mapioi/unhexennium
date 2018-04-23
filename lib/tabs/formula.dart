@@ -101,9 +101,16 @@ class FormulaState {
     ..insertClosingParenthesisAt(10)
     ..charge = 1;
   static Formula formula = formulaFactory.build();
-  static int selectedBlockIndex = 0;
-  static ElementSymbol underCursor =
+  static int _selectedBlockIndex = 0;
+  static int get selectedBlockIndex => _selectedBlockIndex;
+  static set selectedBlockIndex(int i) {
+    _selectedBlockIndex = i;
+    _underCursor = formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+  }
+
+  static ElementSymbol _underCursor =
       formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+  static ElementSymbol get underCursor => _underCursor;
 
   static num _mass, _mole;
 
