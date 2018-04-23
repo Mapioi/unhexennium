@@ -92,51 +92,58 @@ class PeriodicTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(scrollDirection: Axis.vertical, children: <Widget>[
-      Container(
-          height: 11.25 * cellSize,
-          child: new ListView(
-            scrollDirection: Axis.horizontal,
-            children: <Widget>[
-              new Column(
+    return GestureDetector(
+      /// The detector prevents unintended dismissal of the bottom sheet.
+      onTap: () => null,
+      child: new ListView(
+        scrollDirection: Axis.vertical,
+        children: <Widget>[
+          Container(
+              height: 11.25 * cellSize,
+              child: new ListView(
+                scrollDirection: Axis.horizontal,
                 children: <Widget>[
-                  _buildGroupNumbersRow(),
-                  _buildRow(
-                    [
-                      new _ElementRange(ElementSymbol.H, 1, 1),
-                      new _ElementRange(ElementSymbol.He, 18, 18)
+                  new Column(
+                    children: <Widget>[
+                      _buildGroupNumbersRow(),
+                      _buildRow(
+                        [
+                          new _ElementRange(ElementSymbol.H, 1, 1),
+                          new _ElementRange(ElementSymbol.He, 18, 18)
+                        ],
+                        row: 1,
+                      ),
+                      _buildRow([
+                        new _ElementRange(ElementSymbol.Li, 1, 2),
+                        new _ElementRange(ElementSymbol.B, 13, 18)
+                      ], row: 2),
+                      _buildRow([
+                        new _ElementRange(ElementSymbol.Na, 1, 2),
+                        new _ElementRange(ElementSymbol.Al, 13, 18)
+                      ], row: 3),
+                      _buildRow([new _ElementRange(ElementSymbol.K, 1, 18)],
+                          row: 4),
+                      _buildRow([new _ElementRange(ElementSymbol.Rb, 1, 18)],
+                          row: 5),
+                      _buildRow([
+                        new _ElementRange(ElementSymbol.Cs, 1, 3),
+                        new _ElementRange(ElementSymbol.Hf, 4, 18)
+                      ], row: 6),
+                      _buildRow([
+                        new _ElementRange(ElementSymbol.Fr, 1, 3),
+                        new _ElementRange(ElementSymbol.Rf, 4, 18)
+                      ], row: 7),
+                      _buildRow([]),
+                      _buildRow([new _ElementRange(ElementSymbol.Ce, 4, 17)],
+                          lathinides: true),
+                      _buildRow([new _ElementRange(ElementSymbol.Th, 4, 17)],
+                          actinides: true)
                     ],
-                    row: 1,
-                  ),
-                  _buildRow([
-                    new _ElementRange(ElementSymbol.Li, 1, 2),
-                    new _ElementRange(ElementSymbol.B, 13, 18)
-                  ], row: 2),
-                  _buildRow([
-                    new _ElementRange(ElementSymbol.Na, 1, 2),
-                    new _ElementRange(ElementSymbol.Al, 13, 18)
-                  ], row: 3),
-                  _buildRow([new _ElementRange(ElementSymbol.K, 1, 18)],
-                      row: 4),
-                  _buildRow([new _ElementRange(ElementSymbol.Rb, 1, 18)],
-                      row: 5),
-                  _buildRow([
-                    new _ElementRange(ElementSymbol.Cs, 1, 3),
-                    new _ElementRange(ElementSymbol.Hf, 4, 18)
-                  ], row: 6),
-                  _buildRow([
-                    new _ElementRange(ElementSymbol.Fr, 1, 3),
-                    new _ElementRange(ElementSymbol.Rf, 4, 18)
-                  ], row: 7),
-                  _buildRow([]),
-                  _buildRow([new _ElementRange(ElementSymbol.Ce, 4, 17)],
-                      lathinides: true),
-                  _buildRow([new _ElementRange(ElementSymbol.Th, 4, 17)],
-                      actinides: true)
+                  )
                 ],
-              )
-            ],
-          ))
-    ]);
+              ))
+        ],
+      ),
+    );
   }
 }
