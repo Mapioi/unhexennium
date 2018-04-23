@@ -12,7 +12,7 @@ class ElementState {
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false, false];
-  static List<bool> ionExpansionPanelStates;
+  static List<bool> ionExpansionPanelStates = [];  // only because Xe
 
   static ElementSymbol get selectedElement => _selectedElement;
 
