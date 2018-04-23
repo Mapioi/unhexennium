@@ -56,42 +56,45 @@ class ElementParent extends StatelessWidget {
   /// Renders the top square
   Widget renderElementCell(BuildContext context) {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
-    return Center(
-      child: new GestureDetector(
-        onTap: () => elementSymbolPrompt(
-              context: context,
-              currentElementSymbol: ElementState.selectedElement,
+    return new Padding(
+      padding: new EdgeInsets.only(top: 16.0),
+      child: Center(
+        child: new GestureDetector(
+          onTap: () => elementSymbolPrompt(
+                context: context,
+                currentElementSymbol: ElementState.selectedElement,
+              ),
+          child: new Container(
+            height: 128.0,
+            width: 128.0,
+            alignment: Alignment.center,
+            decoration: new BoxDecoration(
+              border: new Border.all(
+                color: Colors.grey[400],
+              ),
             ),
-        child: new Container(
-          height: 128.0,
-          width: 128.0,
-          alignment: Alignment.center,
-          decoration: new BoxDecoration(
-            border: new Border.all(
-              color: Colors.grey[400],
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: new Column(
-              children: <Widget>[
-                new Text(element.atomicNumber.toString()),
-                new Expanded(
-                  child: new Center(
-                    child: Text(
-                      enumToString(element.symbol),
-                      style: new TextStyle(
-                        fontSize: 56.0,
-                        fontFamily: 'Rock Salt',
-                        color: Colors.grey[600],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new Column(
+                children: <Widget>[
+                  new Text(element.atomicNumber.toString()),
+                  new Expanded(
+                    child: new Center(
+                      child: Text(
+                        enumToString(element.symbol),
+                        style: new TextStyle(
+                          fontSize: 56.0,
+                          fontFamily: 'Rock Salt',
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                new Text(
-                  element.relativeAtomicMass.toStringAsFixed(2),
-                ),
-              ],
+                  new Text(
+                    element.relativeAtomicMass.toStringAsFixed(2),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -220,20 +223,20 @@ class ElementParent extends StatelessWidget {
       );
     }
 
-    return new Padding(
-      padding: new EdgeInsets.all(16.0),
-      child: new ListView(
-        children: <Widget>[
-          renderElementCell(context),
-          renderStaticData(),
-          new ExpansionPanelList(
+    return new ListView(
+      children: <Widget>[
+        renderElementCell(context),
+        renderStaticData(),
+        new Container(
+          padding: new EdgeInsets.all(16.0),
+          child: new ExpansionPanelList(
             expansionCallback: (int index, bool newState) {
               ElementState.toggleExpansionPanel(index);
             },
             children: expansionPanels,
-          )
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }

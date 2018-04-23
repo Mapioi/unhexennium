@@ -349,12 +349,12 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     return new RadioListTile(
                       value: x,
                       groupValue: FormulaState.idealGasComputed,
-                      onChanged: (y) {
-                        FormulaState.idealGasComputed = y;
-                        if (focusNodes[y].hasFocus) {
-                          focusNodes[y].unfocus();
-                        }
-                      },
+                      onChanged: (y) => setState(() {
+                            FormulaState.idealGasComputed = y;
+                            if (focusNodes[y].hasFocus) {
+                              focusNodes[y].unfocus();
+                            }
+                          }),
                       title: new Text(enumToString(x)),
                       subtitle:
                           new Text(x == IdealGasComputed.P ? "Pa" : "mol"),
