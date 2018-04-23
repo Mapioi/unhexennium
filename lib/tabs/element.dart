@@ -44,20 +44,20 @@ class ElementParent extends StatelessWidget {
   Widget renderElementCell(BuildContext context) {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
     return Center(
-      child: new Container(
-        height: 128.0,
-        width: 128.0,
-        alignment: Alignment.center,
-        decoration: new BoxDecoration(
-          border: new Border.all(
-            color: Colors.grey[400],
+      child: new GestureDetector(
+        onTap: () => elementSymbolPrompt(
+              context: context,
+              currentElementSymbol: ElementState.selectedElement,
+            ),
+        child: new Container(
+          height: 128.0,
+          width: 128.0,
+          alignment: Alignment.center,
+          decoration: new BoxDecoration(
+            border: new Border.all(
+              color: Colors.grey[400],
+            ),
           ),
-        ),
-        child: new GestureDetector(
-          onTap: () => elementSymbolPrompt(
-                context: context,
-                currentElementSymbol: ElementState.selectedElement,
-              ),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: new Column(
