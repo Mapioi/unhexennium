@@ -17,7 +17,10 @@ class ElementState {
   static ElementSymbol get selectedElement => _selectedElement;
 
   static set selectedElement(ElementSymbol element) {
+    ChemicalElement e = new ChemicalElement(element);
     setState(() {
+      ElementState.ionExpansionPanelStates =
+          List.filled(e.ionsElectronConfigurations.length, false);
       _selectedElement = element;
     });
   }
@@ -210,9 +213,6 @@ class ElementParent extends StatelessWidget {
     Map<int, List<Orbital>> ionsElectronConfig =
         element.ionsElectronConfigurations;
     if (ionsElectronConfig.length != 0) {
-      ElementState.ionExpansionPanelStates ??=
-          List.filled(ionsElectronConfig.length, false);
-
       List<ExpansionPanel> ionExpansionPanels = [];
       for (int i = 0; i < ionsElectronConfig.length; i++) {
         ionExpansionPanels.add(
