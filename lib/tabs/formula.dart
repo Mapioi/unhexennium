@@ -102,14 +102,22 @@ class FormulaState {
     ..charge = 1;
   static Formula formula = formulaFactory.build();
   static int _selectedBlockIndex = 0;
+
   static int get selectedBlockIndex => _selectedBlockIndex;
+
   static set selectedBlockIndex(int i) {
     _selectedBlockIndex = i;
-    _underCursor = formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+    try {
+      _underCursor =
+          formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+    } catch (e) {
+      _underCursor = null;
+    }
   }
 
   static ElementSymbol _underCursor =
       formulaFactory.elementsList[selectedBlockIndex].elementSymbol;
+
   static ElementSymbol get underCursor => _underCursor;
 
   static num _mass, _mole;
@@ -318,7 +326,6 @@ class FormulaParent extends StatelessWidget {
 
   /// Used to initiate the recursion
   Widget buildEditorMain() {
-    /*print(FormulaState.formulaFactory.elementsList.toString());*/
     Row inputBoxesRow =
         recursiveInputBuilder(0, FormulaState.formulaFactory.length);
 
