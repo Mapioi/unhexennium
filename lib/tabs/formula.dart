@@ -529,6 +529,7 @@ class FormulaParent extends StatelessWidget {
                             .containsKey(FormulaState.selectedBlockIndex)
                     ? null
                     : FormulaState.onView,
+                tooltip: 'View selected',
               ),
               new IconButton(
                 icon: new Icon(Icons.add),
@@ -593,7 +594,13 @@ class FormulaParent extends StatelessWidget {
                 icon: new Icon(Icons.delete),
                 onPressed: FormulaState.selectedBlockIndex >= 0
                     ? FormulaState.removeAtCursor
-                    : null,
+                    : FormulaState.formulaFactory.charge != 0
+                        ? () {
+                            FormulaState.setState(() {
+                              FormulaState.formulaFactory.charge = 0;
+                            });
+                          }
+                        : null,
                 tooltip: 'Delete selected',
               ),
               new IconButton(
