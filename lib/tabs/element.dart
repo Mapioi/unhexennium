@@ -30,14 +30,11 @@ class ElementState {
     });
   }
 
-  static void toggleExpansionPanel(int index) =>
-      setState(
-              () => expansionPanelStates[index] = !expansionPanelStates[index]);
+  static void toggleExpansionPanel(int index) => setState(
+      () => expansionPanelStates[index] = !expansionPanelStates[index]);
 
-  static void toggleIonExpansionPanel(int index) =>
-      setState(
-              () =>
-          ionExpansionPanelStates[index] = !ionExpansionPanelStates[index]);
+  static void toggleIonExpansionPanel(int index) => setState(
+      () => ionExpansionPanelStates[index] = !ionExpansionPanelStates[index]);
 }
 
 typedef bool GetExpansionState();
@@ -57,8 +54,7 @@ class ElementParent extends StatelessWidget {
           ),
         ),
         child: new GestureDetector(
-          onTap: () =>
-              elementSymbolPrompt(
+          onTap: () => elementSymbolPrompt(
                 context: context,
                 currentElementSymbol: ElementState.selectedElement,
               ),
@@ -128,16 +124,15 @@ class ElementParent extends StatelessWidget {
     if (element.ionsElectronConfigurations.length != 0) {
       data[new Text("Ions", style: StaticTable.head)] = new Column(
         children: element.ionsElectronConfigurations.entries
-            .map((MapEntry<int, List<Orbital>> ion) =>
-        new Text(
-          toStringAsCharge(ion.key) +
-              ": " +
-              new AbbreviatedElectronConfiguration.of(ion.value)
-                  .toString(),
-          style: ion.key == ElementState.oxidationState
-              ? new TextStyle(fontWeight: FontWeight.w500)
-              : null,
-        ))
+            .map((MapEntry<int, List<Orbital>> ion) => new Text(
+                  toStringAsCharge(ion.key) +
+                      ": " +
+                      new AbbreviatedElectronConfiguration.of(ion.value)
+                          .toString(),
+                  style: ion.key == ElementState.oxidationState
+                      ? new TextStyle(fontWeight: FontWeight.w500)
+                      : null,
+                ))
             .toList(),
         crossAxisAlignment: CrossAxisAlignment.start,
       );
@@ -147,9 +142,11 @@ class ElementParent extends StatelessWidget {
   }
 
   /// Template for expansion panels to display electron config
-  ExpansionPanel electronConfigExpansionPanel(List<Orbital> orbitals,
-      int index,
-      bool isIon,) {
+  ExpansionPanel electronConfigExpansionPanel(
+    List<Orbital> orbitals,
+    int index,
+    bool isIon,
+  ) {
     List<List<int>> boxData = constructSubshellBoxesStructure(orbitals);
     return new ExpansionPanel(
       isExpanded: isIon
@@ -180,18 +177,16 @@ class ElementParent extends StatelessWidget {
             new Row(
               children: boxData
                   .map(
-                    (List<int> boxes) =>
-                    Row(
-                      children: boxes
-                          .map(
-                            (int boxArrowsNum) =>
-                        new ElectronSublevelBox(
-                          numberOfArrows: boxArrowsNum,
+                    (List<int> boxes) => Row(
+                          children: boxes
+                              .map(
+                                (int boxArrowsNum) => new ElectronSublevelBox(
+                                      numberOfArrows: boxArrowsNum,
+                                    ),
+                              )
+                              .toList(),
                         ),
-                      )
-                          .toList(),
-                    ),
-              )
+                  )
                   .toList(),
             ),
           ],

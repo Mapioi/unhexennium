@@ -6,7 +6,6 @@ import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/data/formulae.dart';
 
-
 /// Gas constant (J k^-1 mol^-1)
 const num R = 8.31;
 enum BondType { Covalent, Ionic, Metallic, PolarCovalent }
@@ -474,7 +473,8 @@ class FormulaFactory {
       }
     }).toList();
     // Change the first pair parentheses into brackets if needed
-    if (elementsList[0].elementSymbol == null && elementsList[0].subscript < 0) {
+    if (elementsList[0].elementSymbol == null &&
+        elementsList[0].subscript < 0) {
       int closingIndex = getClosingIndices()[0];
       if (elementsList[closingIndex].subscript == 1) {
         assert(formulaList[0] == '(');

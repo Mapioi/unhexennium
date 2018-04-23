@@ -20,7 +20,8 @@ class _EquationParentState extends State<EquationParent> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
           _buildEquationInputColumn(
-              EquationSide.Reactant, this.inputtedReactants,
+            EquationSide.Reactant,
+            this.inputtedReactants,
           ),
           _buildEquationInputColumn(EquationSide.Product, this.inputtedProducts)
         ]));
