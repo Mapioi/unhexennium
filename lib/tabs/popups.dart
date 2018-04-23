@@ -115,7 +115,7 @@ class MassMoleCalculator extends StatelessWidget {
     return new Padding(
       padding: const EdgeInsets.all(16.0),
       child: new Container(
-        height: 135.0,
+        height: 150.0,
         child: new Column(
           children: <Widget>[
             new Text("RFM: " + FormulaState.formula.rfm.toStringAsFixed(dp)),
@@ -192,15 +192,15 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
             : ""),
     IdealGasComputed.V: new TextEditingController(
         text: FormulaState.volume != null
-            ? FormulaState.pressure.toStringAsPrecision(sf)
+            ? FormulaState.volume.toStringAsPrecision(sf)
             : ""),
     IdealGasComputed.n: new TextEditingController(
         text: FormulaState.mole != null
-            ? FormulaState.pressure.toStringAsPrecision(sf)
+            ? FormulaState.mole.toStringAsPrecision(sf)
             : ""),
     IdealGasComputed.T: new TextEditingController(
         text: FormulaState.temperature != null
-            ? FormulaState.pressure.toStringAsPrecision(sf)
+            ? FormulaState.temperature.toStringAsPrecision(sf)
             : ""),
   };
   Map<IdealGasComputed, FocusNode> focusNodes = {
@@ -300,7 +300,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                 children: <Widget>[
                   new TextField(
                     decoration: new InputDecoration(
-                      helperText: "Number of moles / mol",
+                      helperText: "Number / mol",
                     ),
                     controller: controllers[IdealGasComputed.n],
                     focusNode: focusNodes[IdealGasComputed.n],
