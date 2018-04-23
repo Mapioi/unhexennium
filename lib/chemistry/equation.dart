@@ -5,6 +5,12 @@ import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 
+class InfiniteWaysOfBalancingException implements Exception {
+  List<List<Rational>> kernel;
+
+  InfiniteWaysOfBalancingException(this.kernel);
+}
+
 /// A chemical equation is the symbolic representation of
 /// a chemical reaction in the form of symbols and formulae,
 /// wherein the reactant entities are given on the left-hand side
@@ -23,7 +29,8 @@ class Equation {
   /// and cells correspond to the subscript of that element in that formula
   /// (0 if not present; opposite if the formula represents a product).
   static List<int> getBalancedCoefficients(
-      List<Formula> reactants, List<Formula> products) {
+      List<Formula> reactants, List<Formula> products,
+      {bool strict: false}) {
     var elementsRows = <ElementSymbol, int>{};
     int equationLength = reactants.length + products.length;
     // Row 0 is reserved for charge.
@@ -49,8 +56,10 @@ class Equation {
       matrixItems[0][j] = new Rational.fromInt(sign * formula.charge);
       ++j;
     }
-    // TODO handle length > 1
     var coefficientVectors = new RationalMatrix(matrixItems).nullSpace;
+    if (coefficientVectors.length > 1 && strict) {
+      throw new InfiniteWaysOfBalancingException(coefficientVectors);
+    }
     var balancedCoefficients =
         new List<Rational>.filled(equationLength, new Rational.fromInt(0));
     for (List<Rational> vector in coefficientVectors) {
@@ -65,8 +74,10 @@ class Equation {
         .toList();
   }
 
-  Equation(this.reactants, this.products, {this.isEquilibrium = false})
-      : coefficients = getBalancedCoefficients(reactants, products);
+  Equation(this.reactants, this.products,
+      {this.isEquilibrium = false, strictBalancing = false})
+      : coefficients = getBalancedCoefficients(reactants, products,
+            strict: strictBalancing);
 
   @override
   String toString() {
