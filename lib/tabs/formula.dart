@@ -79,6 +79,8 @@ class InputBox extends StatelessWidget {
   }
 }
 
+enum IdealGasComputed { P, V, n, T }
+
 class FormulaState {
   static SetStateCallback setState;
   static Callback switchToElementTab;
@@ -119,6 +121,7 @@ class FormulaState {
     _mass = n != null ? formula.mass(n) : null;
   }
 
+  static IdealGasComputed idealGasComputed = IdealGasComputed.n;
   static num pressure, volume, temperature;
 
   static resetProperties() {

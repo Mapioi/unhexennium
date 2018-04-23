@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import "package:unhexennium/tabs/element.dart" show ElementState;
-import "package:unhexennium/tabs/formula.dart" show FormulaState;
+import "package:unhexennium/tabs/formula.dart";
 import 'package:unhexennium/tabs/periodic_table.dart';
 import "package:unhexennium/utils.dart";
 
@@ -131,6 +131,7 @@ class MassMoleCalculator extends StatelessWidget {
                     textAlign: TextAlign.center,
                     controller: massController,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       num mass = num.parse(s, (v) => null);
                       FormulaState.mass = mass;
                       moleController.text =
@@ -145,6 +146,7 @@ class MassMoleCalculator extends StatelessWidget {
                     textAlign: TextAlign.center,
                     controller: moleController,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       num mole = num.parse(s, (v) => null);
                       FormulaState.mole = mole;
                       massController.text =
@@ -157,6 +159,7 @@ class MassMoleCalculator extends StatelessWidget {
             new IconButton(
               icon: new Icon(Icons.clear),
               onPressed: clear,
+              tooltip: "Clear",
             ),
           ],
         ),
@@ -181,10 +184,7 @@ class IdealGasCalculator extends StatefulWidget {
   State<IdealGasCalculator> createState() => new _IdealGasCalculatorState();
 }
 
-enum IdealGasComputed { P, V, n, T }
-
 class _IdealGasCalculatorState extends State<IdealGasCalculator> {
-  IdealGasComputed computed = IdealGasComputed.n;
   Map<IdealGasComputed, TextEditingController> controllers = {
     IdealGasComputed.P: new TextEditingController(
         text: FormulaState.pressure != null
@@ -213,7 +213,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
   void updateValue() {
     num result;
     try {
-      switch (computed) {
+      switch (FormulaState.idealGasComputed) {
         case IdealGasComputed.P:
           result = FormulaState.pressure = FormulaState.formula.P(
             V: FormulaState.volume,
@@ -244,7 +244,8 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
           break;
       }
       assert(result.isFinite && !result.isNegative);
-      controllers[computed].text = result.toStringAsPrecision(sf);
+      controllers[FormulaState.idealGasComputed].text =
+          result.toStringAsPrecision(sf);
     } catch (e) {
       /*print(e);*/
     }
@@ -271,8 +272,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.P],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled: computed != IdealGasComputed.P,
+                    enabled:
+                        FormulaState.idealGasComputed != IdealGasComputed.P,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       FormulaState.pressure = num.parse(s, (v) => null);
                       updateValue();
                     },
@@ -285,8 +288,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.V],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled: computed != IdealGasComputed.V,
+                    enabled:
+                        FormulaState.idealGasComputed != IdealGasComputed.V,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       FormulaState.volume = num.parse(s, (v) => null);
                       updateValue();
                     },
@@ -306,8 +311,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.n],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled: computed != IdealGasComputed.n,
+                    enabled:
+                        FormulaState.idealGasComputed != IdealGasComputed.n,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       FormulaState.mole = num.parse(s, (v) => null);
                       updateValue();
                     },
@@ -320,8 +327,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.T],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled: computed != IdealGasComputed.T,
+                    enabled:
+                        FormulaState.idealGasComputed != IdealGasComputed.T,
                     onChanged: (String s) {
+                      s = unFrench(s);
                       FormulaState.temperature = num.parse(s, (v) => null);
                       updateValue();
                     },
@@ -339,10 +348,13 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                       .map((IdealGasComputed x) {
                     return new RadioListTile(
                       value: x,
-                      groupValue: computed,
-                      onChanged: (y) => setState(() {
-                            computed = y;
-                          }),
+                      groupValue: FormulaState.idealGasComputed,
+                      onChanged: (y) {
+                        FormulaState.idealGasComputed = y;
+                        if (focusNodes[y].hasFocus) {
+                          focusNodes[y].unfocus();
+                        }
+                      },
                       title: new Text(enumToString(x)),
                       subtitle:
                           new Text(x == IdealGasComputed.P ? "Pa" : "mol"),
@@ -355,9 +367,9 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                       .map((IdealGasComputed x) {
                     return new RadioListTile(
                       value: x,
-                      groupValue: computed,
+                      groupValue: FormulaState.idealGasComputed,
                       onChanged: (y) => setState(() {
-                            computed = y;
+                            FormulaState.idealGasComputed = y;
                             if (focusNodes[y].hasFocus) {
                               focusNodes[y].unfocus();
                             }

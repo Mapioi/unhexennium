@@ -101,3 +101,6 @@ String toStringAsCharge(int charge, {omitOne = false}) {
   String value = charge.abs() == 1 && omitOne ? "" : charge.abs().toString();
   return "$value$sign";
 }
+
+/// Replace the french virgules by points.
+String unFrench(String s) => s.replaceAll(",", ".");
