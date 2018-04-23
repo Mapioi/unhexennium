@@ -12,6 +12,7 @@ class ElementState {
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false, false];
+  static List<bool> ionExpansionPanelStates;
 
   static ElementSymbol get selectedElement => _selectedElement;
 
@@ -32,7 +33,14 @@ class ElementState {
   static void toggleExpansionPanel(int index) =>
       setState(
               () => expansionPanelStates[index] = !expansionPanelStates[index]);
+
+  static void toggleIonExpansionPanel(int index) =>
+      setState(
+              () =>
+          ionExpansionPanelStates[index] = !ionExpansionPanelStates[index]);
 }
+
+typedef bool GetExpansionState();
 
 class ElementParent extends StatelessWidget {
   /// Renders the top square
@@ -90,10 +98,10 @@ class ElementParent extends StatelessWidget {
       int numberOfBoxes = orbital.size ~/ 2;
       List<int> boxes;
       if (electronsLeft > numberOfBoxes) {
-        boxes = List.generate(numberOfBoxes, (_) => 1);
+        boxes = List.filled(numberOfBoxes, 1);
         electronsLeft -= numberOfBoxes;
       } else {
-        boxes = List.generate(numberOfBoxes, (_) => 0);
+        boxes = List.filled(numberOfBoxes, 0);
       }
       for (int i = 0; i < electronsLeft; i++) {
         boxes[i] += 1;
@@ -138,6 +146,61 @@ class ElementParent extends StatelessWidget {
     return StaticTable(data);
   }
 
+  /// Template for expansion panels to display electron config
+  ExpansionPanel electronConfigExpansionPanel(List<Orbital> orbitals,
+      int index,
+      bool isIon,) {
+    List<List<int>> boxData = constructSubshellBoxesStructure(orbitals);
+    return new ExpansionPanel(
+      isExpanded: isIon
+          ? ElementState.ionExpansionPanelStates[index]
+          : ElementState.expansionPanelStates[index],
+      headerBuilder: (BuildContext context, bool isOpen) {
+        return new Padding(
+          padding: new EdgeInsets.all(16.0),
+          child: Row(
+            children: <Widget>[
+              new Text(
+                "Electron configuration:",
+                style: new TextStyle(fontWeight: FontWeight.bold),
+              ),
+              new SizedBox(width: 10.0),
+              new Text(
+                new AbbreviatedElectronConfiguration.of(orbitals).toString(),
+              )
+            ],
+          ),
+        );
+      },
+      body: new Container(
+        padding: new EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+        height: 50.0,
+        child: new ListView(
+          children: <Widget>[
+            new Row(
+              children: boxData
+                  .map(
+                    (List<int> boxes) =>
+                    Row(
+                      children: boxes
+                          .map(
+                            (int boxArrowsNum) =>
+                        new ElectronSublevelBox(
+                          numberOfArrows: boxArrowsNum,
+                        ),
+                      )
+                          .toList(),
+                    ),
+              )
+                  .toList(),
+            ),
+          ],
+          scrollDirection: Axis.horizontal,
+        ),
+      ),
+    );
+  }
+
   /// Build the whole elements page
   @override
   Widget build(BuildContext context) {
@@ -145,62 +208,27 @@ class ElementParent extends StatelessWidget {
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
 
     // Electronic configuration
-    List<List<int>> boxData =
-    constructSubshellBoxesStructure(element.electronConfiguration);
     expansionPanels.add(
-      new ExpansionPanel(
-        isExpanded: ElementState.expansionPanelStates[0],
-        headerBuilder: (BuildContext context, bool isOpen) {
-          return new Padding(
-            padding: new EdgeInsets.all(16.0),
-            child: Row(
-              children: <Widget>[
-                new Text(
-                  "Electron configuration:",
-                  style: new TextStyle(fontWeight: FontWeight.bold),
-                ),
-                new SizedBox(width: 10.0),
-                new Text(
-                  new AbbreviatedElectronConfiguration.of(
-                    element.electronConfiguration,
-                  ).toString(),
-                )
-              ],
-            ),
-          );
-        },
-        body: new Container(
-          padding: new EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-          height: 50.0,
-          child: new ListView(
-            children: <Widget>[
-              new Row(
-                children: boxData
-                    .map(
-                      (List<int> boxes) =>
-                      Row(
-                        children: boxes
-                            .map(
-                              (int boxArrowsNum) =>
-                          new ElectronSublevelBox(
-                            numberOfArrows: boxArrowsNum,
-                          ),
-                        )
-                            .toList(),
-                      ),
-                )
-                    .toList(),
-              ),
-            ],
-            scrollDirection: Axis.horizontal,
-          ),
-        ),
-      ),
-    );
+        electronConfigExpansionPanel(element.electronConfiguration, 0, false));
 
     // Ions
-    if (element.ionsElectronConfigurations.length != 0) {
-      // Ions
+    Map<int, List<Orbital>> ionsElectronConfig =
+        element.ionsElectronConfigurations;
+    if (ionsElectronConfig.length != 0) {
+      ElementState.ionExpansionPanelStates ??=
+          List.filled(ionsElectronConfig.length, false);
+
+      List<ExpansionPanel> ionExpansionPanels = [];
+      for (int i = 0; i < ionsElectronConfig.length; i++) {
+        ionExpansionPanels.add(
+          electronConfigExpansionPanel(
+            ionsElectronConfig[ionsElectronConfig.keys.toList()[i]],
+            i,
+            true,
+          ),
+        );
+      }
+
       expansionPanels.add(
         new ExpansionPanel(
           isExpanded: ElementState.expansionPanelStates[1],
@@ -215,20 +243,13 @@ class ElementParent extends StatelessWidget {
           },
           body: new Padding(
             padding: new EdgeInsets.all(16.0),
-            child: new Column(
-              children: element.ionsElectronConfigurations.entries
-                  .map((MapEntry<int, List<Orbital>> ion) =>
-              new Text(
-                toStringAsCharge(ion.key) +
-                    ": " +
-                    new AbbreviatedElectronConfiguration.of(ion.value)
-                        .toString(),
-                style: ion.key == ElementState.oxidationState
-                    ? new TextStyle(fontWeight: FontWeight.w500)
-                    : null,
-              ))
-                  .toList(),
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: new ExpansionPanelList(
+              expansionCallback: (int index, bool currentState) {
+                print(index);
+                print(ElementState.ionExpansionPanelStates);
+                ElementState.toggleIonExpansionPanel(index);
+              },
+              children: ionExpansionPanels,
             ),
           ),
         ),
@@ -238,8 +259,6 @@ class ElementParent extends StatelessWidget {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
       child: new ListView(
-//        mainAxisSize: MainAxisSize.max,
-//        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           renderElementCell(context),
           renderStaticData(),
