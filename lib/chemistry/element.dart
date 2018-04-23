@@ -772,54 +772,127 @@ final Map<ElementSymbol, List<Sublevel>> _nobleGasesSublevels = {
   ],
 };
 
-/// Monatomic ions of each element
-const Map<ElementSymbol, List<int>> _monatomicIons = const {
-  // Group 1
-  ElementSymbol.H: [-1, 1],
-  ElementSymbol.Li: [1],
-  ElementSymbol.Na: [1],
-  ElementSymbol.K: [1],
-  ElementSymbol.Rb: [1],
-  ElementSymbol.Cs: [1],
-
-  // Group 2
-  ElementSymbol.Be: [2],
-  ElementSymbol.Mg: [2],
-  ElementSymbol.Ca: [2],
-  ElementSymbol.Sr: [2],
-  ElementSymbol.Ba: [2],
-
-  // Table 14 Common oxidation states of the 3d ions
-  ElementSymbol.Sc: [3],
-  ElementSymbol.Ti: [2, 3, 4],
-  ElementSymbol.V: [2, 3, 4, 5],
-  ElementSymbol.Cr: [2, 3, 6],
-  ElementSymbol.Mn: [2, 3, 4, 6, 7],
-  ElementSymbol.Fe: [2, 3],
-  ElementSymbol.Co: [2, 3],
-  ElementSymbol.Ni: [2],
-  ElementSymbol.Cu: [1, 2],
-  ElementSymbol.Zn: [2],
-
-  ElementSymbol.Ag: [1],
-  ElementSymbol.Pb: [2],
-  ElementSymbol.Cd: [2],
-  ElementSymbol.Hg: [1, 2],
-
-  // Group 15
-  ElementSymbol.N: [-3],
-  ElementSymbol.P: [-3],
-
-  // Group 16
-  ElementSymbol.O: [-2],
-  ElementSymbol.S: [-2],
-
-  // Group 17
-  ElementSymbol.F: [-1],
-  ElementSymbol.Cl: [-1],
-  ElementSymbol.Br: [-1],
-  ElementSymbol.I: [-1],
-};
+/// Oxidation states of elements
+const List<List<int>> _oxidationStates = const [
+  [-1, 1],
+  [],
+  [1],
+  [2],
+  [3],
+  [-4, -3, -2, -1, 1, 2, 3, 4],
+  [-3, 3, 5],
+  [-2],
+  [-1],
+  [],
+  [1],
+  [2],
+  [3],
+  [-4, 4],
+  [-3, 3, 5],
+  [-2, 2, 4, 6],
+  [-1, 1, 3, 5, 7],
+  [],
+  [1],
+  [2],
+  [3],
+  [4],
+  [5],
+  [3, 6],
+  [2, 4, 7],
+  [2, 3, 6],
+  [2, 3],
+  [2],
+  [2],
+  [2],
+  [3],
+  [-4, 2, 4],
+  [-3, 3, 5],
+  [-2, 2, 4, 6],
+  [-1, 1, 3, 5],
+  [2],
+  [1],
+  [2],
+  [3],
+  [4],
+  [5],
+  [4, 6],
+  [4, 7],
+  [3, 4],
+  [3],
+  [2, 4],
+  [1],
+  [2],
+  [3],
+  [-4, 2, 4],
+  [-3, 3, 5],
+  [-2, 2, 4, 6],
+  [-1, 1, 3, 5, 7],
+  [2, 4, 6],
+  [1],
+  [2],
+  [3],
+  [3, 4],
+  [3],
+  [3],
+  [3],
+  [3],
+  [2, 3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [4],
+  [5],
+  [4, 6],
+  [4],
+  [4],
+  [3, 4],
+  [2, 4],
+  [3],
+  [1, 2],
+  [1, 3],
+  [2, 4],
+  [3],
+  [-2, 2, 4],
+  [-1, 1],
+  [2],
+  [1],
+  [2],
+  [3],
+  [4],
+  [5],
+  [6],
+  [5],
+  [4],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [3],
+  [2],
+  [3],
+  [4],
+  [5],
+  [6],
+  [7],
+  [8],
+  [],
+  [],
+  [],
+  [2],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+];
 
 class Sublevel {
   /// This orbital's name
@@ -968,8 +1041,12 @@ class ChemicalElement {
         // The oxidation state for anions are negative.
         valenceSublevel.numberElectrons + oxidationState.abs(),
       ));
-      // Anions' valence orbital must be full.
-      assert(sublevels.last.isFull);
+      // Note: this method does not work if a new orbital is occupied.
+      // This is because the order in which the orbitals are filled up
+      // is not very predictable.
+      // Hence, without the assertion below,
+      // the electrons in the last sublevel might surpass its maximum size.
+      assert(sublevels.last.numberElectrons <= sublevels.last.size);
     } else {
       // Cation
       while (oxidationState > 0) {
@@ -987,10 +1064,11 @@ class ChemicalElement {
     return sublevels;
   }
 
-  Map<int, List<Sublevel>> get ionsElectronConfigurations {
-    if (_monatomicIons[symbol] == null) return {};
+  Map<int, List<Sublevel>> get oxidisedElectronConfigurations {
+    List<int> os = _oxidationStates[symbol.index] + [0];
+    os.sort();
     return new Map.fromIterable(
-      _monatomicIons[symbol],
+      os,
       key: (oxidationState) => oxidationState,
       value: (oxidationState) => _getIonElectronConfiguration(oxidationState),
     );

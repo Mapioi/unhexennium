@@ -121,77 +121,20 @@ void main() {
 
     test("ions electron configurations", () {
       expect(
-        new ChemicalElement(ElementSymbol.H).ionsElectronConfigurations,
+        new ChemicalElement(ElementSymbol.H).oxidisedElectronConfigurations,
         {
           -1: [new Sublevel("1s", 2)],
+          0: [new Sublevel("1s", 1)],
           1: [],
         },
       );
-      expect(
-        new ChemicalElement(ElementSymbol.Cu).ionsElectronConfigurations,
-        {
-          1: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 10),
-          ],
-          2: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 9),
-          ],
-        },
-      );
-      expect(
-        new ChemicalElement(ElementSymbol.Mn).ionsElectronConfigurations,
-        {
-          2: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 5),
-          ],
-          3: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 4),
-          ],
-          4: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 3),
-          ],
-          6: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-            new Sublevel("3d", 1),
-          ],
-          7: [
-            new Sublevel("1s", 2),
-            new Sublevel("2s", 2),
-            new Sublevel("2p", 6),
-            new Sublevel("3s", 2),
-            new Sublevel("3p", 6),
-          ],
-        },
-      );
+      for (ElementSymbol symbol in ElementSymbol.values) {
+        expect(
+            new ChemicalElement(symbol)
+                .oxidisedElectronConfigurations
+                .containsKey(0),
+            true);
+      }
     });
   });
 }

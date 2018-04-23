@@ -11,15 +11,18 @@ class ElementState {
   static SetStateCallback setState;
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
-  static List<bool> expansionPanelStates = [false, false];
+  static List<bool> expansionPanelStates = [false];
 
   // only because Xe
-  static List<bool> ionExpansionPanelStates = [];
+  static List<bool> osExpansionPanelStates = new List<bool>.filled(
+    new ChemicalElement(_selectedElement).oxidisedElectronConfigurations.length,
+    false,
+  );
 
   static void collapseExpansionPanels() {
-    expansionPanelStates = [false, false];
-    ionExpansionPanelStates =
-        new List.filled(ionExpansionPanelStates.length, false);
+    expansionPanelStates = [false];
+    osExpansionPanelStates =
+        new List.filled(osExpansionPanelStates.length, false);
   }
 
   static ElementSymbol get selectedElement => _selectedElement;
@@ -27,8 +30,8 @@ class ElementState {
   static set selectedElement(ElementSymbol element) {
     ChemicalElement e = new ChemicalElement(element);
     setState(() {
-      ElementState.ionExpansionPanelStates =
-          List.filled(e.ionsElectronConfigurations.length, false);
+      ElementState.osExpansionPanelStates =
+          List.filled(e.oxidisedElectronConfigurations.length, false);
       _selectedElement = element;
     });
     collapseExpansionPanels();
@@ -47,7 +50,7 @@ class ElementState {
       () => expansionPanelStates[index] = !expansionPanelStates[index]);
 
   static void toggleIonExpansionPanel(int index) => setState(
-      () => ionExpansionPanelStates[index] = !ionExpansionPanelStates[index]);
+      () => osExpansionPanelStates[index] = !osExpansionPanelStates[index]);
 }
 
 typedef bool GetExpansionState();
@@ -83,7 +86,7 @@ class ElementParent extends StatelessWidget {
                       child: Text(
                         enumToString(element.symbol),
                         style: new TextStyle(
-                          fontSize: 56.0,
+                          fontSize: 49.0,
                           fontFamily: 'Rock Salt',
                           color: Colors.grey[600],
                         ),
@@ -126,28 +129,27 @@ class ElementParent extends StatelessWidget {
     ElementSymbol symbol,
   ) {
     return new ExpansionPanel(
-      isExpanded: oxidationState != 0
-          ? ElementState.ionExpansionPanelStates[index]
-          : ElementState.expansionPanelStates[index],
+      isExpanded: ElementState.osExpansionPanelStates[index],
       headerBuilder: (BuildContext context, bool isOpen) {
         return new Padding(
-          padding: new EdgeInsets.all(16.0),
-          child: ListView(
+          padding: new EdgeInsets.all(8.0),
+          child: Row(
             children: <Widget>[
               new Text(
-                oxidationState == 0
-                    ? "Electron configuration:"
-                    : enumToString(symbol) +
-                        asSuperscript(
-                            toStringAsCharge(oxidationState, omitOne: true)),
-                style: new TextStyle(fontWeight: FontWeight.bold),
+                enumToString(symbol) +
+                    asSuperscript(
+                        toStringAsCharge(oxidationState, omitOne: true)),
+                style: new TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: oxidationState == ElementState.oxidationState
+                        ? Colors.black54
+                        : Colors.black),
               ),
               new SizedBox(width: 10.0),
               new Text(
                 new AbbreviatedElectronConfiguration.of(sublevels).toString(),
               ),
             ],
-            scrollDirection: Axis.horizontal,
           ),
         );
       },
@@ -173,55 +175,45 @@ class ElementParent extends StatelessWidget {
     List<ExpansionPanel> expansionPanels = [];
     ChemicalElement element = new ChemicalElement(ElementState.selectedElement);
 
-    // Electronic configuration
-    expansionPanels.add(electronConfigExpansionPanel(
-      element.electronConfiguration,
-      0,
-      0,
-      ElementState.selectedElement,
-    ));
-
-    // Ions
-    Map<int, List<Sublevel>> ionsElectronConfig =
-        element.ionsElectronConfigurations;
-    if (ionsElectronConfig.length != 0) {
-      List<ExpansionPanel> ionExpansionPanels = [];
-      int i = 0;
-      for (MapEntry<int, List<Sublevel>> entry in ionsElectronConfig.entries) {
-        ionExpansionPanels.add(
-          electronConfigExpansionPanel(
-            entry.value,
-            i++,
-            entry.key,
-            ElementState.selectedElement,
-          ),
-        );
-      }
-
-      expansionPanels.add(
-        new ExpansionPanel(
-          isExpanded: ElementState.expansionPanelStates[1],
-          headerBuilder: (BuildContext context, bool isOpen) {
-            return new Padding(
-              padding: new EdgeInsets.all(16.0),
-              child: new Text(
-                "Ions",
-                style: new TextStyle(fontWeight: FontWeight.bold),
-              ),
-            );
-          },
-          body: new Padding(
-            padding: new EdgeInsets.all(16.0),
-            child: new ExpansionPanelList(
-              expansionCallback: (int index, bool currentState) {
-                ElementState.toggleIonExpansionPanel(index);
-              },
-              children: ionExpansionPanels,
-            ),
-          ),
+    // Oxidation states + electron configurations
+    Map<int, List<Sublevel>> osElectronConfigs =
+        element.oxidisedElectronConfigurations;
+    List<ExpansionPanel> osExpansionPanels = [];
+    int i = 0;
+    for (MapEntry<int, List<Sublevel>> entry in osElectronConfigs.entries) {
+      osExpansionPanels.add(
+        electronConfigExpansionPanel(
+          entry.value,
+          i++,
+          entry.key,
+          ElementState.selectedElement,
         ),
       );
     }
+
+    expansionPanels.add(
+      new ExpansionPanel(
+        isExpanded: ElementState.expansionPanelStates[0],
+        headerBuilder: (BuildContext context, bool isOpen) {
+          return new Padding(
+            padding: new EdgeInsets.all(16.0),
+            child: new Text(
+              "Oxidation states",
+              style: new TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
+        },
+        body: new Padding(
+          padding: new EdgeInsets.all(16.0),
+          child: new ExpansionPanelList(
+            expansionCallback: (int index, bool currentState) {
+              ElementState.toggleIonExpansionPanel(index);
+            },
+            children: osExpansionPanels,
+          ),
+        ),
+      ),
+    );
 
     return new ListView(
       children: <Widget>[
