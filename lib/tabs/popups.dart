@@ -48,7 +48,6 @@ Future<Null> parenSubscriptPrompt({
   bool isCharge = false,
 }) async {
   await showModalBottomSheet(
-    // TODO give user the option: () or []
     context: context,
     builder: (context) => new Padding(
           padding: new EdgeInsets.all(16.0),
@@ -64,33 +63,246 @@ Future<Null> parenSubscriptPrompt({
   );
 }
 
-Future<Null> elementSymbolPrompt({
-  BuildContext context,
-  ElementSymbol currentElementSymbol,
-}) async {
+enum SearchMode { PeriodicTable, AtomicNumber, Name }
+
+Future<Null> elementSymbolPrompt(
+    {BuildContext parentContext,
+    ElementSymbol currentElementSymbol,
+    SearchMode selectedMode = SearchMode.PeriodicTable}) async {
+  Widget inputToRender;
+  switch (selectedMode) {
+    case SearchMode.PeriodicTable:
+      inputToRender = new PeriodicTableSearch(
+        currentElementSymbol: currentElementSymbol,
+      );
+      break;
+    case SearchMode.AtomicNumber:
+      inputToRender = new AtomicNumberSearch();
+      break;
+    case SearchMode.Name:
+      inputToRender = new Text("Name search - coming soonTM");
+      break;
+  }
+
   await showModalBottomSheet(
-    context: context,
-    builder: (context) => new Container(
-          padding: new EdgeInsets.all(16.0),
-          child: new PeriodicTable(
-            currentElementSymbol,
-            (x) {
-              ElementState.selectedElement = x;
-              Navigator.pop(context); // exit the modal
-            },
-          ),
+    context: parentContext,
+    builder: (context) => new Column(
+          children: <Widget>[
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                new FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    elementSymbolPrompt(
+                      parentContext: parentContext,
+                      currentElementSymbol: currentElementSymbol,
+                      selectedMode: SearchMode.PeriodicTable,
+                    );
+                  },
+                  child: new Text("Periodic Table"),
+                ),
+                new FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    elementSymbolPrompt(
+                      parentContext: parentContext,
+                      currentElementSymbol: currentElementSymbol,
+                      selectedMode: SearchMode.AtomicNumber,
+                    );
+                  },
+                  child: new Text("Atomic Number"),
+                ),
+                new FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    elementSymbolPrompt(
+                      parentContext: parentContext,
+                      currentElementSymbol: currentElementSymbol,
+                      selectedMode: SearchMode.Name,
+                    );
+                  },
+                  child: new Text("Name"),
+                ),
+              ],
+            ),
+            new Expanded(child: inputToRender)
+          ],
         ),
   );
 }
 
+class PeriodicTableSearch extends StatelessWidget {
+  final currentElementSymbol;
+
+  PeriodicTableSearch({Key key, this.currentElementSymbol}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      padding: new EdgeInsets.all(16.0),
+      child: new PeriodicTable(
+        currentElementSymbol,
+        (x) {
+          ElementState.selectedElement = x;
+          Navigator.pop(context); // exit the modal
+        },
+      ),
+    );
+  }
+}
+
+class AtomicNumberSearch extends StatefulWidget {
+  final currentElementSymbol;
+
+  AtomicNumberSearch({Key key, this.currentElementSymbol}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _AtomicNumberSearch();
+}
+
+class _AtomicNumberSearch extends State<AtomicNumberSearch> {
+  int typedNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    List<SearchRow> searchResults = findElementByAtomicNumber(typedNumber)
+        .map(
+          (ChemicalElement e) => new SearchRow(
+                elementToDisplay: e,
+                searchedNumber: typedNumber,
+              ),
+        )
+        .toList();
+
+    return new Column(
+      children: <Widget>[
+        new Center(
+          child: new FractionallySizedBox(
+            child: new Row(
+              children: <Widget>[
+                new Text("Number to search for:"),
+                new SizedBox(width: 10.0),
+                new SizedBox(
+                  width: 80.0,
+                  child: new TextField(
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (String s) => setState(() {
+                          typedNumber = int.parse(s);
+                          print(typedNumber);
+                        }),
+                  ),
+                ),
+              ],
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            ),
+            widthFactor: 0.6,
+          ),
+        ),
+        new Expanded(
+            child: new Padding(
+                padding: new EdgeInsets.all(8.0),
+                child: new ListView(children: searchResults)))
+      ],
+    );
+  }
+}
+
+class SearchRow extends StatelessWidget {
+  final ChemicalElement elementToDisplay;
+  final int searchedNumber;
+
+  SearchRow({Key key, this.elementToDisplay, this.searchedNumber})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      padding: const EdgeInsets.all(8.0),
+      child: new GestureDetector(
+        onTap: () {
+          ElementState.selectedElement = elementToDisplay.symbol;
+          Navigator.pop(context);
+        },
+        child: new Row(
+          children: <Widget>[
+            new Container(
+              padding: new EdgeInsets.all(8.0),
+              child: new Row(
+                children: <Widget>[
+                  searchedNumber == null
+                      ? new SizedBox()
+                      : new Text(
+                          searchedNumber.toString(),
+                          style: new TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                  new Text(
+                    elementToDisplay.atomicNumber.toString().substring(
+                        searchedNumber == null
+                            ? 0
+                            : searchedNumber.toString().length),
+                  )
+                ],
+              ),
+            ),
+            new Container(
+              decoration: new BoxDecoration(
+                border: new Border.all(color: Colors.grey),
+              ),
+              height: 40.0,
+              width: 40.0,
+              child: new Center(
+                child: new Text(
+                  enumToString(elementToDisplay.symbol),
+                  style: new TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+            ),
+            new SizedBox(width: 10.0),
+            new Text(elementToDisplay.name)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NameSearch extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Column(
+        children: <Widget>[
+          new Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
+            child: new Row(
+              children: <Widget>[
+                new Icon(Icons.search),
+                new SizedBox(width: 20.0),
+                new Expanded(child: new TextField())
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 Future<Null> massMolePrompt(BuildContext context) async {
   await showDialog(
-      context: context,
-      builder: (context) {
-        return new Dialog(
-          child: new MassMoleCalculator(),
-        );
-      });
+    context: context,
+    builder: (context) {
+      return new Dialog(
+        child: new MassMoleCalculator(),
+      );
+    },
+  );
 }
 
 class MassMoleCalculator extends StatelessWidget {

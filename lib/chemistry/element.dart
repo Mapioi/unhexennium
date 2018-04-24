@@ -1074,3 +1074,26 @@ class ChemicalElement {
     );
   }
 }
+
+List<ChemicalElement> findElementByAtomicNumber(int number) {
+  if (number == null) {
+    return ElementSymbol.values.map((e) => new ChemicalElement(e)).toList();
+  }
+
+  String inputNumberString = number.toString();
+  number -= 1;  // 0 indexing
+
+  if (number > ElementSymbol.values.length || number < 0) {
+    return [];
+  } else {
+    List<ChemicalElement> result = [
+      new ChemicalElement(ElementSymbol.values[number])
+    ];
+    for (int i = number + 1; i < ElementSymbol.values.length; i++) {
+      if (inputNumberString == (i + 1).toString().substring(0, inputNumberString.length)) {
+        result.add(new ChemicalElement(ElementSymbol.values[i]));
+      }
+    }
+    return result;
+  }
+}

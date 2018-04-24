@@ -130,11 +130,21 @@ void main() {
       );
       for (ElementSymbol symbol in ElementSymbol.values) {
         expect(
-            new ChemicalElement(symbol)
-                .oxidisedElectronConfigurations
-                .containsKey(0),
-            true);
+          new ChemicalElement(symbol)
+              .oxidisedElectronConfigurations
+              .containsKey(0),
+          true,
+        );
       }
+    });
+
+    test(
+        "finds elements with the atomic number specified, "
+        "or whose atomic number starts by it", () {
+      expect(findElementByAtomicNumber(0).length, 0);
+      expect(findElementByAtomicNumber(2).length, 11);
+      expect(findElementByAtomicNumber(2).length, 11);
+      expect(findElementByAtomicNumber(92).length, 1);
     });
   });
 }

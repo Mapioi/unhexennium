@@ -13,7 +13,6 @@ class ElementState {
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false];
 
-  // only because Xe
   static List<bool> osExpansionPanelStates = new List<bool>.filled(
     new ChemicalElement(_selectedElement).oxidisedElectronConfigurations.length,
     false,
@@ -64,7 +63,7 @@ class ElementParent extends StatelessWidget {
       child: Center(
         child: new GestureDetector(
           onTap: () => elementSymbolPrompt(
-                context: context,
+                parentContext: context,
                 currentElementSymbol: ElementState.selectedElement,
               ),
           child: new Container(
