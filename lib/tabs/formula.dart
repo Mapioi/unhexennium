@@ -44,6 +44,53 @@ class InputBox extends StatelessWidget {
         ? (isCharge ? chargeSelectedColor : selectedColor)
         : defaultColor;
 
+    if (isCharge) {
+      return new GestureDetector(
+          onTap: onInputBoxTap,
+          child: new Container(
+            // Structure
+            height: MediaQuery.of(context).size.height * 0.22,
+            width: MediaQuery.of(context).size.width * 0.68,
+            child: Center(
+              child: new Column(
+                children: <Widget>[
+                  // Top part
+                  new Expanded(
+                    child: Container(
+                      child: new ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: <Widget>[
+                          widgetToDisplay,
+                        ],
+                      ),
+                      decoration: new BoxDecoration(
+                        border: new Border(
+                          bottom: new BorderSide(color: currentBorderColor),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Subscript
+                  new Container(
+                    height: 20.0,
+                    child: new Padding(
+                      child: new Text(numberToDisplay),
+                      padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Style
+            decoration: new BoxDecoration(
+              border: new Border.all(
+                  color: currentBorderColor = currentBorderColor),
+            ),
+            margin: new EdgeInsets.all(4.0),
+            alignment: Alignment(0.0, 0.0),
+          ));
+    }
+
     return new GestureDetector(
         onTap: onInputBoxTap,
         child: new Container(
@@ -51,16 +98,19 @@ class InputBox extends StatelessWidget {
           child: new Column(
             children: <Widget>[
               // Top part
-              new Container(
-                child: widgetToDisplay,
-                decoration: new BoxDecoration(
-                  border: new Border(
-                    bottom: new BorderSide(color: currentBorderColor),
+              new Expanded(
+                child: new Container(
+                  child: new Center(child: widgetToDisplay),
+                  decoration: new BoxDecoration(
+                    border: new Border(
+                      bottom: new BorderSide(color: currentBorderColor),
+                    ),
                   ),
                 ),
               ),
               // Subscript
               new Container(
+                height: 17.5,
                 child: new Padding(
                   child: new Text(numberToDisplay),
                   padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
@@ -84,24 +134,17 @@ enum IdealGasComputed { P, V, n, T }
 class FormulaState {
   static SetStateCallback setState;
   static Callback switchToElementTab;
-  static FormulaFactory formulaFactory = new FormulaFactory()
-    ..insertOpeningParenthesisAt(0)
-    ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
-    ..insertOpeningParenthesisAt(2)
-    ..insertElementAt(3, elementSymbol: ElementSymbol.O)
-    ..insertElementAt(4, elementSymbol: ElementSymbol.H)
-    ..insertClosingParenthesisAt(5)
-    ..setSubscriptAt(5, subscript: 2)
-    ..insertOpeningParenthesisAt(6)
-    ..insertElementAt(7, elementSymbol: ElementSymbol.H)
-    ..setSubscriptAt(7, subscript: 2)
-    ..insertElementAt(8, elementSymbol: ElementSymbol.O)
-    ..insertClosingParenthesisAt(9)
-    ..setSubscriptAt(9, subscript: 4)
-    ..insertClosingParenthesisAt(10)
-    ..charge = 1;
+  static FormulaFactory _formulaFactory = FormulaFactory.thomsonite;
+
+  static FormulaFactory get formulaFactory => _formulaFactory;
+
+  static set formulaFactory(FormulaFactory factory) {
+    _formulaFactory = factory;
+    selectedBlockIndex = factory.elementsList.isNotEmpty ? 0 : -1;
+  }
+
   static Formula formula = formulaFactory.build();
-  static int _selectedBlockIndex = 0;
+  static int _selectedBlockIndex = -1;
 
   static int get selectedBlockIndex => _selectedBlockIndex;
 

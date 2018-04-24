@@ -59,7 +59,7 @@ void main() {
     });
 
     test("toString", () {
-      expect(Formula.e.toString(), "e⁻");
+      expect(Formula.eMinus.toString(), "e⁻");
       expect(
           new Formula({
             ElementSymbol.C: 2,
@@ -316,6 +316,12 @@ void main() {
         ElementSymbol.H: 12,
         ElementSymbol.O: 6,
       });
+    });
+
+    test("electron (e^-)", () {
+      FormulaFactory factory = new FormulaFactory()
+      ..charge = -1;
+      expect(factory.build(), Formula.eMinus);
     });
   });
 }

@@ -24,7 +24,7 @@ class Formula {
 
   Formula(this.elements, {this.charge = 0});
 
-  static final Formula e = new Formula({}, charge: -1);
+  static final Formula eMinus = new Formula({}, charge: -1);
 
   // TODO hill's
   @override
@@ -202,8 +202,10 @@ class Formula {
     } else if (symbols.length == 2) {
       chi1 = new ChemicalElement(symbols[0]).electronegativity;
       chi2 = new ChemicalElement(symbols[1]).electronegativity;
-    } else
+    }
+    if (chi1 == null || chi2 == null) {
       return null;
+    }
 
     num chiAv = (chi1 + chi2) / 2;
     num chiDiff = (chi1 - chi2).abs();
@@ -531,6 +533,9 @@ class FormulaFactory {
 
   /// Build a [Formula] from this factory's stored [elementsList].
   Formula build() {
+    if (elementsList.isEmpty && charge == -1) {
+      return Formula.eMinus;
+    }
     Map<ElementSymbol, int> elements = {};
     int nestedSubscripts = 1;
     List<int> subscripts = [];
@@ -556,4 +561,40 @@ class FormulaFactory {
     }
     return new Formula(elements, charge: charge);
   }
+
+  static FormulaFactory get complexIronComplex => new FormulaFactory()
+    ..insertOpeningParenthesisAt(0)
+    ..insertElementAt(1, elementSymbol: ElementSymbol.Fe)
+    ..insertOpeningParenthesisAt(2)
+    ..insertElementAt(3, elementSymbol: ElementSymbol.O)
+    ..insertElementAt(4, elementSymbol: ElementSymbol.H)
+    ..insertClosingParenthesisAt(5)
+    ..setSubscriptAt(5, subscript: 2)
+    ..insertOpeningParenthesisAt(6)
+    ..insertElementAt(7, elementSymbol: ElementSymbol.H)
+    ..setSubscriptAt(7, subscript: 2)
+    ..insertElementAt(8, elementSymbol: ElementSymbol.O)
+    ..insertClosingParenthesisAt(9)
+    ..setSubscriptAt(9, subscript: 4)
+    ..insertClosingParenthesisAt(10)
+    ..charge = 1;
+
+  static FormulaFactory get thomsonite => new FormulaFactory()
+    ..insertElementAt(0, elementSymbol: ElementSymbol.Na)
+    ..insertElementAt(1, elementSymbol: ElementSymbol.Ca)
+    ..setSubscriptAt(1, subscript: 2)
+    ..insertOpeningParenthesisAt(2)
+    ..insertElementAt(3, elementSymbol: ElementSymbol.Al)
+    ..setSubscriptAt(3, subscript: 5)
+    ..insertElementAt(4, elementSymbol: ElementSymbol.Si)
+    ..setSubscriptAt(4, subscript: 5)
+    ..insertElementAt(5, elementSymbol: ElementSymbol.O)
+    ..setSubscriptAt(5, subscript: 20)
+    ..insertClosingParenthesisAt(6)
+    ..insertOpeningParenthesisAt(7)
+    ..insertElementAt(8, elementSymbol: ElementSymbol.H)
+    ..setSubscriptAt(8, subscript: 2)
+    ..insertElementAt(9, elementSymbol: ElementSymbol.O)
+    ..insertClosingParenthesisAt(10)
+    ..setSubscriptAt(10, subscript: 6);
 }

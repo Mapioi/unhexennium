@@ -67,7 +67,7 @@ void main() {
           new Formula(
             {ElementSymbol.Cl: 2},
           ),
-          Formula.e,
+          Formula.eMinus,
         ],
         [
           new Formula(
