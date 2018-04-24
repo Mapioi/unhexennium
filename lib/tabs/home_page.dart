@@ -24,12 +24,21 @@ class _HomePageState extends State<HomePage>
     FormulaState.setState = setState;
     FormulaState.switchToElementTab =
         () => _tabController.animateTo(Mode.Element.index);
+    EquationState.setState = setState;
+    EquationState.switchToFormulaTab =
+        () => _tabController.animateTo(Mode.Formula.index);
   }
 
   @override
   void initState() {
     super.initState();
     _tabController = new TabController(vsync: this, length: Mode.values.length);
+    _tabController.addListener(() {
+      // Update equation's stoichiometric coefficients after formula's updated
+      if (_tabController.index == Mode.Equation.index) {
+        EquationState.rebuildEquation();
+      }
+    });
   }
 
   @override

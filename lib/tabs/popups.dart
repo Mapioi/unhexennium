@@ -716,13 +716,20 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
       new Text(numberText),
       new Expanded(child: SizedBox(height: 0.0)),
       new IconButton(
-        onPressed: (selectedSubscript == 1 && !widget.isCharge)
+        onPressed: (widget.isCharge
+                ? (FormulaState.formulaFactory.elementsList.isEmpty &&
+                    selectedSubscript != 0)
+                : selectedSubscript == 1)
             ? null
             : () => setState(() => --selectedSubscript),
         icon: new Icon(Icons.arrow_left),
       ),
       new IconButton(
-        onPressed: () => setState(() => ++selectedSubscript),
+        onPressed: widget.isCharge &&
+                (FormulaState.formulaFactory.elementsList.isEmpty &&
+                    selectedSubscript == -1)
+            ? () => setState(() => ++selectedSubscript)
+            : null,
         icon: new Icon(Icons.arrow_right),
       ),
       new Expanded(child: SizedBox(height: 0.0)),

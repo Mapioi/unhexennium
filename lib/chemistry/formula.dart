@@ -450,7 +450,13 @@ class FormulaFactory {
 
   @override
   String toString() {
-    if (elementsList.isEmpty) return null;
+    if (elementsList.isEmpty) {
+      if (this.charge == -1) {
+        return "e${asSuperscript('-')}";
+      }
+      return "EMPTY";
+    }
+
     List<String> formulaList = elementsList.asMap().keys.map((int i) {
       ElementSubscriptPair pair = elementsList[i];
       // Element

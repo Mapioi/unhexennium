@@ -53,7 +53,7 @@ void main() {
           ],
           strictBalancing: true,
         );
-      } catch (e) {
+      } on InfiniteWaysOfBalancingException catch (e) {
         expect(e.kernel, [
           [Rational(11, 9), Rational(1, 9), Rational(1, 1), Rational(0, 1)],
           [Rational(-2, 9), Rational(8, 9), Rational(0, 1), Rational(1, 1)]

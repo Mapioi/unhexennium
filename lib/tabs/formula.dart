@@ -139,8 +139,11 @@ class FormulaState {
   static FormulaFactory get formulaFactory => _formulaFactory;
 
   static set formulaFactory(FormulaFactory factory) {
-    _formulaFactory = factory;
-    selectedBlockIndex = factory.elementsList.isNotEmpty ? 0 : -1;
+    setState(() {
+      _formulaFactory = factory;
+      formula = factory.build();
+      selectedBlockIndex = factory.elementsList.isNotEmpty ? 0 : -1;
+    });
   }
 
   static Formula formula = formulaFactory.build();
@@ -206,6 +209,7 @@ class FormulaState {
       if (openingIndices.containsKey(selectedBlockIndex))
         selectedBlockIndex = openingIndices[selectedBlockIndex];
 
+      expansionPanelStates = [false, false];
       formula = formulaFactory.build();
       resetProperties();
     });
@@ -230,6 +234,7 @@ class FormulaState {
         formulaFactory.setSubscriptAt(closingParenIndex, subscript: subscript);
       }
 
+      expansionPanelStates = [false, false];
       formula = formulaFactory.build();
       resetProperties();
     });
@@ -273,8 +278,9 @@ class FormulaState {
         }
       }
 
-      selectedBlockIndex = position;
+      expansionPanelStates = [false, false];
       formula = formulaFactory.build();
+      selectedBlockIndex = position;
       resetProperties();
     });
   }

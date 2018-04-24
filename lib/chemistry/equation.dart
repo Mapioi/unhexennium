@@ -31,6 +31,7 @@ class Equation {
   static List<int> getBalancedCoefficients(
       List<Formula> reactants, List<Formula> products,
       {bool strict: false}) {
+    if ((reactants + products).isEmpty) return [];
     var elementsRows = <ElementSymbol, int>{};
     int equationLength = reactants.length + products.length;
     // Row 0 is reserved for charge.
