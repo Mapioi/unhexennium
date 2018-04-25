@@ -65,10 +65,11 @@ Future<Null> parenSubscriptPrompt({
 
 enum SearchMode { PeriodicTable, AtomicNumber, Name }
 
-Future<Null> elementSymbolPrompt(
-    {BuildContext parentContext,
-    ElementSymbol currentElementSymbol,
-    SearchMode selectedMode = SearchMode.PeriodicTable}) async {
+Future<Null> elementSymbolPrompt({
+  BuildContext parentContext,
+  ElementSymbol currentElementSymbol,
+  SearchMode selectedMode = SearchMode.PeriodicTable,
+}) async {
   Widget inputToRender;
   switch (selectedMode) {
     case SearchMode.PeriodicTable:
@@ -93,14 +94,16 @@ Future<Null> elementSymbolPrompt(
               children: SearchMode.values
                   .map(
                     (SearchMode mode) => new FlatButton(
-                          onPressed: mode == selectedMode ? null : () {
-                            Navigator.pop(context);
-                            elementSymbolPrompt(
-                              parentContext: parentContext,
-                              currentElementSymbol: currentElementSymbol,
-                              selectedMode: mode,
-                            );
-                          },
+                          onPressed: mode == selectedMode
+                              ? null
+                              : () {
+                                  Navigator.pop(context);
+                                  elementSymbolPrompt(
+                                    parentContext: parentContext,
+                                    currentElementSymbol: currentElementSymbol,
+                                    selectedMode: mode,
+                                  );
+                                },
                           child: new Text(enumToReadableString(mode)),
                         ),
                   )
@@ -180,9 +183,11 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
           ),
         ),
         new Expanded(
-            child: new Padding(
-                padding: new EdgeInsets.all(8.0),
-                child: new ListView(children: searchResults)))
+          child: new Padding(
+            padding: new EdgeInsets.all(8.0),
+            child: new ListView(children: searchResults),
+          ),
+        )
       ],
     );
   }
@@ -197,15 +202,17 @@ class SearchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      padding: const EdgeInsets.all(8.0),
-      child: new GestureDetector(
-        onTap: () {
-          ElementState.selectedElement = elementToDisplay.symbol;
-          Navigator.pop(context);
-        },
+    return new GestureDetector(
+      onTap: () {
+        ElementState.selectedElement = elementToDisplay.symbol;
+        Navigator.pop(context);
+      },
+      child: new Container(
+        color: Color(0xFAFAFA),
+        padding: const EdgeInsets.all(8.0),
         child: new Row(
           children: <Widget>[
+            // Atomic number
             new Container(
               padding: new EdgeInsets.all(8.0),
               child: new Row(
@@ -225,6 +232,7 @@ class SearchRow extends StatelessWidget {
                 ],
               ),
             ),
+            // Element Symbol
             new Container(
               decoration: new BoxDecoration(
                 border: new Border.all(color: Colors.grey),
@@ -243,7 +251,8 @@ class SearchRow extends StatelessWidget {
               ),
             ),
             new SizedBox(width: 10.0),
-            new Text(elementToDisplay.name)
+            new Text(elementToDisplay.name),
+            new Expanded(child: Container())
           ],
         ),
       ),
