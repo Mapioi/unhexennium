@@ -78,10 +78,12 @@ Future<Null> elementSymbolPrompt({
       );
       break;
     case SearchMode.AtomicNumber:
-      inputToRender = new AtomicNumberSearch();
+      inputToRender = new AtomicNumberSearch(
+        currentElementSymbol: currentElementSymbol,
+      );
       break;
     case SearchMode.Name:
-      inputToRender = new Text("Name search - coming soonTM");
+      inputToRender = new NameSearch();
       break;
   }
 
@@ -154,6 +156,7 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
           (ChemicalElement e) => new SearchRow(
                 elementToDisplay: e,
                 searchedNumber: typedNumber,
+                selected: e.symbol == widget.currentElementSymbol,
               ),
         )
         .toList();
@@ -196,9 +199,14 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
 class SearchRow extends StatelessWidget {
   final ChemicalElement elementToDisplay;
   final int searchedNumber;
+  final bool selected;
 
-  SearchRow({Key key, this.elementToDisplay, this.searchedNumber})
-      : super(key: key);
+  SearchRow({
+    Key key,
+    this.elementToDisplay,
+    this.searchedNumber,
+    this.selected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -208,8 +216,8 @@ class SearchRow extends StatelessWidget {
         Navigator.pop(context);
       },
       child: new Container(
-        color: Color(0xFAFAFA),
         padding: const EdgeInsets.all(8.0),
+        color: Color(0xFAFAFA),
         child: new Row(
           children: <Widget>[
             // Atomic number
@@ -235,7 +243,9 @@ class SearchRow extends StatelessWidget {
             // Element Symbol
             new Container(
               decoration: new BoxDecoration(
-                border: new Border.all(color: Colors.grey),
+                border: new Border.all(
+                  color: selected ? Colors.green : Colors.grey,
+                ),
               ),
               height: 40.0,
               width: 40.0,
