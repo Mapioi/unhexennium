@@ -90,43 +90,23 @@ Future<Null> elementSymbolPrompt(
           children: <Widget>[
             new Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                new FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    elementSymbolPrompt(
-                      parentContext: parentContext,
-                      currentElementSymbol: currentElementSymbol,
-                      selectedMode: SearchMode.PeriodicTable,
-                    );
-                  },
-                  child: new Text("Periodic Table"),
-                ),
-                new FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    elementSymbolPrompt(
-                      parentContext: parentContext,
-                      currentElementSymbol: currentElementSymbol,
-                      selectedMode: SearchMode.AtomicNumber,
-                    );
-                  },
-                  child: new Text("Atomic Number"),
-                ),
-                new FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    elementSymbolPrompt(
-                      parentContext: parentContext,
-                      currentElementSymbol: currentElementSymbol,
-                      selectedMode: SearchMode.Name,
-                    );
-                  },
-                  child: new Text("Name"),
-                ),
-              ],
+              children: SearchMode.values
+                  .map(
+                    (SearchMode mode) => new FlatButton(
+                          onPressed: mode == selectedMode ? null : () {
+                            Navigator.pop(context);
+                            elementSymbolPrompt(
+                              parentContext: parentContext,
+                              currentElementSymbol: currentElementSymbol,
+                              selectedMode: mode,
+                            );
+                          },
+                          child: new Text(enumToReadableString(mode)),
+                        ),
+                  )
+                  .toList(),
             ),
-            new Expanded(child: inputToRender)
+            new Expanded(child: inputToRender),
           ],
         ),
   );
