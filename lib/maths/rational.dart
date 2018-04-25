@@ -1,5 +1,3 @@
-import 'package:unhexennium/utils.dart';
-
 int gcd(int a, int b) {
   if (b == 0) {
     return a.abs();
@@ -46,9 +44,7 @@ class Rational {
   @override
   String toString() {
     if (denominator != 1) {
-      return asSuperscript(numerator.toString()) +
-          "/" +
-          asSubscript(denominator.toString());
+      return "$numerator/$denominator";
     } else {
       return numerator.toString();
     }

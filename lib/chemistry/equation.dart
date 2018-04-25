@@ -87,4 +87,17 @@ class Equation {
     String products = this.products.join(" + ");
     return "$reactants $arrow $products";
   }
+
+  num extent() {
+    return 0;
+  }
+
+  List<num> masses(num extent) {
+    return [];
+  }
+
+  List<num> moles(num extent) {
+    return [];
+  }
+
 }

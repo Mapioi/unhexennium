@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/maths/rational.dart';
@@ -18,6 +19,7 @@ class EquationState {
   static EquationSide _selectedSide = EquationSide.Reactant;
   static int _selectedIndex = -1;
   static FormulaFactory _selectedFormula;
+  static bool hasError = false;
 
   static EquationSide get selectedSide => _selectedSide;
 
@@ -64,6 +66,7 @@ class EquationState {
         equation = new Equation(r, p, strictBalancing: false);
         candidateCoefficients = e.kernel;
       }
+      hasError = equation.coefficients.any((int c) => c <= 0);
     });
   }
 
@@ -191,43 +194,63 @@ class EquationParent extends StatelessWidget {
     }
 
     if (EquationState.candidateCoefficients != null) {
-      buttons.add(new FloatingActionButton(
-        onPressed: () => showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return new Dialog(
-                child: new Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: ListView(
-                      children: <Widget>[
-                            new Center(
-                              child: Text("This is not a single equation.\n"
-                                  "We tried to balance it,\n"
-                                  "but if the result looks amiss,\n"
-                                  "here are the coefficients:\n"),
-                            ),
-                          ] +
-                          EquationState.candidateCoefficients
-                              .map((var vector) => Center(
-                                    child: Text(
-                                      vector.toString(),
-                                      style: new TextStyle(
-                                        fontFamily: "Stix2Math",
+      // To align columns
+      List<int> lengths =
+          new List.filled(EquationState.candidateCoefficients[0].length, -1);
+      for (List<Rational> vector in EquationState.candidateCoefficients) {
+        for (int j = 0; j < vector.length; j++) {
+          lengths[j] = max(lengths[j], vector[j].toString().length);
+        }
+      }
+      buttons.add(new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: new FloatingActionButton(
+          onPressed: () => showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return new Dialog(
+                  child: new Container(
+                    height: MediaQuery.of(context).size.height * 0.25,
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: ListView(
+                        children: <Widget>[
+                              new Center(
+                                child: Text(
+                                  "This is not a single equation.\n"
+                                      "We tried to balance it,\n"
+                                      "but if the result looks amiss,\n"
+                                      "here are the coefficients:\n",
+                                ),
+                              ),
+                            ] +
+                            EquationState.candidateCoefficients
+                                .map((var vector) => new Center(
+                                      child: new Text(
+                                        '[' +
+                                            vector.asMap().entries.map((var e) {
+                                              int j = e.key;
+                                              String q = e.value.toString();
+                                              return q.padLeft(
+                                                  lengths[j] - q.length + 1);
+                                            }).join(", ") +
+                                            ']',
+                                        style: new TextStyle(
+                                          fontFamily: "RobotoMono",
+                                        ),
                                       ),
-                                    ),
-                                  ))
-                              .toList(),
+                                    ))
+                                .toList(),
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
-        backgroundColor: Colors.red,
-        child: new Icon(
-          Icons.error,
+                );
+              }),
+          backgroundColor: Colors.amber,
+          child: new Icon(
+            Icons.warning,
+          ),
         ),
       ));
     }
@@ -240,10 +263,11 @@ class EquationParent extends StatelessWidget {
 
   /// Builds a column for the reactant or product input
   Widget buildColumn(EquationSide side, List<FormulaFactory> formulae) {
-    int coefficientIndex = 0;
+    int coefficientIndex =
+        side == EquationSide.Reactant ? 0 : EquationState.reactants.length;
     int index = 0;
     List<Widget> items = [
-      new GestureDetector(
+      new InkWell(
         onTap: () => EquationState.select(side, -1),
         child: new Padding(
           padding: const EdgeInsets.all(8.0),
@@ -267,7 +291,7 @@ class EquationParent extends StatelessWidget {
     for (FormulaFactory factory in formulae) {
       // Try replacing wtf by index, you'll see. (hint: wtf)
       final int wtf = index;
-      bool isEmpty = !(factory.elementsList.isNotEmpty || factory.charge == -1);
+      bool isEmpty = factory.elementsList.isEmpty && factory.charge != -1;
       List<Widget> contents = [
         // Formula
         new Text(factory.toString()),

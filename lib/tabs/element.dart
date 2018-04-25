@@ -32,6 +32,7 @@ class ElementState {
       ElementState.osExpansionPanelStates =
           List.filled(e.oxidisedElectronConfigurations.length, false);
       _selectedElement = element;
+      _oxidationState = 0;
     });
     collapseExpansionPanels();
   }

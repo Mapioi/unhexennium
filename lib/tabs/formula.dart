@@ -45,7 +45,7 @@ class InputBox extends StatelessWidget {
         : defaultColor;
 
     if (isCharge) {
-      return new GestureDetector(
+      return new InkWell(
           onTap: onInputBoxTap,
           child: new Container(
             // Structure
@@ -91,7 +91,7 @@ class InputBox extends StatelessWidget {
           ));
     }
 
-    return new GestureDetector(
+    return new InkWell(
         onTap: onInputBoxTap,
         child: new Container(
           // Structure
@@ -180,6 +180,7 @@ class FormulaState {
   static set mole(num n) {
     _mole = n;
     _mass = n != null ? formula.mass(n) : null;
+    idealGasComputed = IdealGasComputed.V;
   }
 
   static IdealGasComputed idealGasComputed = IdealGasComputed.n;
@@ -209,7 +210,10 @@ class FormulaState {
       if (openingIndices.containsKey(selectedBlockIndex))
         selectedBlockIndex = openingIndices[selectedBlockIndex];
 
-      expansionPanelStates = [false, false];
+      expansionPanelStates = [
+        expansionPanelStates[0] && formulaFactory.elementsList.isNotEmpty,
+        false,
+      ];
       formula = formulaFactory.build();
       resetProperties();
     });
@@ -234,7 +238,7 @@ class FormulaState {
         formulaFactory.setSubscriptAt(closingParenIndex, subscript: subscript);
       }
 
-      expansionPanelStates = [false, false];
+      expansionPanelStates = [expansionPanelStates[0], false];
       formula = formulaFactory.build();
       resetProperties();
     });
@@ -278,7 +282,7 @@ class FormulaState {
         }
       }
 
-      expansionPanelStates = [false, false];
+      expansionPanelStates = [expansionPanelStates[0], false];
       formula = formulaFactory.build();
       selectedBlockIndex = position;
       resetProperties();
@@ -378,7 +382,6 @@ class FormulaParent extends StatelessWidget {
     Row inputBoxesRow =
         recursiveInputBuilder(0, FormulaState.formulaFactory.length);
 
-    // TODO make scrollable _(:_」∠)_ (　ﾟдﾟ) (￣Д￣)ﾉ
     InputBox parentInputBox = new InputBox(
       widgetToDisplay: inputBoxesRow,
       subscript: FormulaState.formulaFactory.charge,
@@ -672,7 +675,8 @@ class OxidationCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
+    return new ListView(
+      scrollDirection: Axis.horizontal,
       children: os.entries
           .map(
             (MapEntry<ElementSymbol, Rational> entry) => Card(
@@ -696,7 +700,6 @@ class OxidationCards extends StatelessWidget {
                 ),
           )
           .toList(),
-      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }
@@ -708,7 +711,8 @@ class MassPercentageCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
+    return new ListView(
+      scrollDirection: Axis.horizontal,
       children: percentages.entries
           .map(
             (MapEntry<ElementSymbol, num> entry) => Card(
@@ -725,7 +729,6 @@ class MassPercentageCards extends StatelessWidget {
                 ),
           )
           .toList(),
-      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }

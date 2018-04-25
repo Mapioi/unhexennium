@@ -396,6 +396,10 @@ class IdealGasCalculator extends StatefulWidget {
 }
 
 class _IdealGasCalculatorState extends State<IdealGasCalculator> {
+  _IdealGasCalculatorState() {
+    updateValue();
+  }
+
   Map<IdealGasComputed, TextEditingController> controllers = {
     IdealGasComputed.P: new TextEditingController(
         text: FormulaState.pressure != null
@@ -725,7 +729,7 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
       ),
       new IconButton(
         onPressed: widget.isCharge &&
-                (FormulaState.formulaFactory.elementsList.isEmpty &&
+                (FormulaState.formulaFactory.elementsList.isNotEmpty ||
                     selectedSubscript == -1)
             ? () => setState(() => ++selectedSubscript)
             : null,

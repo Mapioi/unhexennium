@@ -20,3 +20,6 @@ flutter:
     - family: Stix2Math
       fonts:
         - asset: fonts/STIX2Math.otf
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono.ttf
