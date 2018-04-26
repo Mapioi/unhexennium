@@ -177,9 +177,8 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
                   width: 80.0,
                   child: new TextField(
                     keyboardType: TextInputType.number,
-                    onSubmitted: (String s) => setState(() {
+                    onChanged: (String s) => setState(() {
                           typedNumber = int.parse(s);
-                          print(typedNumber);
                         }),
                   ),
                 ),
@@ -235,9 +234,10 @@ class _NameSearch extends State<NameSearch> {
                 new Icon(Icons.search),
                 new SizedBox(width: 20.0),
                 new Expanded(
-                    child: new TextField(
-                  onSubmitted: (String s) => setState(() => typedText = s),
-                ))
+                  child: new TextField(
+                    onChanged: (String s) => setState(() => typedText = s),
+                  ),
+                )
               ],
             ),
           ),
