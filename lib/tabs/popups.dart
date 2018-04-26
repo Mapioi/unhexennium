@@ -784,18 +784,31 @@ class _EquationMassesMolesCalculatorState
   List<TextEditingController> moleControllers;
 
   bool updateProperties = false;
+  int lrIndex;
 
   _EquationMassesMolesCalculatorState() {
     massControllers = new List.generate(
       formulae.length,
       (int i) => new TextEditingController(
-          text: EquationState.properties[i].mass?.toString() ?? ""),
+          text:
+              EquationState.properties[i].mass?.toStringAsPrecision(sf) ?? ""),
     );
     moleControllers = new List.generate(
       formulae.length,
       (int i) => new TextEditingController(
-          text: EquationState.properties[i].mole?.toString() ?? ""),
+          text:
+              EquationState.properties[i].mole?.toStringAsPrecision(sf) ?? ""),
     );
+
+    // Determining the limiting reactant
+    num leastMoles = double.infinity;
+    for (int i = 0; i < formulae.length; i++) {
+      num mole = EquationState.properties[i].mole;
+      if (mole != null && mole < leastMoles) {
+        lrIndex = i;
+        leastMoles = mole;
+      }
+    }
   }
 
   clearText() {
@@ -804,6 +817,12 @@ class _EquationMassesMolesCalculatorState
   }
 
   onMassUpdateAt(int index, num mass) {
+    if (lrIndex != null) {
+      setState(() {
+        lrIndex = null;
+      });
+    }
+
     num extent = EquationState.equation.extentFromMassAt(index, mass);
     List<num> masses = EquationState.equation.massesFromExtent(extent);
     List<num> moles = EquationState.equation.molesFromExtent(extent);
@@ -822,6 +841,12 @@ class _EquationMassesMolesCalculatorState
   }
 
   onMoleUpdateAt(int index, num mole) {
+    if (lrIndex != null) {
+      setState(() {
+        lrIndex = null;
+      });
+    }
+
     num extent = EquationState.equation.extentFromMoleAt(index, mole);
     List<num> masses = EquationState.equation.massesFromExtent(extent);
     List<num> moles = EquationState.equation.molesFromExtent(extent);
@@ -860,6 +885,12 @@ class _EquationMassesMolesCalculatorState
                 new TextField(
                   decoration: new InputDecoration(
                     helperText: "m(${factories[i]}) / g",
+                    suffixIcon: i == lrIndex
+                        ? new Icon(
+                            Icons.invert_colors_off,
+                            color: Colors.red,
+                          )
+                        : null,
                   ),
                   textAlign: TextAlign.center,
                   controller: massControllers[i],
@@ -888,6 +919,7 @@ class _EquationMassesMolesCalculatorState
                       updateProperties = val;
                     }),
                 subtitle: new Text("Update values"),
+                dense: true,
               ),
               new IconButton(
                 icon: new Icon(Icons.clear),
