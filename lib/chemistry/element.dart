@@ -1,6 +1,7 @@
-/// Chemical elements: building blocks of chemistry
-
+import 'dart:collection';
 import 'package:unhexennium/utils.dart';
+
+/// Chemical elements: building blocks of chemistry
 
 /// Identifiers for elements
 ///
@@ -1019,6 +1020,9 @@ class ChemicalElement {
 
   num get electronegativity => _electronegativities[symbol];
 
+  @override
+  String toString() => this.name;
+
   List<Sublevel> get electronConfiguration {
     List<Sublevel> orbitals = [];
     _electronConfigurations[symbol.index]
@@ -1075,23 +1079,59 @@ class ChemicalElement {
   }
 }
 
-List<ChemicalElement> findElementByAtomicNumber(int number) {
-  if (number == null) {
+/// Element searching functions
+
+List<ChemicalElement> findElementByAtomicNumber(int queryNumber) {
+  if (queryNumber == null) {
     return ElementSymbol.values.map((e) => new ChemicalElement(e)).toList();
   }
 
-  String inputNumberString = number.toString();
-  number -= 1;  // 0 indexing
+  String queryNumberString = queryNumber.toString();
+  queryNumber -= 1; // 0 indexing
 
-  if (number > ElementSymbol.values.length || number < 0) {
+  if (queryNumber > ElementSymbol.values.length || queryNumber < 0) {
     return [];
   } else {
     List<ChemicalElement> result = [
-      new ChemicalElement(ElementSymbol.values[number])
+      new ChemicalElement(ElementSymbol.values[queryNumber])
     ];
-    for (int i = number + 1; i < ElementSymbol.values.length; i++) {
-      if (inputNumberString == (i + 1).toString().substring(0, inputNumberString.length)) {
+    for (int i = queryNumber + 1; i < ElementSymbol.values.length; i++) {
+      if (queryNumberString ==
+          (i + 1).toString().substring(0, queryNumberString.length)) {
         result.add(new ChemicalElement(ElementSymbol.values[i]));
+      }
+    }
+    return result;
+  }
+}
+
+List<ChemicalElement> findElementByName(String queryName) {
+  LinkedHashMap<int, String> sortedNamesMap = sortMapByValues(
+    new Map.from(List.from(_names).asMap()),
+  );
+
+  if (queryName == null) {
+    return sortedNamesMap.keys
+        .map(
+          (atomicNumber) =>
+              new ChemicalElement(ElementSymbol.values[atomicNumber]),
+        )
+        .toList();
+  } else {
+    queryName = queryName.toLowerCase();
+    List<ChemicalElement> result = [];
+    for (int i = 0; i < _names.length; i++) {
+      int currentAtomicNumber = sortedNamesMap.keys.toList()[i];
+      String currentName = sortedNamesMap.values.toList()[i].toLowerCase();
+      if (currentName == queryName) {
+        result.add(
+          new ChemicalElement(ElementSymbol.values[currentAtomicNumber]),
+        );
+      } else if (queryName.length < currentName.length &&
+          queryName == currentName.substring(0, queryName.length)) {
+        result.add(
+          new ChemicalElement(ElementSymbol.values[currentAtomicNumber]),
+        );
       }
     }
     return result;

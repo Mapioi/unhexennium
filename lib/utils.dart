@@ -1,4 +1,4 @@
-// Utils. These should be self explanatory.
+import 'dart:collection';
 
 typedef void Callback();
 typedef void SetStateCallback(Callback callback);
@@ -104,3 +104,15 @@ String toStringAsCharge(int charge, {bool omitOne = false}) {
 
 /// Replace the french virgules by points.
 String unFrench(String s) => s.replaceAll(",", ".");
+
+/// Sort a map by its keys
+LinkedHashMap<int, String> sortMapByValues(Map<int, String> mapToSort) {
+  List sortedKeys = mapToSort.keys.toList(growable: false)..sort(
+    (a, b) => mapToSort[a].compareTo(mapToSort[b])
+  );
+  return new LinkedHashMap.fromIterable(
+    sortedKeys,
+    key: (k) => k,
+    value: (k) => mapToSort[k],
+  );
+}

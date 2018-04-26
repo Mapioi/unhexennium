@@ -71,22 +71,18 @@ Future<Null> elementSymbolPrompt({
   ElementSymbol currentElementSymbol,
   SearchMode selectedMode = SearchMode.PeriodicTable,
 }) async {
-  Widget inputToRender;
-  switch (selectedMode) {
-    case SearchMode.PeriodicTable:
-      inputToRender = new PeriodicTableSearch(
-        currentElementSymbol: currentElementSymbol,
-      );
-      break;
-    case SearchMode.AtomicNumber:
-      inputToRender = new AtomicNumberSearch(
-        currentElementSymbol: currentElementSymbol,
-      );
-      break;
-    case SearchMode.Name:
-      inputToRender = new NameSearch();
-      break;
-  }
+  /// making the search widget depending on the [SearchMode]
+  Widget searchWidget = <SearchMode, Widget>{
+    SearchMode.PeriodicTable: new PeriodicTableSearch(
+      currentElementSymbol: currentElementSymbol,
+    ),
+    SearchMode.AtomicNumber: new AtomicNumberSearch(
+      currentElementSymbol: currentElementSymbol,
+    ),
+    SearchMode.Name: new NameSearch(
+      currentElementSymbol: currentElementSymbol,
+    ),
+  }[selectedMode];
 
   await showModalBottomSheet(
     context: parentContext,
@@ -112,7 +108,7 @@ Future<Null> elementSymbolPrompt({
                   )
                   .toList(),
             ),
-            new Expanded(child: inputToRender),
+            new Expanded(child: searchWidget),
           ],
         ),
   );
@@ -197,15 +193,66 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
   }
 }
 
+class NameSearch extends StatefulWidget {
+  final ElementSymbol currentElementSymbol;
+
+  NameSearch({Key key, this.currentElementSymbol}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _NameSearch();
+}
+
+class _NameSearch extends State<NameSearch> {
+  String typedText;
+
+  @override
+  Widget build(BuildContext context) {
+    List<SearchRow> searchResults = findElementByName(typedText)
+        .map(
+          (ChemicalElement e) => new SearchRow(
+                elementToDisplay: e,
+                searchedName: typedText,
+                selected: e.symbol == widget.currentElementSymbol,
+              ),
+        )
+        .toList();
+
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Column(
+        children: <Widget>[
+          new Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
+            child: new Row(
+              children: <Widget>[
+                new Icon(Icons.search),
+                new SizedBox(width: 20.0),
+                new Expanded(child: new TextField(
+                  onSubmitted: (String s) => setState(() => typedText = s),
+                ))
+              ],
+            ),
+          ),
+          new Expanded(
+            child: ListView(children: searchResults),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class SearchRow extends StatelessWidget {
   final ChemicalElement elementToDisplay;
   final int searchedNumber;
+  final String searchedName;
   final bool selected;
 
   SearchRow({
     Key key,
     this.elementToDisplay,
     this.searchedNumber,
+    this.searchedName,
     this.selected,
   }) : super(key: key);
 
@@ -224,22 +271,21 @@ class SearchRow extends StatelessWidget {
             // Atomic number
             new Container(
               padding: new EdgeInsets.all(8.0),
-              child: new Row(
-                children: <Widget>[
-                  searchedNumber == null
-                      ? new SizedBox()
-                      : new Text(
+              child: searchedNumber == null
+                  ? new Text(elementToDisplay.atomicNumber.toString())
+                  : new Row(
+                      children: <Widget>[
+                        new Text(
                           searchedNumber.toString(),
                           style: new TextStyle(fontWeight: FontWeight.bold),
                         ),
-                  new Text(
-                    elementToDisplay.atomicNumber.toString().substring(
-                        searchedNumber == null
-                            ? 0
-                            : searchedNumber.toString().length),
-                  )
-                ],
-              ),
+                        new Text(
+                          elementToDisplay.atomicNumber.toString().substring(
+                                searchedNumber.toString().length,
+                              ),
+                        )
+                      ],
+                    ),
             ),
             // Element Symbol
             new Container(
@@ -262,38 +308,22 @@ class SearchRow extends StatelessWidget {
               ),
             ),
             new SizedBox(width: 10.0),
-            new Text(elementToDisplay.name),
+            searchedName == null
+                ? new Text(elementToDisplay.name)
+                : new Row(
+                    children: <Widget>[
+                      new Text(
+                        searchedName,
+                        style: new TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      new Text(
+                        elementToDisplay.name.substring(searchedName.length)
+                      )
+                    ],
+                  ),
             new Expanded(child: Container())
           ],
         ),
-      ),
-    );
-  }
-}
-
-class NameSearch extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: new Column(
-        children: <Widget>[
-          new Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
-            child: new Row(
-              children: <Widget>[
-                new Icon(Icons.search),
-                new SizedBox(width: 20.0),
-                new Expanded(child: new TextField())
-              ],
-            ),
-          ),
-          new Expanded(
-            child: ListView(children: <Widget>[
-
-            ]),
-          )
-        ],
       ),
     );
   }

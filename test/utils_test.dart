@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:unhexennium/utils.dart';
 
+
 enum Foo { bar, spam, UnreadableEnum, SomewhatReadableEnum, Boo }
 
 void main() {
@@ -71,5 +72,11 @@ void main() {
     );
     expect(enumToReadableString(Foo.Boo), "Boo");
     expect(enumToReadableString(Foo.bar), "bar");
+  });
+
+  test("sortMapByValues", () {
+    expect(sortMapByValues({}).keys, []);
+    expect(sortMapByValues({1: "b", 2: "a"}).keys, [2, 1]);
+    expect(sortMapByValues({1: "a", 2: "b"}).keys, [1, 2]);
   });
 }

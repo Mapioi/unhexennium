@@ -253,21 +253,26 @@ class EquationParent extends StatelessWidget {
                               ),
                             ] +
                             EquationState.candidateCoefficients
-                                .map((var vector) => new Center(
-                                      child: new Text(
-                                        '[' +
-                                            vector.asMap().entries.map((var e) {
-                                              int j = e.key;
-                                              String q = e.value.toString();
-                                              return q.padLeft(
-                                                  lengths[j] - q.length + 1);
-                                            }).join(", ") +
-                                            ']',
-                                        style: new TextStyle(
-                                          fontFamily: "RobotoMono",
+                                .map(
+                                  (var vector) => new Center(
+                                        child: new Text(
+                                          '[' +
+                                              vector
+                                                  .asMap()
+                                                  .entries
+                                                  .map((var e) {
+                                                int j = e.key;
+                                                String q = e.value.toString();
+                                                return q.padLeft(
+                                                    lengths[j] - q.length + 1);
+                                              }).join(", ") +
+                                              ']',
+                                          style: new TextStyle(
+                                            fontFamily: "RobotoMono",
+                                          ),
                                         ),
                                       ),
-                                    ))
+                                )
                                 .toList(),
                       ),
                     ),

@@ -92,40 +92,41 @@ class InputBox extends StatelessWidget {
     }
 
     return new InkWell(
-        onTap: onInputBoxTap,
-        child: new Container(
-          // Structure
-          child: new Column(
-            children: <Widget>[
-              // Top part
-              new Expanded(
-                child: new Container(
-                  child: new Center(child: widgetToDisplay),
-                  decoration: new BoxDecoration(
-                    border: new Border(
-                      bottom: new BorderSide(color: currentBorderColor),
-                    ),
+      onTap: onInputBoxTap,
+      child: new Container(
+        // Structure
+        child: new Column(
+          children: <Widget>[
+            // Top part
+            new Expanded(
+              child: new Container(
+                child: new Center(child: widgetToDisplay),
+                decoration: new BoxDecoration(
+                  border: new Border(
+                    bottom: new BorderSide(color: currentBorderColor),
                   ),
                 ),
               ),
-              // Subscript
-              new Container(
-                height: 17.5,
-                child: new Padding(
-                  child: new Text(numberToDisplay),
-                  padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
-                ),
+            ),
+            // Subscript
+            new Container(
+              height: 17.5,
+              child: new Padding(
+                child: new Text(numberToDisplay),
+                padding: new EdgeInsets.fromLTRB(0.0, 2.0, 0.0, 2.0),
               ),
-            ],
-          ),
-          // Style
-          decoration: new BoxDecoration(
-            border:
-                new Border.all(color: currentBorderColor = currentBorderColor),
-          ),
-          margin: new EdgeInsets.all(4.0),
-          alignment: Alignment(0.0, 0.0),
-        ));
+            ),
+          ],
+        ),
+        // Style
+        decoration: new BoxDecoration(
+          border:
+              new Border.all(color: currentBorderColor = currentBorderColor),
+        ),
+        margin: new EdgeInsets.all(4.0),
+        alignment: Alignment(0.0, 0.0),
+      ),
+    );
   }
 }
 
@@ -692,6 +693,7 @@ class OxidationCards extends StatelessWidget {
       children: os.entries
           .map(
             (MapEntry<ElementSymbol, Rational> entry) => Card(
+                  color: Colors.grey[200],
                   child: Padding(
                     padding: new EdgeInsets.all(10.0),
                     child: Column(
@@ -728,6 +730,7 @@ class MassPercentageCards extends StatelessWidget {
       children: percentages.entries
           .map(
             (MapEntry<ElementSymbol, num> entry) => Card(
+                  color: Colors.grey[200],
                   child: Padding(
                     padding: new EdgeInsets.all(3.0),
                     child: Column(

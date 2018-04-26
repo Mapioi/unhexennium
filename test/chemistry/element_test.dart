@@ -138,13 +138,19 @@ void main() {
       }
     });
 
-    test(
-        "finds elements with the atomic number specified, "
-        "or whose atomic number starts by it", () {
+    test("find element by atomic number", () {
+      expect(findElementByAtomicNumber(null).length, 118);
       expect(findElementByAtomicNumber(0).length, 0);
       expect(findElementByAtomicNumber(2).length, 11);
       expect(findElementByAtomicNumber(2).length, 11);
       expect(findElementByAtomicNumber(92).length, 1);
+    });
+
+    test("find element by name", () {
+      expect(findElementByName(null).length, 118);
+      expect(findElementByName("hydrogen").length, 1);
+      expect(findElementByName("h").length, 5);
+      expect(findElementByName("gibberish").length, 0);
     });
   });
 }
