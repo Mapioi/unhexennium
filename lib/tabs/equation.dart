@@ -89,10 +89,11 @@ class EquationState {
           EquationSide.Reactant: reactants,
           EquationSide.Product: products
         }[side][index];
+        _selectedProperties = properties[index + side.index * reactants.length];
       } on RangeError {
         _selectedFormula = null;
+        _selectedProperties = null;
       }
-      _selectedProperties = properties[index + side.index * reactants.length];
     });
   }
 
@@ -159,12 +160,11 @@ class EquationParent extends StatelessWidget {
   }
 
   Widget buildCalculatorButtons(BuildContext context) {
+    if (EquationState.hasError) return const Text("");
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: new FloatingActionButton.extended(
-          onPressed: EquationState.hasError
-              ? null
-              : () => equationMassesMolesPrompt(context),
+          onPressed: () => equationMassesMolesPrompt(context),
           icon: new Icon(Icons.assessment),
           label: new Text("mass & mole")),
     );
