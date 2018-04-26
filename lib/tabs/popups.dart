@@ -270,6 +270,7 @@ class SearchRow extends StatelessWidget {
           children: <Widget>[
             // Atomic number
             new Container(
+              width: 50.0,
               padding: new EdgeInsets.all(8.0),
               child: searchedNumber == null
                   ? new Text(elementToDisplay.atomicNumber.toString())
