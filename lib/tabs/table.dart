@@ -15,21 +15,28 @@ class StaticTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Padding(
       padding: new EdgeInsets.all(16.0),
-      child: Table(
-        border: new TableBorder.all(color: Colors.grey[300]),
-        children: data.entries
-            .map((MapEntry<Widget, Widget> row) => new TableRow(
-                  children: <Widget>[
-                    new Padding(
-                      padding: new EdgeInsets.all(8.0),
-                      child: row.key,
-                    ),
-                    new Padding(
-                      padding: new EdgeInsets.all(8.0),
-                      child: row.value,
-                    )
-                  ],
-                ))
+      child: DataTable(
+        columns: [
+          new DataColumn(
+            label: new Text("Property"),
+            onSort: (i, b) => null,
+          ),
+          new DataColumn(
+            label: new Text("Value"),
+            onSort: (i, b) => null,
+          )
+        ],
+        rows: data.entries
+            .map((var entry) => new DataRow(cells: [
+                  new DataCell(
+                    entry.key,
+                    onTap: () => null,
+                  ),
+                  new DataCell(
+                    entry.value,
+                    onTap: () => null,
+                  ),
+                ]))
             .toList(),
       ),
     );

@@ -140,26 +140,29 @@ class EquationState {
 class EquationParent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Center(
-      child: Column(
-        children: <Widget>[
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumn(EquationSide.Reactant, EquationState.reactants),
-              buildColumn(EquationSide.Product, EquationState.products),
+    return new Column(
+      children: <Widget>[
+        new Expanded(
+          child: new ListView(
+            children: <Widget>[
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumn(EquationSide.Reactant, EquationState.reactants),
+                  buildColumn(EquationSide.Product, EquationState.products),
+                ],
+              ),
             ],
           ),
-          new Expanded(child: new Container()),
-          buildCalculatorButtons(context),
-          buildEditorButtons(context),
-        ],
-      ),
+        ),
+        buildCalculatorButton(context),
+        buildEditorButtons(context),
+      ],
     );
   }
 
-  Widget buildCalculatorButtons(BuildContext context) {
+  Widget buildCalculatorButton(BuildContext context) {
     if (EquationState.hasError) return const Text("");
     return Padding(
       padding: const EdgeInsets.all(16.0),

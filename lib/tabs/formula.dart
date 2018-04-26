@@ -84,7 +84,8 @@ class InputBox extends StatelessWidget {
             // Style
             decoration: new BoxDecoration(
               border: new Border.all(
-                  color: currentBorderColor = currentBorderColor),
+                color: currentBorderColor = currentBorderColor,
+              ),
             ),
             margin: new EdgeInsets.all(4.0),
             alignment: Alignment(0.0, 0.0),
@@ -474,33 +475,38 @@ class FormulaParent extends StatelessWidget {
       );
     }
 
-    return new Column(children: [
-      // Input space
-      buildEditor(context, currentPair, currentSubscript),
-      // Formula Editor
-
-      // Calculations
-      buildButtons(context),
-
-      // Render
-      Expanded(
-        child: ListView(
-          children: <Widget>[
-            buildStaticData(),
-            new Padding(
-              padding: new EdgeInsets.all(16.0),
-              child: new ExpansionPanelList(
-                expansionCallback: (int index, bool isExpanded) {
-                  FormulaState.toggleExpansionPanel(index);
-                },
-                children: expansions,
-              ),
-            ),
-            new SizedBox(height: 60.0) // spacer
-          ],
+    return new Column(
+      children: [
+        // Editor
+        BottomAppBar(
+          elevation: 2.7,
+          child: Column(
+            children: <Widget>[
+              buildEditor(context, currentPair, currentSubscript),
+              buildButtons(context),
+            ],
+          ),
         ),
-      )
-    ]);
+
+        // Properties
+        new Expanded(
+          child: new ListView(
+            children: <Widget>[
+              buildStaticData(),
+              new Padding(
+                padding: new EdgeInsets.all(16.0),
+                child: new ExpansionPanelList(
+                  expansionCallback: (int index, bool isExpanded) {
+                    FormulaState.toggleExpansionPanel(index);
+                  },
+                  children: expansions,
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
   }
 
   Widget buildButtons(BuildContext context) {
