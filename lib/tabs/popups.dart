@@ -18,7 +18,62 @@ const dp = 2;
 /// Number of significant figures (used for user inputs)
 const sf = 5;
 
-// TODO more DRY
+class ElementPrompt extends StatefulWidget {
+  final BuildContext parentContext;
+  final ElementSymbol currentElementSymbol;
+
+  ElementPrompt({Key key, this.parentContext, this.currentElementSymbol})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _ElementPrompt();
+}
+
+class _ElementPrompt extends State<ElementPrompt> {
+  SearchMode currentMode = SearchMode.PeriodicTable;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget searchWidget = <SearchMode, Widget>{
+      SearchMode.PeriodicTable: new PeriodicTableSearch(
+        currentElementSymbol: widget.currentElementSymbol,
+      ),
+      SearchMode.AtomicNumber: new AtomicNumberSearch(
+        currentElementSymbol: widget.currentElementSymbol,
+      ),
+      SearchMode.Name: new NameSearch(
+        currentElementSymbol: widget.currentElementSymbol,
+      ),
+    }[currentMode];
+
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Element selection"),
+      ),
+      body: new Column(
+        children: <Widget>[
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: SearchMode.values
+                .map(
+                  (SearchMode mode) => new FlatButton(
+                        onPressed: mode == currentMode
+                            ? null
+                            : () => setState(() {
+                                  currentMode = mode;
+                                }),
+                        child: new Text(enumToReadableString(mode)),
+                      ),
+                )
+                .toList(),
+          ),
+          new Expanded(child: searchWidget),
+        ],
+      ),
+    );
+  }
+}
+
 Future<Null> elementFormulaPrompt({
   BuildContext context,
   ElementAndSubscriptCallback callback,
@@ -65,54 +120,6 @@ Future<Null> parenSubscriptPrompt({
 }
 
 enum SearchMode { PeriodicTable, AtomicNumber, Name }
-
-Future<Null> elementSymbolPrompt({
-  BuildContext parentContext,
-  ElementSymbol currentElementSymbol,
-  SearchMode selectedMode = SearchMode.PeriodicTable,
-}) async {
-  /// making the search widget depending on the [SearchMode]
-  Widget searchWidget = <SearchMode, Widget>{
-    SearchMode.PeriodicTable: new PeriodicTableSearch(
-      currentElementSymbol: currentElementSymbol,
-    ),
-    SearchMode.AtomicNumber: new AtomicNumberSearch(
-      currentElementSymbol: currentElementSymbol,
-    ),
-    SearchMode.Name: new NameSearch(
-      currentElementSymbol: currentElementSymbol,
-    ),
-  }[selectedMode];
-
-  await showModalBottomSheet(
-    context: parentContext,
-    builder: (context) => new Column(
-          children: <Widget>[
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: SearchMode.values
-                  .map(
-                    (SearchMode mode) => new FlatButton(
-                          onPressed: mode == selectedMode
-                              ? null
-                              : () {
-                                  Navigator.pop(context);
-                                  elementSymbolPrompt(
-                                    parentContext: parentContext,
-                                    currentElementSymbol: currentElementSymbol,
-                                    selectedMode: mode,
-                                  );
-                                },
-                          child: new Text(enumToReadableString(mode)),
-                        ),
-                  )
-                  .toList(),
-            ),
-            new Expanded(child: searchWidget),
-          ],
-        ),
-  );
-}
 
 class PeriodicTableSearch extends StatelessWidget {
   final currentElementSymbol;
@@ -227,7 +234,8 @@ class _NameSearch extends State<NameSearch> {
               children: <Widget>[
                 new Icon(Icons.search),
                 new SizedBox(width: 20.0),
-                new Expanded(child: new TextField(
+                new Expanded(
+                    child: new TextField(
                   onSubmitted: (String s) => setState(() => typedText = s),
                 ))
               ],
@@ -318,8 +326,7 @@ class SearchRow extends StatelessWidget {
                         style: new TextStyle(fontWeight: FontWeight.bold),
                       ),
                       new Text(
-                        elementToDisplay.name.substring(searchedName.length)
-                      )
+                          elementToDisplay.name.substring(searchedName.length))
                     ],
                   ),
             new Expanded(child: Container())

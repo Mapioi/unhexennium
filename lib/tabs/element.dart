@@ -63,9 +63,13 @@ class ElementParent extends StatelessWidget {
       padding: new EdgeInsets.only(top: 16.0),
       child: Center(
         child: new GestureDetector(
-          onTap: () => elementSymbolPrompt(
-                parentContext: context,
-                currentElementSymbol: ElementState.selectedElement,
+          onTap: () => Navigator.push(
+                context,
+                new MaterialPageRoute(
+                  builder: (context) => new ElementPrompt(
+                      parentContext: context,
+                      currentElementSymbol: ElementState.selectedElement),
+                ),
               ),
           child: new Container(
             height: 128.0,

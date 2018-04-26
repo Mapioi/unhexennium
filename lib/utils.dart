@@ -107,9 +107,8 @@ String unFrench(String s) => s.replaceAll(",", ".");
 
 /// Sort a map by its keys
 LinkedHashMap<int, String> sortMapByValues(Map<int, String> mapToSort) {
-  List sortedKeys = mapToSort.keys.toList(growable: false)..sort(
-    (a, b) => mapToSort[a].compareTo(mapToSort[b])
-  );
+  List sortedKeys = mapToSort.keys.toList(growable: false)
+    ..sort((a, b) => mapToSort[a].compareTo(mapToSort[b]));
   return new LinkedHashMap.fromIterable(
     sortedKeys,
     key: (k) => k,

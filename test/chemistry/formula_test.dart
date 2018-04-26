@@ -319,8 +319,7 @@ void main() {
     });
 
     test("electron (e^-)", () {
-      FormulaFactory factory = new FormulaFactory()
-      ..charge = -1;
+      FormulaFactory factory = new FormulaFactory()..charge = -1;
       expect(factory.build(), Formula.eMinus);
     });
   });
