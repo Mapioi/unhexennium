@@ -286,6 +286,11 @@ class NameSearch extends StatelessWidget {
                 new Expanded(child: new TextField())
               ],
             ),
+          ),
+          new Expanded(
+            child: ListView(children: <Widget>[
+
+            ]),
           )
         ],
       ),

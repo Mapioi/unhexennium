@@ -87,7 +87,6 @@ class ElementParent extends StatelessWidget {
                         enumToString(element.symbol),
                         style: new TextStyle(
                           fontSize: 49.0,
-                          fontFamily: 'Rock Salt',
                           color: Colors.grey[600],
                         ),
                       ),
@@ -140,10 +139,11 @@ class ElementParent extends StatelessWidget {
                     asSuperscript(
                         toStringAsCharge(oxidationState, omitOne: true)),
                 style: new TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: oxidationState == ElementState.oxidationState
-                        ? Colors.black54
-                        : Colors.black),
+                  fontWeight: FontWeight.bold,
+                  color: oxidationState == ElementState.oxidationState
+                      ? Colors.black54
+                      : Colors.black,
+                ),
               ),
               new SizedBox(width: 10.0),
               new Text(
