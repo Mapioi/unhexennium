@@ -105,4 +105,15 @@ class Equation {
 
   List<num> molesFromExtent(num extent) =>
       coefficients.map((int coeff) => coeff * extent).toList();
+
+  num atomEconomyForProductAt(int productIndex) {
+    num reactantsTotalMass = 0;
+    int i;
+    for (i = 0; i < reactants.length; i++) {
+      reactantsTotalMass += coefficients[i] * reactants[i].rfm;
+    }
+    num desiredProductMass =
+        coefficients[i + productIndex] * products[productIndex].rfm;
+    return desiredProductMass / reactantsTotalMass * 100;
+  }
 }

@@ -156,20 +156,76 @@ class EquationParent extends StatelessWidget {
             ],
           ),
         ),
-        buildCalculatorButton(context),
+        buildCalculatorButtons(context),
         buildEditorButtons(context),
       ],
     );
   }
 
-  Widget buildCalculatorButton(BuildContext context) {
-    if (EquationState.hasError) return const Text("");
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: new FloatingActionButton.extended(
-          onPressed: () => equationMassesMolesPrompt(context),
-          icon: new Icon(Icons.assessment),
-          label: new Text("mass & mole")),
+  Widget buildCalculatorButtons(BuildContext context) {
+    List<Widget> buttons = [];
+    if (EquationState.selectedSide == EquationSide.Product &&
+        EquationState.selectedIndex >= 0) {
+      buttons.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: new FloatingActionButton.extended(
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return new SimpleDialog(
+                      title: new Center(
+                        child: new Text("Atom economy"),
+                      ),
+                      children: <Widget>[
+                        new Row(
+                          children: <Widget>[
+                            new Padding(
+                              padding: new EdgeInsets.all(8.0),
+                              child: Text(
+                                EquationState.equation
+                                    .atomEconomyForProductAt(
+                                        EquationState.selectedIndex)
+                                    .toStringAsFixed(2),
+                                style: new TextStyle(fontFamily: "RobotoMono"),
+                              ),
+                            ),
+                            new Text("%"),
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        )
+                      ],
+                    );
+                  }),
+              icon: new Icon(Icons.monetization_on),
+              label: new Text("Atom economy")),
+        ),
+      );
+    }
+    if (!EquationState.hasError) {
+      buttons.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: new FloatingActionButton.extended(
+            onPressed: () => equationMassesMolesPrompt(context),
+            icon: new Icon(Icons.assessment),
+            label: new Text("Mass & mole"),
+          ),
+        ),
+      );
+      /*buttons.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: new FloatingActionButton.extended(
+            onPressed: () => null,
+            icon: new Icon(Icons.cached),
+            label: new Text("Equilibrium"),
+          ),
+        ),
+      );*/
+    }
+    return new Column(
+      children: buttons,
     );
   }
 
