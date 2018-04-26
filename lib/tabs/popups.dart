@@ -1,9 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
+import 'package:unhexennium/chemistry/formula.dart';
 import "package:unhexennium/tabs/element.dart" show ElementState;
 import "package:unhexennium/tabs/formula.dart";
+import "package:unhexennium/tabs/equation.dart" show EquationState;
 import 'package:unhexennium/tabs/periodic_table.dart';
 import "package:unhexennium/utils.dart";
 
@@ -402,25 +403,29 @@ class IdealGasCalculator extends StatefulWidget {
 
 class _IdealGasCalculatorState extends State<IdealGasCalculator> {
   _IdealGasCalculatorState() {
+    if (FormulaState.properties.mole != null &&
+        FormulaState.properties.idealGasComputed == IdealGasComputed.n) {
+      FormulaState.properties.idealGasComputed = IdealGasComputed.V;
+    }
     updateValue();
   }
 
   Map<IdealGasComputed, TextEditingController> controllers = {
     IdealGasComputed.P: new TextEditingController(
-        text: FormulaState.pressure != null
-            ? FormulaState.pressure.toStringAsPrecision(sf)
+        text: FormulaState.properties.P != null
+            ? FormulaState.properties.P.toStringAsPrecision(sf)
             : ""),
     IdealGasComputed.V: new TextEditingController(
-        text: FormulaState.volume != null
-            ? FormulaState.volume.toStringAsPrecision(sf)
+        text: FormulaState.properties.V != null
+            ? FormulaState.properties.V.toStringAsPrecision(sf)
             : ""),
     IdealGasComputed.n: new TextEditingController(
-        text: FormulaState.mole != null
-            ? FormulaState.mole.toStringAsPrecision(sf)
+        text: FormulaState.properties.mole != null
+            ? FormulaState.properties.mole.toStringAsPrecision(sf)
             : ""),
     IdealGasComputed.T: new TextEditingController(
-        text: FormulaState.temperature != null
-            ? FormulaState.temperature.toStringAsPrecision(sf)
+        text: FormulaState.properties.T != null
+            ? FormulaState.properties.T.toStringAsPrecision(sf)
             : ""),
   };
   Map<IdealGasComputed, FocusNode> focusNodes = {
@@ -433,38 +438,38 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
   void updateValue() {
     num result;
     try {
-      switch (FormulaState.idealGasComputed) {
+      switch (FormulaState.properties.idealGasComputed) {
         case IdealGasComputed.P:
-          result = FormulaState.pressure = FormulaState.formula.P(
-            V: FormulaState.volume,
-            n: FormulaState.mole,
-            T: FormulaState.temperature,
+          result = FormulaState.properties.P = FormulaState.formula.P(
+            V: FormulaState.properties.V,
+            n: FormulaState.properties.mole,
+            T: FormulaState.properties.T,
           );
           break;
         case IdealGasComputed.V:
-          result = FormulaState.volume = FormulaState.formula.V(
-            P: FormulaState.pressure,
-            n: FormulaState.mole,
-            T: FormulaState.temperature,
+          result = FormulaState.properties.V = FormulaState.formula.V(
+            P: FormulaState.properties.P,
+            n: FormulaState.properties.mole,
+            T: FormulaState.properties.T,
           );
           break;
         case IdealGasComputed.n:
           result = FormulaState.mole = FormulaState.formula.n(
-            P: FormulaState.pressure,
-            V: FormulaState.volume,
-            T: FormulaState.temperature,
+            P: FormulaState.properties.P,
+            V: FormulaState.properties.V,
+            T: FormulaState.properties.T,
           );
           break;
         case IdealGasComputed.T:
-          result = FormulaState.temperature = FormulaState.formula.T(
-            p: FormulaState.pressure,
-            V: FormulaState.volume,
-            n: FormulaState.mole,
+          result = FormulaState.properties.T = FormulaState.formula.T(
+            p: FormulaState.properties.P,
+            V: FormulaState.properties.V,
+            n: FormulaState.properties.mole,
           );
           break;
       }
       assert(result.isFinite && !result.isNegative);
-      controllers[FormulaState.idealGasComputed].text =
+      controllers[FormulaState.properties.idealGasComputed].text =
           result.toStringAsPrecision(sf);
     } catch (e) {
       /*print(e);*/
@@ -492,11 +497,11 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.P],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled:
-                        FormulaState.idealGasComputed != IdealGasComputed.P,
+                    enabled: FormulaState.properties.idealGasComputed !=
+                        IdealGasComputed.P,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.pressure = num.parse(s, (v) => null);
+                      FormulaState.properties.P = num.parse(s, (v) => null);
                       updateValue();
                     },
                   ),
@@ -508,11 +513,11 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.V],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled:
-                        FormulaState.idealGasComputed != IdealGasComputed.V,
+                    enabled: FormulaState.properties.idealGasComputed !=
+                        IdealGasComputed.V,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.volume = num.parse(s, (v) => null);
+                      FormulaState.properties.V = num.parse(s, (v) => null);
                       updateValue();
                     },
                   ),
@@ -531,8 +536,8 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.n],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled:
-                        FormulaState.idealGasComputed != IdealGasComputed.n,
+                    enabled: FormulaState.properties.idealGasComputed !=
+                        IdealGasComputed.n,
                     onChanged: (String s) {
                       s = unFrench(s);
                       FormulaState.mole = num.parse(s, (v) => null);
@@ -547,11 +552,11 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     focusNode: focusNodes[IdealGasComputed.T],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    enabled:
-                        FormulaState.idealGasComputed != IdealGasComputed.T,
+                    enabled: FormulaState.properties.idealGasComputed !=
+                        IdealGasComputed.T,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.temperature = num.parse(s, (v) => null);
+                      FormulaState.properties.T = num.parse(s, (v) => null);
                       updateValue();
                     },
                   ),
@@ -568,9 +573,9 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                       .map((IdealGasComputed x) {
                     return new RadioListTile(
                       value: x,
-                      groupValue: FormulaState.idealGasComputed,
+                      groupValue: FormulaState.properties.idealGasComputed,
                       onChanged: (y) => setState(() {
-                            FormulaState.idealGasComputed = y;
+                            FormulaState.properties.idealGasComputed = y;
                             if (focusNodes[y].hasFocus) {
                               focusNodes[y].unfocus();
                             }
@@ -587,9 +592,9 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                       .map((IdealGasComputed x) {
                     return new RadioListTile(
                       value: x,
-                      groupValue: FormulaState.idealGasComputed,
+                      groupValue: FormulaState.properties.idealGasComputed,
                       onChanged: (y) => setState(() {
-                            FormulaState.idealGasComputed = y;
+                            FormulaState.properties.idealGasComputed = y;
                             if (focusNodes[y].hasFocus) {
                               focusNodes[y].unfocus();
                             }
@@ -750,5 +755,147 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
         color: Colors.blueAccent,
       )
     ]);
+  }
+}
+
+Future<Null> equationMassesMolesPrompt(BuildContext context) async {
+  await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return new Dialog(
+          child: new EquationMassesMolesCalculator(),
+        );
+      });
+}
+
+class EquationMassesMolesCalculator extends StatefulWidget {
+  @override
+  State<EquationMassesMolesCalculator> createState() =>
+      new _EquationMassesMolesCalculatorState();
+}
+
+class _EquationMassesMolesCalculatorState
+    extends State<EquationMassesMolesCalculator> {
+  final List<Formula> formulae =
+      EquationState.equation.reactants + EquationState.equation.products;
+  final List<FormulaFactory> factories =
+      EquationState.reactants + EquationState.products;
+  List<TextEditingController> massControllers;
+  List<TextEditingController> moleControllers;
+
+  bool updateProperties = false;
+
+  _EquationMassesMolesCalculatorState() {
+    massControllers = new List.generate(
+      formulae.length,
+      (int i) => new TextEditingController(
+          text: EquationState.properties[i].mass?.toString() ?? ""),
+    );
+    moleControllers = new List.generate(
+      formulae.length,
+      (int i) => new TextEditingController(
+          text: EquationState.properties[i].mole?.toString() ?? ""),
+    );
+  }
+
+  clearText() {
+    massControllers.forEach((var controller) => controller.clear());
+    moleControllers.forEach((var controller) => controller.clear());
+  }
+
+  onMassUpdateAt(int index, num mass) {
+    num extent = EquationState.equation.extentFromMassAt(index, mass);
+    List<num> masses = EquationState.equation.massesFromExtent(extent);
+    List<num> moles = EquationState.equation.molesFromExtent(extent);
+
+    for (int i = 0; i < formulae.length; i++) {
+      if (i != index) {
+        massControllers[i].text = masses[i].toStringAsPrecision(sf);
+      }
+      moleControllers[i].text = moles[i].toStringAsPrecision(sf);
+      if (updateProperties) {
+        EquationState.properties[i]
+          ..mass = masses[i]
+          ..mole = moles[i];
+      }
+    }
+  }
+
+  onMoleUpdateAt(int index, num mole) {
+    num extent = EquationState.equation.extentFromMoleAt(index, mole);
+    List<num> masses = EquationState.equation.massesFromExtent(extent);
+    List<num> moles = EquationState.equation.molesFromExtent(extent);
+    setState(() {
+      for (int i = 0; i < formulae.length; i++) {
+        massControllers[i].text = masses[i].toStringAsPrecision(sf);
+        if (i != index) {
+          moleControllers[i].text = moles[i].toStringAsPrecision(sf);
+        }
+        if (updateProperties) {
+          EquationState.properties[i]
+            ..mass = masses[i]
+            ..mole = moles[i];
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      width: 0.8 * MediaQuery.of(context).size.width,
+      height: 0.5 * MediaQuery.of(context).size.height,
+      child: new GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 2.7,
+        children: new List.generate(formulae.length, (int i) {
+              List<Widget> content = [];
+              if (i == EquationState.reactants.length) {
+                content.addAll([
+                  new Divider(),
+                  new Divider(),
+                ]);
+              }
+              content.addAll([
+                new TextField(
+                  decoration: new InputDecoration(
+                    helperText: "m(${factories[i]}) / g",
+                  ),
+                  textAlign: TextAlign.center,
+                  controller: massControllers[i],
+                  onChanged: (String s) =>
+                      onMassUpdateAt(i, num.parse(unFrench(s))),
+                  keyboardType: TextInputType.number,
+                  enabled: formulae[i].rfm != 0,
+                ),
+                new TextField(
+                  decoration: new InputDecoration(
+                    helperText: "n(${factories[i]}) / mol",
+                  ),
+                  textAlign: TextAlign.center,
+                  controller: moleControllers[i],
+                  onChanged: (String s) =>
+                      onMoleUpdateAt(i, num.parse(unFrench(s))),
+                  keyboardType: TextInputType.number,
+                ),
+              ]);
+              return content;
+            }).expand((x) => x).toList() +
+            <Widget>[
+              new CheckboxListTile(
+                value: updateProperties,
+                onChanged: (bool val) => setState(() {
+                      updateProperties = val;
+                    }),
+                subtitle: new Text("Update values"),
+              ),
+              new IconButton(
+                icon: new Icon(Icons.clear),
+                onPressed: clearText,
+                tooltip: "Clear",
+              ),
+            ],
+      ),
+    );
   }
 }

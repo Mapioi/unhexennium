@@ -88,16 +88,21 @@ class Equation {
     return "$reactants $arrow $products";
   }
 
-  num extent() {
-    return 0;
+  num extentFromMoleAt(int index, num mole) => mole / coefficients[index];
+
+  num extentFromMassAt(int index, num mass) =>
+      extentFromMoleAt(index, (reactants + products)[index].mole(mass));
+
+  List<num> massesFromExtent(num extent) {
+    List<num> masses = [];
+    List<Formula> formulae = reactants + products;
+    List<num> moles = molesFromExtent(extent);
+    for (int i = 0; i < formulae.length; i++) {
+      masses.add(formulae[i].mass(moles[i]));
+    }
+    return masses;
   }
 
-  List<num> masses(num extent) {
-    return [];
-  }
-
-  List<num> moles(num extent) {
-    return [];
-  }
-
+  List<num> molesFromExtent(num extent) =>
+      coefficients.map((int coeff) => coeff * extent).toList();
 }

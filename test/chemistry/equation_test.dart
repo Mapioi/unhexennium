@@ -101,4 +101,24 @@ void main() {
       expect(eq.coefficients, [1, 2, 2, 2]);
     });
   });
+
+  group("masses <-> moles", () {
+    test("H₂ + O₂ ⟶ H₂O", () {
+      Equation eq = new Equation(
+        [
+          new Formula({ElementSymbol.H: 2}),
+          new Formula({ElementSymbol.O: 2}),
+        ],
+        [
+          new Formula({ElementSymbol.H: 2, ElementSymbol.O: 1}),
+        ],
+      );
+      num extent = eq.extentFromMassAt(2, 18.02);
+      expect(extent, 0.5);
+      List<num> masses = eq.massesFromExtent(extent);
+      expect(masses, [2.02, 16.00, 18.02]);
+      List<num> moles = eq.molesFromExtent(extent);
+      expect(moles, [1, 0.5, 1]);
+    });
+  });
 }

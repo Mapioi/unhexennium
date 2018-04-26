@@ -6,6 +6,7 @@ import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/chemistry/equation.dart';
 import 'package:unhexennium/tabs/formula.dart';
+import 'package:unhexennium/tabs/popups.dart';
 
 // Constants
 enum EquationSide { Reactant, Product }
@@ -19,6 +20,7 @@ class EquationState {
   static EquationSide _selectedSide = EquationSide.Reactant;
   static int _selectedIndex = -1;
   static FormulaFactory _selectedFormula;
+  static FormulaProperties _selectedProperties;
   static bool hasError = false;
 
   static EquationSide get selectedSide => _selectedSide;
@@ -26,6 +28,8 @@ class EquationState {
   static int get selectedIndex => _selectedIndex;
 
   static FormulaFactory get selectedFormula => _selectedFormula;
+
+  static FormulaProperties get selectedProperties => _selectedProperties;
 
   static List<FormulaFactory> reactants = [
     new FormulaFactory()
@@ -41,6 +45,13 @@ class EquationState {
       ..setSubscriptAt(0, subscript: 2)
       ..insertElementAt(1, elementSymbol: ElementSymbol.O),
   ];
+
+  static List<FormulaProperties> properties = [
+    new FormulaProperties(),
+    new FormulaProperties(),
+    new FormulaProperties(),
+  ];
+
   static Equation equation = new Equation(
     reactants.map((f) => f.build()).toList(),
     products.map((f) => f.build()).toList(),
@@ -50,14 +61,8 @@ class EquationState {
   static List<List<Rational>> candidateCoefficients;
 
   static rebuildEquation() {
-    var r = reactants
-        .where((f) => f.elementsList.isNotEmpty || f.charge == -1)
-        .map((f) => f.build())
-        .toList();
-    var p = products
-        .where((f) => f.elementsList.isNotEmpty || f.charge == -1)
-        .map((f) => f.build())
-        .toList();
+    var r = reactants.map((f) => f.build()).toList();
+    var p = products.map((f) => f.build()).toList();
     setState(() {
       try {
         equation = new Equation(r, p, strictBalancing: true);
@@ -87,6 +92,7 @@ class EquationState {
       } on RangeError {
         _selectedFormula = null;
       }
+      _selectedProperties = properties[index + side.index * reactants.length];
     });
   }
 
@@ -99,9 +105,11 @@ class EquationState {
       if (selectedSide == EquationSide.Product) {
         products.removeAt(selectedIndex);
       }
+      properties
+          .removeAt(selectedIndex + selectedSide.index * reactants.length);
       select(selectedSide, selectedIndex - 1);
+      rebuildEquation();
     });
-    rebuildEquation();
   }
 
   static onInsertAfterSelected() {
@@ -111,13 +119,19 @@ class EquationState {
         EquationSide.Product: products
       }[selectedSide]
           .insert(selectedIndex + 1, new FormulaFactory());
+      properties.insert(
+        selectedIndex + selectedSide.index * reactants.length + 1,
+        new FormulaProperties(),
+      );
+      select(EquationState.selectedSide, EquationState.selectedIndex + 1);
+      rebuildEquation();
     });
-    select(EquationState.selectedSide, EquationState.selectedIndex + 1);
-    rebuildEquation();
   }
 
   static onEditSelected() {
     FormulaState.formulaFactory = selectedFormula;
+    FormulaState.properties =
+        properties[selectedIndex + selectedSide.index * reactants.length];
     switchToFormulaTab();
   }
 }
@@ -137,13 +151,26 @@ class EquationParent extends StatelessWidget {
             ],
           ),
           new Expanded(child: new Container()),
-          buildButtons(context),
+          buildCalculatorButtons(context),
+          buildEditorButtons(context),
         ],
       ),
     );
   }
 
-  Widget buildButtons(BuildContext context) {
+  Widget buildCalculatorButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: new FloatingActionButton.extended(
+          onPressed: EquationState.hasError
+              ? null
+              : () => equationMassesMolesPrompt(context),
+          icon: new Icon(Icons.assessment),
+          label: new Text("mass & mole")),
+    );
+  }
+
+  Widget buildEditorButtons(BuildContext context) {
     List<Widget> buttons = <Widget>[
       new Padding(
         padding: const EdgeInsets.all(8.0),
@@ -255,9 +282,11 @@ class EquationParent extends StatelessWidget {
       ));
     }
 
-    return new Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: buttons,
+    return new BottomAppBar(
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: buttons,
+      ),
     );
   }
 
@@ -319,7 +348,7 @@ class EquationParent extends StatelessWidget {
           color: (side == EquationState.selectedSide &&
                   wtf == EquationState.selectedIndex)
               ? (isEmpty ? Colors.blueGrey[200] : Colors.blue[100])
-              : (isEmpty ? Colors.grey[200] : Colors.grey[100]),
+              : (isEmpty ? Colors.grey[300] : Colors.grey[200]),
           splashColor: isEmpty ? Colors.blueGrey[400] : Colors.blue[200],
           disabledTextColor: Colors.black,
           child: new Row(

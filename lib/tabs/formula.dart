@@ -131,6 +131,22 @@ class InputBox extends StatelessWidget {
 
 enum IdealGasComputed { P, V, n, T }
 
+class FormulaProperties {
+  num mass, mole;
+  num P, V, n, T;
+  IdealGasComputed idealGasComputed;
+
+  FormulaProperties({
+    this.mass,
+    this.mole,
+    this.P,
+    this.V,
+    this.n,
+    this.T,
+    this.idealGasComputed = IdealGasComputed.n,
+  });
+}
+
 class FormulaState {
   static SetStateCallback setState;
   static Callback switchToElementTab;
@@ -166,28 +182,24 @@ class FormulaState {
 
   static ElementSymbol get underCursor => _underCursor;
 
-  static num _mass, _mole;
+  static FormulaProperties properties = new FormulaProperties();
 
-  static num get mass => _mass;
+  static get mass => properties.mass;
 
   static set mass(num m) {
-    _mass = m;
-    _mole = m != null ? formula.mole(m) : null;
+    properties.mass = m;
+    properties.mole = m != null ? formula.mole(m) : null;
   }
 
-  static get mole => _mole;
+  static get mole => properties.mole;
 
   static set mole(num n) {
-    _mole = n;
-    _mass = n != null ? formula.mass(n) : null;
-    idealGasComputed = IdealGasComputed.V;
+    properties.mole = n;
+    properties.mass = n != null ? formula.mass(n) : null;
   }
 
-  static IdealGasComputed idealGasComputed = IdealGasComputed.n;
-  static num pressure, volume, temperature;
-
   static resetProperties() {
-    _mass = _mole = pressure = volume = temperature = null;
+    properties = new FormulaProperties();
   }
 
   static List<bool> expansionPanelStates = [false, false];
