@@ -74,51 +74,6 @@ class _ElementPrompt extends State<ElementPrompt> {
   }
 }
 
-Future<Null> elementFormulaPrompt({
-  BuildContext context,
-  ElementAndSubscriptCallback callback,
-  ElementSymbol currentElementSymbol,
-  int currentSubscript,
-  bool isAdding = true,
-}) async {
-  await showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return new ElementAndSubscriptSelector(
-        currentElementSymbol: currentElementSymbol,
-        currentSubscript: currentSubscript,
-        onFinish: (a, b) {
-          callback(a, b);
-          Navigator.pop(context); // exit the modal
-        },
-        isAdding: isAdding,
-      );
-    },
-  );
-}
-
-Future<Null> parenSubscriptPrompt({
-  BuildContext context,
-  SubscriptCallback callback,
-  int currentSubscript,
-  bool isCharge = false,
-}) async {
-  await showModalBottomSheet(
-    context: context,
-    builder: (context) => new Padding(
-          padding: new EdgeInsets.all(16.0),
-          child: new ParenSubscriptSelector(
-            currentSubscript: currentSubscript,
-            onFinish: (a) {
-              callback(a);
-              Navigator.pop(context);
-            },
-            isCharge: isCharge,
-          ),
-        ),
-  );
-}
-
 enum SearchMode { PeriodicTable, AtomicNumber, Name }
 
 class PeriodicTableSearch extends StatelessWidget {
@@ -285,7 +240,10 @@ class SearchRow extends StatelessWidget {
                   : new Row(
                       children: <Widget>[
                         new Text(
-                          searchedNumber.toString(),
+                          elementToDisplay.atomicNumber.toString().substring(
+                                0,
+                                searchedNumber.toString().length,
+                              ),
                           style: new TextStyle(fontWeight: FontWeight.bold),
                         ),
                         new Text(
@@ -335,6 +293,51 @@ class SearchRow extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<Null> elementFormulaPrompt({
+  BuildContext context,
+  ElementAndSubscriptCallback callback,
+  ElementSymbol currentElementSymbol,
+  int currentSubscript,
+  bool isAdding = true,
+}) async {
+  await showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return new ElementAndSubscriptSelector(
+        currentElementSymbol: currentElementSymbol,
+        currentSubscript: currentSubscript,
+        onFinish: (a, b) {
+          callback(a, b);
+          Navigator.pop(context); // exit the modal
+        },
+        isAdding: isAdding,
+      );
+    },
+  );
+}
+
+Future<Null> parenSubscriptPrompt({
+  BuildContext context,
+  SubscriptCallback callback,
+  int currentSubscript,
+  bool isCharge = false,
+}) async {
+  await showModalBottomSheet(
+    context: context,
+    builder: (context) => new Padding(
+          padding: new EdgeInsets.all(16.0),
+          child: new ParenSubscriptSelector(
+            currentSubscript: currentSubscript,
+            onFinish: (a) {
+              callback(a);
+              Navigator.pop(context);
+            },
+            isCharge: isCharge,
+          ),
+        ),
+  );
 }
 
 Future<Null> massMolePrompt(BuildContext context) async {
