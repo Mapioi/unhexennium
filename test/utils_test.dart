@@ -74,7 +74,7 @@ void main() {
   });
 
   test("sortMapByValues", () {
-    expect(sortMapByValues({}).keys, []);
+    expect(sortMapByValues(<dynamic, Comparable>{}).keys, []);
     expect(sortMapByValues({1: "b", 2: "a"}).keys, [2, 1]);
     expect(sortMapByValues({1: "a", 2: "b"}).keys, [1, 2]);
   });

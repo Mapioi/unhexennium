@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/utils.dart';
 import 'package:unhexennium/chemistry/element.dart';
 
-typedef void Callback(ElementSymbol symbol);
+typedef void ElementSymbolCallback(ElementSymbol symbol);
 
 class _ElementRange {
   int startCol, endCol;
@@ -14,7 +14,7 @@ class _ElementRange {
 }
 
 class PeriodicTable extends StatelessWidget {
-  final Callback onClickCallback;
+  final ElementSymbolCallback onClickCallback;
   final ElementSymbol selectedElement;
   static const num cellSize = 40.0;
 

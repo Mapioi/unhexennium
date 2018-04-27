@@ -106,7 +106,8 @@ String toStringAsCharge(int charge, {bool omitOne = false}) {
 String unFrench(String s) => s.replaceAll(",", ".");
 
 /// Sort a map by its keys
-LinkedHashMap<int, String> sortMapByValues(Map<int, String> mapToSort) {
+LinkedHashMap<K, V> sortMapByValues<K, V extends Comparable>(
+    Map<K, V> mapToSort) {
   List sortedKeys = mapToSort.keys.toList(growable: false)
     ..sort((a, b) => mapToSort[a].compareTo(mapToSort[b]));
   return new LinkedHashMap.fromIterable(
@@ -114,4 +115,11 @@ LinkedHashMap<int, String> sortMapByValues(Map<int, String> mapToSort) {
     key: (k) => k,
     value: (k) => mapToSort[k],
   );
+}
+
+LinkedHashMap<K, V> sortMapByKeys<K extends Comparable, V>(
+    Map<K, V> mapToSort) {
+  List sortedKey = mapToSort.keys.toList()..sort();
+  return new LinkedHashMap.fromIterable(sortedKey,
+      key: (k) => k, value: (k) => mapToSort[k]);
 }

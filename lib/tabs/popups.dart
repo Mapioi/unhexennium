@@ -160,7 +160,11 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
                   }),
               decoration: new InputDecoration(
                 icon: new Icon(Icons.search),
-                hintText: "29",
+                hintText: widget.currentElementSymbol != null
+                    ? ChemicalElement(widget.currentElementSymbol)
+                        .atomicNumber
+                        .toString()
+                    : "29",
               ),
             ),
           ),
@@ -217,7 +221,9 @@ class _NameSearch extends State<NameSearch> {
                 onChanged: (String s) => setState(() => typedText = s),
                 decoration: new InputDecoration(
                   icon: const Icon(Icons.search),
-                  hintText: "Boron",
+                  hintText: widget.currentElementSymbol != null
+                      ? ChemicalElement(widget.currentElementSymbol).name
+                      : "Francium",
                 ),
               ),
             ),
@@ -327,7 +333,6 @@ Future<Null> parenSubscriptPrompt({
   BuildContext context,
   SubscriptCallback callback,
   int currentSubscript,
-  bool isCharge = false,
 }) async {
   await showModalBottomSheet(
     context: context,
@@ -339,7 +344,6 @@ Future<Null> parenSubscriptPrompt({
               callback(a);
               Navigator.pop(context);
             },
-            isCharge: isCharge,
           ),
         ),
   );
@@ -432,10 +436,8 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
 class ParenSubscriptSelector extends StatefulWidget {
   final int currentSubscript;
   final SubscriptCallback onFinish;
-  final bool isCharge;
 
-  ParenSubscriptSelector(
-      {Key key, this.currentSubscript, this.onFinish, this.isCharge})
+  ParenSubscriptSelector({Key key, this.currentSubscript, this.onFinish})
       : super(key: key);
 
   @override
@@ -448,37 +450,22 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
   @override
   Widget build(BuildContext context) {
     selectedSubscript ??= widget.currentSubscript;
-
-    String numberText = selectedSubscript.toString();
-    if (widget.isCharge && selectedSubscript > 0) {
-      numberText = "+$selectedSubscript";
-    }
-
-    String leftText = "Set ${widget.isCharge ? "charge" : "subscript"}";
-
     return new Row(children: <Widget>[
       new Text(
-        leftText,
+        "Set subscript",
         style: new TextStyle(fontWeight: FontWeight.bold),
       ),
       new Expanded(child: SizedBox(height: 0.0)),
-      new Text(numberText),
+      new Text(widget.currentSubscript.toString()),
       new Expanded(child: SizedBox(height: 0.0)),
       new IconButton(
-        onPressed: (widget.isCharge
-                ? (FormulaState.formulaFactory.elementsList.isEmpty &&
-                    selectedSubscript != 0)
-                : selectedSubscript == 1)
+        onPressed: selectedSubscript == 1
             ? null
             : () => setState(() => --selectedSubscript),
         icon: new Icon(Icons.arrow_left),
       ),
       new IconButton(
-        onPressed: widget.isCharge &&
-                FormulaState.formulaFactory.elementsList.isEmpty &&
-                selectedSubscript == 0
-            ? null
-            : () => setState(() => ++selectedSubscript),
+        onPressed: () => setState(() => ++selectedSubscript),
         icon: new Icon(Icons.arrow_right),
       ),
       new Expanded(child: SizedBox(height: 0.0)),
@@ -981,5 +968,134 @@ class _EquationMassesMolesCalculatorState
             ],
       ),
     );
+  }
+}
+
+enum FormulaEditMode { SetCharge, NameSearch, FormulaInput }
+
+class FormulaEditor extends StatefulWidget {
+  final Callback onFinish;
+
+  const FormulaEditor({Key key, this.onFinish}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _FormulaEditPromptState();
+}
+
+class _FormulaEditPromptState extends State<FormulaEditor> {
+  FormulaEditMode currentMode = FormulaEditMode.SetCharge;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget buttonBar = new BottomAppBar(
+      child: new ButtonBar(
+        alignment: MainAxisAlignment.center,
+        children: FormulaEditMode.values
+            .map((var mode) => new FlatButton(
+                  onPressed: mode == currentMode
+                      ? null
+                      : () => setState(() {
+                            currentMode = mode;
+                          }),
+                  child: new Text(enumToReadableString(mode)),
+                  padding: const EdgeInsets.all(0.0),
+                ))
+            .toList(),
+      ),
+    );
+    ChargeEditor chargeEditor = new ChargeEditor(
+      currentCharge: FormulaState.formulaFactory.charge,
+      onFinish: (c) {
+        FormulaState.formulaFactory.charge = c;
+        widget.onFinish();
+      },
+    );
+    FormulaNameSearch nameSearch = new FormulaNameSearch();
+    FormulaInput formulaInput = new FormulaInput();
+    Widget currentEditor = new Padding(
+      child: {
+        FormulaEditMode.SetCharge: chargeEditor,
+        FormulaEditMode.NameSearch: nameSearch,
+        FormulaEditMode.FormulaInput: formulaInput
+      }[currentMode],
+      padding: const EdgeInsets.all(32.0),
+    );
+    return new Column(
+      children: <Widget>[
+        buttonBar,
+        currentEditor,
+      ],
+    );
+  }
+}
+
+class ChargeEditor extends StatefulWidget {
+  final int currentCharge;
+  final SubscriptCallback onFinish;
+
+  const ChargeEditor({Key key, this.currentCharge, this.onFinish})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _ChargeEditorState(currentCharge);
+}
+
+class _ChargeEditorState extends State<ChargeEditor> {
+  int charge;
+
+  _ChargeEditorState(this.charge);
+
+  @override
+  Widget build(BuildContext context) {
+    String chargeDisplay = (charge <= 0 ? '' : '+') + charge.toString();
+    return new Center(
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new Chip(
+            label: new Text("Charge: $chargeDisplay"),
+          ),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new IconButton(
+                icon: const Icon(Icons.arrow_left),
+                onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
+                        FormulaState.formulaFactory.charge != 0
+                    ? null
+                    : () => setState(() => charge--),
+              ),
+              new IconButton(
+                icon: const Icon(Icons.arrow_right),
+                onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
+                        FormulaState.formulaFactory.charge != -1
+                    ? null
+                    : () => setState(() => charge++),
+              ),
+            ],
+          ),
+          new RaisedButton(
+            onPressed: () => widget.onFinish(charge),
+            child: new Text("Done"),
+            color: Colors.blue,
+            textColor: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FormulaNameSearch extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return null;
+  }
+}
+
+class FormulaInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return null;
   }
 }

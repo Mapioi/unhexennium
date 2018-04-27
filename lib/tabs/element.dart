@@ -68,7 +68,7 @@ class ElementParent extends StatelessWidget {
                 new MaterialPageRoute(
                   builder: (context) => new Scaffold(
                         appBar: new AppBar(
-                          title: new Text("Element selection"),
+                          title: new Text("Select element"),
                         ),
                         body: new ElementPrompt(
                             currentElementSymbol: ElementState.selectedElement,

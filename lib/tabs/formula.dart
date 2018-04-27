@@ -646,11 +646,18 @@ class FormulaParent extends StatelessWidget {
                 icon: new Icon(Icons.edit),
                 onPressed: currentPair == null
                     // Charge selected
-                    ? () => parenSubscriptPrompt(
-                          context: context,
-                          callback: (a) => FormulaState.onEdit(null, a),
-                          currentSubscript: currentSubscript,
-                          isCharge: true,
+                    ? () => Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                            builder: (context) => new Scaffold(
+                              appBar: new AppBar(
+                                title: new Text("Edit formula"),
+                              ),
+                              body: new FormulaEditor(
+                                onFinish: () => Navigator.pop(context),
+                              ),
+                            ),
+                          ),
                         )
                     : (currentPair.elementSymbol == null
                         // Parentheses selected
