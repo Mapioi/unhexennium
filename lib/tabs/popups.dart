@@ -49,21 +49,24 @@ class _ElementPrompt extends State<ElementPrompt> {
     Widget searchWidget = <SearchMode, Widget>{
       SearchMode.PeriodicTable: new PeriodicTableSearch(
         currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
-        onClickedCallback: (x) => setState(() {
+        onClickedCallback: (x) =>
+            setState(() {
               selectedElement = x;
               widget.onClickedCallback(x);
             }),
       ),
       SearchMode.AtomicNumber: new AtomicNumberSearch(
         currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
-        onClickedCallback: (x) => setState(() {
+        onClickedCallback: (x) =>
+            setState(() {
               selectedElement = x;
               widget.onClickedCallback(x);
             }),
       ),
       SearchMode.Name: new NameSearch(
         currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
-        onClickedCallback: (x) => setState(() {
+        onClickedCallback: (x) =>
+            setState(() {
               selectedElement = x;
               widget.onClickedCallback(x);
             }),
@@ -78,15 +81,17 @@ class _ElementPrompt extends State<ElementPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: SearchMode.values
                 .map(
-                  (SearchMode mode) => new FlatButton(
-                        onPressed: mode == currentMode
-                            ? null
-                            : () => setState(() {
-                                  currentMode = mode;
-                                }),
-                        child: new Text(enumToReadableString(mode)),
-                      ),
-                )
+                  (SearchMode mode) =>
+              new FlatButton(
+                onPressed: mode == currentMode
+                    ? null
+                    : () =>
+                    setState(() {
+                      currentMode = mode;
+                    }),
+                child: new Text(enumToReadableString(mode)),
+              ),
+            )
                 .toList(),
           ),
         ),
@@ -141,13 +146,14 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
   Widget build(BuildContext context) {
     List<SearchRow> searchResults = findElementByAtomicNumber(typedNumber)
         .map(
-          (ChemicalElement e) => new SearchRow(
-                elementToDisplay: e,
-                searchedNumber: typedNumber,
-                selected: e.symbol == widget.currentElementSymbol,
-                onClickedCallback: widget.onClickedCallback,
-              ),
-        )
+          (ChemicalElement e) =>
+      new SearchRow(
+        elementToDisplay: e,
+        searchedNumber: typedNumber,
+        selected: e.symbol == widget.currentElementSymbol,
+        onClickedCallback: widget.onClickedCallback,
+      ),
+    )
         .toList();
 
     return new Column(
@@ -157,15 +163,16 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
             padding: const EdgeInsets.only(left: 32.0, right: 32.0),
             child: new TextField(
               keyboardType: TextInputType.number,
-              onChanged: (String s) => setState(() {
+              onChanged: (String s) =>
+                  setState(() {
                     typedNumber = int.parse(s);
                   }),
               decoration: new InputDecoration(
                 icon: new Icon(Icons.search),
                 hintText: widget.currentElementSymbol != null
                     ? ChemicalElement(widget.currentElementSymbol)
-                        .atomicNumber
-                        .toString()
+                    .atomicNumber
+                    .toString()
                     : "29",
               ),
             ),
@@ -203,13 +210,14 @@ class _NameSearch extends State<NameSearch> {
   Widget build(BuildContext context) {
     List<SearchRow> searchResults = findElementByName(typedText)
         .map(
-          (ChemicalElement e) => new SearchRow(
-                elementToDisplay: e,
-                searchedName: typedText,
-                selected: e.symbol == widget.currentElementSymbol,
-                onClickedCallback: widget.onClickedCallback,
-              ),
-        )
+          (ChemicalElement e) =>
+      new SearchRow(
+        elementToDisplay: e,
+        searchedName: typedText,
+        selected: e.symbol == widget.currentElementSymbol,
+        onClickedCallback: widget.onClickedCallback,
+      ),
+    )
         .toList();
 
     return new Padding(
@@ -220,6 +228,7 @@ class _NameSearch extends State<NameSearch> {
             child: new Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
               child: new TextField(
+                autocorrect: false,
                 onChanged: (String s) => setState(() => typedText = s),
                 decoration: new InputDecoration(
                   icon: const Icon(Icons.search),
@@ -273,28 +282,34 @@ class SearchRow extends StatelessWidget {
               child: searchedNumber == null
                   ? new Text(elementToDisplay.atomicNumber.toString())
                   : new RichText(
-                      text: TextSpan(
-                        style: DefaultTextStyle.of(context).style,
-                        children: [
-                          new TextSpan(
-                            text: elementToDisplay.atomicNumber
-                                .toString()
-                                .substring(
-                                  0,
-                                  searchedNumber.toString().length,
-                                ),
-                            style: new TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          new TextSpan(
-                            text: elementToDisplay.atomicNumber
-                                .toString()
-                                .substring(
-                                  searchedNumber.toString().length,
-                                ),
-                          )
-                        ],
+                text: TextSpan(
+                  style: DefaultTextStyle
+                      .of(context)
+                      .style,
+                  children: [
+                    new TextSpan(
+                      text: elementToDisplay.atomicNumber
+                          .toString()
+                          .substring(
+                        0,
+                        searchedNumber
+                            .toString()
+                            .length,
                       ),
+                      style: new TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    new TextSpan(
+                      text: elementToDisplay.atomicNumber
+                          .toString()
+                          .substring(
+                        searchedNumber
+                            .toString()
+                            .length,
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
             // Element Symbol
             new Container(
@@ -320,37 +335,39 @@ class SearchRow extends StatelessWidget {
             searchedName == null
                 ? new Text(elementToDisplay.name)
                 : new RichText(
-                    text: new TextSpan(
-                      style: DefaultTextStyle.of(context).style,
-                      children: [
-                        new TextSpan(
-                          text: elementToDisplay.name.substring(
-                            0,
-                            elementToDisplay.name
-                                .toLowerCase()
-                                .indexOf(searchedName.toLowerCase()),
-                          ),
-                        ),
-                        new TextSpan(
-                          text: elementToDisplay.name
-                                      .toLowerCase()
-                                      .indexOf(searchedName.toLowerCase()) ==
-                                  0
-                              ? searchedName
-                              : searchedName.toLowerCase(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        new TextSpan(
-                          text: elementToDisplay.name.substring(
-                            elementToDisplay.name
-                                    .toLowerCase()
-                                    .indexOf(searchedName.toLowerCase()) +
-                                searchedName.length,
-                          ),
-                        ),
-                      ],
+              text: new TextSpan(
+                style: DefaultTextStyle
+                    .of(context)
+                    .style,
+                children: [
+                  new TextSpan(
+                    text: elementToDisplay.name.substring(
+                      0,
+                      elementToDisplay.name
+                          .toLowerCase()
+                          .indexOf(searchedName.toLowerCase()),
                     ),
                   ),
+                  new TextSpan(
+                    text: elementToDisplay.name
+                        .toLowerCase()
+                        .indexOf(searchedName.toLowerCase()) ==
+                        0
+                        ? searchedName
+                        : searchedName.toLowerCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  new TextSpan(
+                    text: elementToDisplay.name.substring(
+                      elementToDisplay.name
+                          .toLowerCase()
+                          .indexOf(searchedName.toLowerCase()) +
+                          searchedName.length,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             new Expanded(child: Container())
           ],
         ),
@@ -366,16 +383,17 @@ Future<Null> parenSubscriptPrompt({
 }) async {
   await showModalBottomSheet(
     context: context,
-    builder: (context) => new Padding(
-          padding: new EdgeInsets.all(16.0),
-          child: new ParenSubscriptSelector(
-            currentSubscript: currentSubscript,
-            onFinish: (a) {
-              callback(a);
-              Navigator.pop(context);
-            },
-          ),
-        ),
+    builder: (context) =>
+    new Padding(
+      padding: new EdgeInsets.all(16.0),
+      child: new ParenSubscriptSelector(
+        currentSubscript: currentSubscript,
+        onFinish: (a) {
+          callback(a);
+          Navigator.pop(context);
+        },
+      ),
+    ),
   );
 }
 
@@ -440,12 +458,13 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
                   widget.isAdding ? "INSERT" : "MODIFY",
                   style: new TextStyle(color: Colors.white),
                 ),
-                onPressed: () => selectedElementSymbol == null
+                onPressed: () =>
+                selectedElementSymbol == null
                     ? null
                     : widget.onFinish(
-                        selectedElementSymbol,
-                        selectedSubscript,
-                      ),
+                  selectedElementSymbol,
+                  selectedSubscript,
+                ),
                 color: Colors.blueAccent,
               )
             ]),
@@ -778,48 +797,52 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
             new Text("Computed value:"),
             new Expanded(
                 child: new GridView.count(
-              crossAxisCount: 2,
-              children: <Widget>[
-                new Column(
-                  children: [IdealGasComputed.P, IdealGasComputed.n]
-                      .map((IdealGasComputed x) {
-                    return new RadioListTile(
-                      value: x,
-                      groupValue: FormulaState.properties.idealGasComputed,
-                      onChanged: (y) => setState(() {
-                            FormulaState.properties.idealGasComputed = y;
-                            if (focusNodes[y].hasFocus) {
-                              focusNodes[y].unfocus();
-                            }
-                          }),
-                      title: new Text(enumToString(x)),
-                      subtitle:
+                  crossAxisCount: 2,
+                  children: <Widget>[
+                    new Column(
+                      children: [IdealGasComputed.P, IdealGasComputed.n]
+                          .map((IdealGasComputed x) {
+                        return new RadioListTile(
+                          value: x,
+                          groupValue: FormulaState.properties.idealGasComputed,
+                          onChanged: (y) =>
+                              setState(() {
+                                FormulaState.properties.idealGasComputed = y;
+                                if (focusNodes[y].hasFocus) {
+                                  focusNodes[y].unfocus();
+                                }
+                              }),
+                          title: new Text(enumToString(x)),
+                          subtitle:
                           new Text(x == IdealGasComputed.P ? "Pa" : "mol"),
-                      dense: true,
-                    );
-                  }).toList(),
-                ),
-                new Column(
-                  children: [IdealGasComputed.V, IdealGasComputed.T]
-                      .map((IdealGasComputed x) {
-                    return new RadioListTile(
-                      value: x,
-                      groupValue: FormulaState.properties.idealGasComputed,
-                      onChanged: (y) => setState(() {
-                            FormulaState.properties.idealGasComputed = y;
-                            if (focusNodes[y].hasFocus) {
-                              focusNodes[y].unfocus();
-                            }
-                          }),
-                      title: new Text(enumToString(x)),
-                      subtitle: new Text(
-                          x == IdealGasComputed.V ? asSuperscript("m3") : "K"),
-                      dense: true,
-                    );
-                  }).toList(),
-                ),
-              ],
-            )),
+                          dense: true,
+                        );
+                      }).toList(),
+                    ),
+                    new Column(
+                      children: [IdealGasComputed.V, IdealGasComputed.T]
+                          .map((IdealGasComputed x) {
+                        return new RadioListTile(
+                          value: x,
+                          groupValue: FormulaState.properties.idealGasComputed,
+                          onChanged: (y) =>
+                              setState(() {
+                                FormulaState.properties.idealGasComputed = y;
+                                if (focusNodes[y].hasFocus) {
+                                  focusNodes[y].unfocus();
+                                }
+                              }),
+                          title: new Text(enumToString(x)),
+                          subtitle: new Text(
+                              x == IdealGasComputed.V
+                                  ? asSuperscript("m3")
+                                  : "K"),
+                          dense: true,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                )),
           ],
         ),
       ),
@@ -858,15 +881,17 @@ class _EquationMassesMolesCalculatorState
   _EquationMassesMolesCalculatorState() {
     massControllers = new List.generate(
       formulae.length,
-      (int i) => new TextEditingController(
+          (int i) =>
+      new TextEditingController(
           text:
-              EquationState.properties[i].mass?.toStringAsPrecision(sf) ?? ""),
+          EquationState.properties[i].mass?.toStringAsPrecision(sf) ?? ""),
     );
     moleControllers = new List.generate(
       formulae.length,
-      (int i) => new TextEditingController(
+          (int i) =>
+      new TextEditingController(
           text:
-              EquationState.properties[i].mole?.toStringAsPrecision(sf) ?? ""),
+          EquationState.properties[i].mole?.toStringAsPrecision(sf) ?? ""),
     );
 
     // Determining the limiting reactant
@@ -937,54 +962,61 @@ class _EquationMassesMolesCalculatorState
   @override
   Widget build(BuildContext context) {
     return new Container(
-      width: 0.8 * MediaQuery.of(context).size.width,
-      height: 0.5 * MediaQuery.of(context).size.height,
+      width: 0.8 * MediaQuery
+          .of(context)
+          .size
+          .width,
+      height: 0.5 * MediaQuery
+          .of(context)
+          .size
+          .height,
       child: new GridView.count(
         crossAxisCount: 2,
         childAspectRatio: 2.7,
         children: new List.generate(formulae.length, (int i) {
-              List<Widget> content = [];
-              if (i == EquationState.reactants.length) {
-                content.addAll([
-                  new Divider(),
-                  new Divider(),
-                ]);
-              }
-              content.addAll([
-                new TextField(
-                  decoration: new InputDecoration(
-                    helperText: "m(${factories[i]}) / g",
-                    suffixIcon: i == lrIndex
-                        ? new Icon(
-                            Icons.invert_colors_off,
-                            color: Colors.red,
-                          )
-                        : null,
-                  ),
-                  textAlign: TextAlign.center,
-                  controller: massControllers[i],
-                  onChanged: (String s) =>
-                      onMassUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.number,
-                  enabled: formulae[i].rfm != 0,
-                ),
-                new TextField(
-                  decoration: new InputDecoration(
-                    helperText: "n(${factories[i]}) / mol",
-                  ),
-                  textAlign: TextAlign.center,
-                  controller: moleControllers[i],
-                  onChanged: (String s) =>
-                      onMoleUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.number,
-                ),
-              ]);
-              return content;
-            }).expand((x) => x).toList() +
+          List<Widget> content = [];
+          if (i == EquationState.reactants.length) {
+            content.addAll([
+              new Divider(),
+              new Divider(),
+            ]);
+          }
+          content.addAll([
+            new TextField(
+              decoration: new InputDecoration(
+                helperText: "m(${factories[i]}) / g",
+                suffixIcon: i == lrIndex
+                    ? new Icon(
+                  Icons.invert_colors_off,
+                  color: Colors.red,
+                )
+                    : null,
+              ),
+              textAlign: TextAlign.center,
+              controller: massControllers[i],
+              onChanged: (String s) =>
+                  onMassUpdateAt(i, num.parse(unFrench(s))),
+              keyboardType: TextInputType.number,
+              enabled: formulae[i].rfm != 0,
+            ),
+            new TextField(
+              decoration: new InputDecoration(
+                helperText: "n(${factories[i]}) / mol",
+              ),
+              textAlign: TextAlign.center,
+              controller: moleControllers[i],
+              onChanged: (String s) =>
+                  onMoleUpdateAt(i, num.parse(unFrench(s))),
+              keyboardType: TextInputType.number,
+            ),
+          ]);
+          return content;
+        }).expand((x) => x).toList() +
             <Widget>[
               new CheckboxListTile(
                 value: updateProperties,
-                onChanged: (bool val) => setState(() {
+                onChanged: (bool val) =>
+                    setState(() {
                       updateProperties = val;
                     }),
                 subtitle: new Text("Update values"),
@@ -1022,15 +1054,17 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
       child: new ButtonBar(
         alignment: MainAxisAlignment.center,
         children: FormulaEditMode.values
-            .map((var mode) => new FlatButton(
-                  onPressed: mode == currentMode
-                      ? null
-                      : () => setState(() {
-                            currentMode = mode;
-                          }),
-                  child: new Text(enumToReadableString(mode)),
-                  padding: const EdgeInsets.all(0.0),
-                ))
+            .map((var mode) =>
+        new FlatButton(
+          onPressed: mode == currentMode
+              ? null
+              : () =>
+              setState(() {
+                currentMode = mode;
+              }),
+          child: new Text(enumToReadableString(mode)),
+          padding: const EdgeInsets.all(0.0),
+        ))
             .toList(),
       ),
     );
@@ -1042,22 +1076,26 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
       },
     );
     FormulaNameSearch nameSearch = new FormulaNameSearch(
-      currentFormulaName: FormulaState.formulaFactory.names.join(", "),
+      currentFormulaName: FormulaState.formulaFactory.names?.join(", ") ?? "",
       onClickedCallback: (String formula) {
         FormulaState.formulaFactory = new FormulaFactory.fromString(formula);
         widget.onFinish();
       },
     );
-    FormulaInput formulaInput = new FormulaInput();
+    FormulaInput formulaInput = new FormulaInput(
+      currentFormula: FormulaState.formulaFactory.toString(),
+      onFinish: (String formula) {
+        FormulaState.formulaFactory = new FormulaFactory.fromString(formula);
+        widget.onFinish();
+      },
+    );
     Widget currentEditor = new Expanded(
-        child: new Padding(
       child: {
         FormulaEditMode.SetCharge: chargeEditor,
         FormulaEditMode.NameSearch: nameSearch,
         FormulaEditMode.FormulaInput: formulaInput
       }[currentMode],
-      padding: const EdgeInsets.all(32.0),
-    ));
+    );
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Edit formula"),
@@ -1110,14 +1148,14 @@ class _ChargeEditorState extends State<ChargeEditor> {
               new IconButton(
                 icon: const Icon(Icons.arrow_left),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
-                        charge != 0
+                    charge != 0
                     ? null
                     : () => setState(() => charge--),
               ),
               new IconButton(
                 icon: const Icon(Icons.arrow_right),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
-                        charge != -1
+                    charge != -1
                     ? null
                     : () => setState(() => charge++),
               ),
@@ -1141,12 +1179,11 @@ class FormulaNameSearchResult extends StatelessWidget {
   final String query;
   final ArgCallback<String> onClickedCallback;
 
-  const FormulaNameSearchResult(
-      {Key key,
-      this.formulaName,
-      this.formula,
-      this.query,
-      this.onClickedCallback})
+  const FormulaNameSearchResult({Key key,
+    this.formulaName,
+    this.formula,
+    this.query,
+    this.onClickedCallback})
       : super(key: key);
 
   @override
@@ -1156,17 +1193,25 @@ class FormulaNameSearchResult extends StatelessWidget {
     return new GestureDetector(
       onTap: () => onClickedCallback(formula),
       child: new SizedBox(
-        height: MediaQuery.of(context).size.height * 0.05,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height * 0.05,
         child: new Row(
           children: <Widget>[
             new SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.5,
               child: new ListView(
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
                   new RichText(
                     text: new TextSpan(
-                      style: DefaultTextStyle.of(context).style,
+                      style: DefaultTextStyle
+                          .of(context)
+                          .style,
                       children: [
                         new TextSpan(
                           text: formulaName.substring(0, startIndex),
@@ -1185,7 +1230,10 @@ class FormulaNameSearchResult extends StatelessWidget {
               ),
             ),
             new SizedBox(
-              width: MediaQuery.of(context).size.width * 0.32,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.32,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: new ListView(
@@ -1195,6 +1243,11 @@ class FormulaNameSearchResult extends StatelessWidget {
                       label: new Text(
                         formula,
                       ),
+                      backgroundColor: FormulaState.formulaFactory.names
+                          ?.contains(formulaName) ??
+                          false
+                          ? Colors.greenAccent[100]
+                          : null,
                     ),
                   ],
                 ),
@@ -1224,44 +1277,230 @@ class _FormulaNameSearchState extends State<FormulaNameSearch> {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> queryResults = FormulaNameLookup.search(query);
-    return new Column(
-      children: <Widget>[
-        // Search bar
-        new Padding(
-          padding: const EdgeInsets.only(bottom: 32.0),
-          child: new TextField(
-            decoration: new InputDecoration(
-              hintText: widget.currentFormulaName,
-              icon: const Icon(Icons.search),
+    Map<String, String> queryResults = FormulaLookup.searchByName(query);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Column(
+        children: <Widget>[
+          // Search bar
+          new Padding(
+            padding: const EdgeInsets.only(bottom: 32.0),
+            child: new TextField(
+              autocorrect: false,
+              decoration: new InputDecoration(
+                hintText: widget.currentFormulaName,
+                icon: const Icon(Icons.search),
+              ),
+              onChanged: (String s) => setState(() => query = s),
             ),
-            onChanged: (String s) => setState(() => query = s),
           ),
-        ),
 
-        // Results
-        new Expanded(
-          child: new ListView(
-            children: queryResults.entries
-                .map(
-                  (var entry) => new FormulaNameSearchResult(
-                        onClickedCallback: widget.onClickedCallback,
-                        formulaName: entry.key,
-                        formula: entry.value,
-                        query: query,
-                      ),
-                )
-                .toList(),
+          // Results
+          new Expanded(
+            child: new ListView(
+              children: queryResults.entries
+                  .map(
+                    (var entry) =>
+                new FormulaNameSearchResult(
+                  onClickedCallback: widget.onClickedCallback,
+                  formulaName: entry.key,
+                  formula: entry.value,
+                  query: query,
+                ),
+              )
+                  .toList(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class FormulaInput extends StatelessWidget {
+class FormulaInput extends StatefulWidget {
+  final String currentFormula;
+  final ArgCallback<String> onFinish;
+
+  const FormulaInput({Key key, this.currentFormula, this.onFinish})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _FormulaInputState(currentFormula);
+}
+
+class FormulaSearchResult extends StatelessWidget {
+  final String formula;
+  final String queryFormula;
+  final List<String> formulaNames;
+  final ArgCallback<String> onClickedCallback;
+
+  const FormulaSearchResult({Key key,
+    this.formula,
+    this.formulaNames,
+    this.onClickedCallback,
+    this.queryFormula})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return null;
+    int startIndex = formula.indexOf(queryFormula);
+    int endIndex = startIndex + queryFormula.length;
+    return new GestureDetector(
+      onTap: () => onClickedCallback(formula),
+      child: new SizedBox(
+        height: MediaQuery
+            .of(context)
+            .size
+            .height * 0.05,
+        child: new Row(
+          children: <Widget>[
+            new SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.4,
+              child: new ListView(
+                scrollDirection: Axis.horizontal,
+                children: <Widget>[
+                  new RichText(
+                    text: new TextSpan(
+                      style: DefaultTextStyle
+                          .of(context)
+                          .style,
+                      children: [
+                        new TextSpan(
+                          text: formula.substring(0, startIndex),
+                        ),
+                        new TextSpan(
+                          text: formula.substring(startIndex, endIndex),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        new TextSpan(
+                          text: formula.substring(endIndex),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            new SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.5,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: new ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: formulaNames
+                      .map((String name) => new Chip(label: new Text(name)))
+                      .toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FormulaInputState extends State<FormulaInput> {
+  String currentFormula;
+  TextEditingController controller;
+  String errorText;
+
+  _FormulaInputState(this.currentFormula) {
+    controller = new TextEditingController(text: currentFormula);
+  }
+
+  void onFormulaChanged(String s) {
+    setState(() {
+      currentFormula = asSubscript(s);
+      try {
+        var f = FormulaFactory.fromString(currentFormula);
+        errorText = null;
+        if (f.elementsList.isNotEmpty && f.charge != -1) {
+          currentFormula = f.toString();
+        }
+      } on UnknownElementSymbolError catch (e) {
+        errorText = e.toString();
+      } on UnpairedParenthesisError catch (e) {
+        errorText = e.toString();
+      } on FormatException catch (e) {
+        errorText = e.toString();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TextSelection oldSelection = controller.selection;
+    try {
+      controller
+        ..text = currentFormula
+        ..selection = oldSelection;
+    } catch (_) {}
+
+    Map<String, List<String>> matchedFormulae =
+    FormulaLookup.searchByFormula(currentFormula);
+    return new Column(
+      children: <Widget>[
+        new Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: new TextField(
+            autocorrect: false,
+            controller: controller,
+            decoration: new InputDecoration(
+              icon: const Icon(Icons.edit),
+              errorText: errorText,
+              helperText: "If needed, set the charge after pressing 'Done'.",
+            ),
+            onChanged: onFormulaChanged,
+          ),
+        ),
+        new Expanded(
+            child: new Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new ListView(
+                children: matchedFormulae.entries
+                    .map(
+                      (var entry) =>
+                  new FormulaSearchResult(
+                    formula: entry.key,
+                    formulaNames: entry.value,
+                    queryFormula: currentFormula,
+                    onClickedCallback: (String formula) =>
+                        setState(() => currentFormula = formula),
+                  ),
+                )
+                    .toList(),
+              ),
+            )),
+        new BottomAppBar(
+          child: new ButtonBar(
+            children: <Widget>[
+              new RaisedButton(
+                onPressed: () => onFormulaChanged(""),
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: new Text("Clear"),
+              ),
+              new RaisedButton(
+                onPressed: errorText != null
+                    ? null
+                    : () => widget.onFinish(currentFormula),
+                color: currentFormula == FormulaState.formulaFactory.toString()
+                    ? Colors.blue[300]
+                    : Colors.blue,
+                textColor: Colors.white,
+                child: new Text("Done"),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

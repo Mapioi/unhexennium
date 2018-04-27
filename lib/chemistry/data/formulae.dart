@@ -2298,11 +2298,11 @@ const Map<String, List<String>> formulaeNames = {
   "[Cu(H₂O)₄]SO₄·H₂O": ['blue vitriol'],
 };
 
-class FormulaNameLookup {
-  static FormulaNameLookup instance = FormulaNameLookup._internal();
+class FormulaLookup {
+  static FormulaLookup instance = FormulaLookup._internal();
   Map<String, String> names;
 
-  FormulaNameLookup._internal() {
+  FormulaLookup._internal() {
     names = {};
     for (var entry in formulaeNames.entries) {
       String formula = entry.key;
@@ -2313,11 +2313,21 @@ class FormulaNameLookup {
     names = sortMapByKeys(names);
   }
 
-  static Map<String, String> search(String searchName) {
+  static Map<String, String> searchByName(String queryName) {
     Map<String, String> results = {};
     for (String name in instance.names.keys) {
-      if (name.toLowerCase().contains(searchName.toLowerCase())) {
+      if (name.toLowerCase().contains(queryName.toLowerCase())) {
         results[name] = instance.names[name];
+      }
+    }
+    return results;
+  }
+
+  static Map<String, List<String>> searchByFormula(String queryFormula) {
+    Map<String, List<String>> results = {};
+    for (String formula in formulaeNames.keys) {
+      if (formula.contains(queryFormula)) {
+        results[formula] = formulaeNames[formula];
       }
     }
     return results;

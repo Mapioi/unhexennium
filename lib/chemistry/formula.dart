@@ -282,6 +282,15 @@ class ElementSubscriptPair {
   }
 }
 
+class UnpairedParenthesisError implements Exception {
+  final int index;
+
+  UnpairedParenthesisError(this.index);
+
+  @override
+  String toString() => "Unpaired parenthesis or bracket at $index";
+}
+
 /// Used to construct chemical formulae within the app.
 ///
 /// Use [new FormulaFactory] to initialise a new factory,
@@ -298,6 +307,11 @@ class FormulaFactory {
 
   /// Instantiate a [FormulaFactory] filling [elementsList] from formula string.
   FormulaFactory.fromString(String formula) {
+    if (formula == Formula.eMinus.toString()) {
+      elementsList = [];
+      this.charge = -1;
+      return;
+    }
     int factoryIndex = -1;
     int stringIndex = 0;
     String subscript = "";
@@ -322,7 +336,7 @@ class FormulaFactory {
       // and otherwise ends with '+' or '-' and may contain numbers in superscript.
 
       // Formula
-      if (char == '·') {
+      if (char == '·' || char == '.') {
         // End of formula, start of water of crystallization
         break;
       }
@@ -375,18 +389,21 @@ class FormulaFactory {
     factoryIndex++;
 
     if (stringIndex >= formula.length) return;
-    if (formula[stringIndex] == '·') {
+    if (formula[stringIndex] == '·' || formula[stringIndex] == '.') {
       // Water of crystallization
       String n = "";
       for (++stringIndex; stringIndex < formula.length; stringIndex++) {
         String char = formula[stringIndex];
         if (char == 'H') {
+          if (formula.substring(stringIndex) != "H₂O") {
+            throw new FormatException("Expected water of crystallization");
+          }
           break;
         }
         n += char;
       }
 
-      int subscript = n.isEmpty ? 1 : num.parse(n);
+      int subscript = n.isEmpty ? 1 : num.parse(fromSubscript(n));
       insertOpeningParenthesisAt(factoryIndex++);
       insertElementAt(factoryIndex, elementSymbol: ElementSymbol.H);
       setSubscriptAt(factoryIndex++, subscript: 2);
@@ -412,6 +429,9 @@ class FormulaFactory {
         this.charge = sign * value;
       }
     }
+    // Check for unpaired parenthesis.
+    getOpeningIndices();
+    getClosingIndices();
   }
 
   List<String> get names => formulaeNames[toString()];
@@ -520,6 +540,9 @@ class FormulaFactory {
         if (pair.subscript < 0) {
           openingIndicesStack.add(i);
         } else {
+          if (openingIndicesStack.isEmpty) {
+            throw UnpairedParenthesisError(i);
+          }
           closingIndices[openingIndicesStack.removeLast()] = i;
         }
       }
@@ -531,8 +554,23 @@ class FormulaFactory {
   /// Maps the indices of the closing parentheses to the indices of the
   /// corresponding opening parentheses.
   Map<int, int> getOpeningIndices() {
-    var closingIndices = getClosingIndices();
-    return new Map.fromIterables(closingIndices.values, closingIndices.keys);
+    var openingIndices = <int, int>{};
+    var closingIndicesStack = <int>[];
+    int i = elementsList.length;
+    for (ElementSubscriptPair pair in elementsList.reversed) {
+      --i;
+      if (pair.elementSymbol == null) {
+        if (pair.subscript > 0) {
+          closingIndicesStack.add(i);
+        } else {
+          if (closingIndicesStack.isEmpty) {
+            throw UnpairedParenthesisError(i);
+          }
+          openingIndices[closingIndicesStack.removeLast()] = i;
+        }
+      }
+    }
+    return openingIndices;
   }
 
   /// Build a [Formula] from this factory's stored [elementsList].

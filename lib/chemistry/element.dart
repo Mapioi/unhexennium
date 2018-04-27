@@ -982,6 +982,15 @@ class AbbreviatedElectronConfiguration {
   }
 }
 
+class UnknownElementSymbolError implements Exception {
+  final String symbol;
+
+  UnknownElementSymbolError(this.symbol);
+
+  @override
+  String toString() => "Unknown element symbol: $symbol";
+}
+
 /// A species of atoms having the same number of protons in their atomic nuclei
 ///
 /// Construct using [new ChemicalElement] with an [ElementSymbol].
@@ -1009,7 +1018,7 @@ class ChemicalElement {
         return ChemicalElement(symbol);
       }
     }
-    throw Exception("Unknown element symbol '$symbolString'");
+    throw UnknownElementSymbolError(symbolString);
   }
 
   String get name => _names[symbol.index];
