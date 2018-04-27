@@ -123,24 +123,18 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
     return new Column(
       children: <Widget>[
         new Center(
-          child: new FractionallySizedBox(
-            child: new Row(
-              children: <Widget>[
-                new Text("Number to search for:"),
-                new SizedBox(width: 10.0),
-                new SizedBox(
-                  width: 80.0,
-                  child: new TextField(
-                    keyboardType: TextInputType.number,
-                    onChanged: (String s) => setState(() {
-                          typedNumber = int.parse(s);
-                        }),
-                  ),
-                ),
-              ],
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: new Padding(
+            padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+            child: new TextField(
+              keyboardType: TextInputType.number,
+              onChanged: (String s) => setState(() {
+                    typedNumber = int.parse(s);
+                  }),
+              decoration: new InputDecoration(
+                icon: new Icon(Icons.search),
+                hintText: "29",
+              ),
             ),
-            widthFactor: 0.6,
           ),
         ),
         new Expanded(
@@ -182,23 +176,21 @@ class _NameSearch extends State<NameSearch> {
       padding: const EdgeInsets.all(8.0),
       child: new Column(
         children: <Widget>[
-          new Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
-            child: new Row(
-              children: <Widget>[
-                new Icon(Icons.search),
-                new SizedBox(width: 20.0),
-                new Expanded(
-                  child: new TextField(
-                    onChanged: (String s) => setState(() => typedText = s),
-                  ),
-                )
-              ],
+          new Center(
+            child: new Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
+              child: new TextField(
+                onChanged: (String s) => setState(() => typedText = s),
+                decoration: new InputDecoration(
+                  icon: const Icon(Icons.search),
+                  hintText: "Boron",
+                ),
+              ),
             ),
           ),
           new Expanded(
             child: ListView(children: searchResults),
-          )
+          ),
         ],
       ),
     );
