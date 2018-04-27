@@ -73,20 +73,23 @@ class _ElementPrompt extends State<ElementPrompt> {
 
     return new Column(
       children: <Widget>[
-        new Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: SearchMode.values
-              .map(
-                (SearchMode mode) => new FlatButton(
-                      onPressed: mode == currentMode
-                          ? null
-                          : () => setState(() {
-                                currentMode = mode;
-                              }),
-                      child: new Text(enumToReadableString(mode)),
-                    ),
-              )
-              .toList(),
+        new BottomAppBar(
+          elevation: 4.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: SearchMode.values
+                .map(
+                  (SearchMode mode) => new FlatButton(
+                        onPressed: mode == currentMode
+                            ? null
+                            : () => setState(() {
+                                  currentMode = mode;
+                                }),
+                        child: new Text(enumToReadableString(mode)),
+                      ),
+                )
+                .toList(),
+          ),
         ),
         new Expanded(child: searchWidget),
       ],
@@ -270,21 +273,28 @@ class SearchRow extends StatelessWidget {
               padding: new EdgeInsets.all(8.0),
               child: searchedNumber == null
                   ? new Text(elementToDisplay.atomicNumber.toString())
-                  : new Row(
-                      children: <Widget>[
-                        new Text(
-                          elementToDisplay.atomicNumber.toString().substring(
-                                0,
-                                searchedNumber.toString().length,
-                              ),
-                          style: new TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        new Text(
-                          elementToDisplay.atomicNumber.toString().substring(
-                                searchedNumber.toString().length,
-                              ),
-                        )
-                      ],
+                  : new RichText(
+                      text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: [
+                          new TextSpan(
+                            text: elementToDisplay.atomicNumber
+                                .toString()
+                                .substring(
+                                  0,
+                                  searchedNumber.toString().length,
+                                ),
+                            style: new TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          new TextSpan(
+                            text: elementToDisplay.atomicNumber
+                                .toString()
+                                .substring(
+                                  searchedNumber.toString().length,
+                                ),
+                          )
+                        ],
+                      ),
                     ),
             ),
             // Element Symbol
@@ -310,16 +320,37 @@ class SearchRow extends StatelessWidget {
             new SizedBox(width: 10.0),
             searchedName == null
                 ? new Text(elementToDisplay.name)
-                : new Row(
-                    children: <Widget>[
-                      new Text(
-                        searchedName,
-                        style: new TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      new Text(
-                        elementToDisplay.name.substring(searchedName.length),
-                      )
-                    ],
+                : new RichText(
+                    text: new TextSpan(
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        new TextSpan(
+                          text: elementToDisplay.name.substring(
+                            0,
+                            elementToDisplay.name
+                                .toLowerCase()
+                                .indexOf(searchedName.toLowerCase()),
+                          ),
+                        ),
+                        new TextSpan(
+                          text: elementToDisplay.name
+                                      .toLowerCase()
+                                      .indexOf(searchedName.toLowerCase()) ==
+                                  0
+                              ? searchedName
+                              : searchedName.toLowerCase(),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        new TextSpan(
+                          text: elementToDisplay.name.substring(
+                            elementToDisplay.name
+                                    .toLowerCase()
+                                    .indexOf(searchedName.toLowerCase()) +
+                                searchedName.length,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
             new Expanded(child: Container())
           ],
@@ -988,6 +1019,7 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
   @override
   Widget build(BuildContext context) {
     Widget buttonBar = new BottomAppBar(
+      elevation: 4.0,
       child: new ButtonBar(
         alignment: MainAxisAlignment.center,
         children: FormulaEditMode.values
@@ -1054,6 +1086,12 @@ class _ChargeEditorState extends State<ChargeEditor> {
         children: <Widget>[
           new Chip(
             label: new Text("Charge: $chargeDisplay"),
+            avatar: new Icon(
+              charge != 0 ? Icons.flash_on : Icons.flash_off,
+              color: charge == 0
+                  ? Colors.grey
+                  : charge < 0 ? Colors.amber[300] : Colors.amber[700],
+            ),
           ),
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1061,14 +1099,14 @@ class _ChargeEditorState extends State<ChargeEditor> {
               new IconButton(
                 icon: const Icon(Icons.arrow_left),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
-                        FormulaState.formulaFactory.charge != 0
+                        charge != 0
                     ? null
                     : () => setState(() => charge--),
               ),
               new IconButton(
                 icon: const Icon(Icons.arrow_right),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
-                        FormulaState.formulaFactory.charge != -1
+                        charge != -1
                     ? null
                     : () => setState(() => charge++),
               ),
@@ -1082,6 +1120,28 @@ class _ChargeEditorState extends State<ChargeEditor> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class FormulaNameSearchResult extends StatelessWidget {
+  final String formulaName;
+  final String formula;
+  final String query;
+
+  const FormulaNameSearchResult(
+      {Key key, this.formulaName, this.formula, this.query})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+      children: <Widget>[
+        new Text(formulaName),
+        new Chip(
+          label: new Text(formula),
+        ),
+      ],
     );
   }
 }

@@ -149,7 +149,7 @@ void main() {
     test("find element by name", () {
       expect(findElementByName(null).length, 118);
       expect(findElementByName("hydrogen").length, 1);
-      expect(findElementByName("h").length, 5);
+      expect(findElementByName("h").length, 23);
       expect(findElementByName("gibberish").length, 0);
     });
   });

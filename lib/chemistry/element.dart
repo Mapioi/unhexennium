@@ -1120,18 +1120,11 @@ List<ChemicalElement> findElementByName(String queryName) {
   } else {
     queryName = queryName.toLowerCase();
     List<ChemicalElement> result = [];
-    for (int i = 0; i < _names.length; i++) {
-      int currentAtomicNumber = sortedNamesMap.keys.toList()[i];
-      String currentName = sortedNamesMap.values.toList()[i].toLowerCase();
-      if (currentName == queryName) {
-        result.add(
-          new ChemicalElement(ElementSymbol.values[currentAtomicNumber]),
-        );
-      } else if (queryName.length < currentName.length &&
-          queryName == currentName.substring(0, queryName.length)) {
-        result.add(
-          new ChemicalElement(ElementSymbol.values[currentAtomicNumber]),
-        );
+    for (var entry in sortedNamesMap.entries) {
+      // key: atomic number - 1
+      // value: element name
+      if (entry.value.toLowerCase().contains(queryName)) {
+        result.add(ChemicalElement(ElementSymbol.values[entry.key]));
       }
     }
     return result;
