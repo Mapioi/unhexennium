@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
-import "package:unhexennium/tabs/element.dart" show ElementState;
 import "package:unhexennium/tabs/formula.dart";
 import "package:unhexennium/tabs/equation.dart" show EquationState;
 import 'package:unhexennium/tabs/periodic_table.dart';
@@ -19,11 +18,14 @@ const dp = 2;
 const sf = 5;
 
 class ElementPrompt extends StatefulWidget {
-  final BuildContext parentContext;
+  final ElementCallback onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
-  ElementPrompt({Key key, this.parentContext, this.currentElementSymbol})
-      : super(key: key);
+  ElementPrompt({
+    Key key,
+    this.currentElementSymbol,
+    this.onClickedCallback,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ElementPrompt();
@@ -31,45 +33,63 @@ class ElementPrompt extends StatefulWidget {
 
 class _ElementPrompt extends State<ElementPrompt> {
   SearchMode currentMode = SearchMode.PeriodicTable;
+  ElementSymbol selectedElement;
 
   @override
   Widget build(BuildContext context) {
+    // TODO More DRY using Map if possible
+//    Map<Symbol, dynamic> commonArguments = {
+//      const Symbol('currentElementSymbol'):
+//          selectedElement ?? widget.currentElementSymbol,
+//      const Symbol('onClickedCallback'): (x) => setState(() {
+//            selectedElement = x;
+//            widget.onClickedCallback(x);
+//          }),
+//    };
+
     Widget searchWidget = <SearchMode, Widget>{
       SearchMode.PeriodicTable: new PeriodicTableSearch(
-        currentElementSymbol: widget.currentElementSymbol,
+        currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
+        onClickedCallback: (x) => setState(() {
+              selectedElement = x;
+              widget.onClickedCallback(x);
+            }),
       ),
       SearchMode.AtomicNumber: new AtomicNumberSearch(
-        currentElementSymbol: widget.currentElementSymbol,
+        currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
+        onClickedCallback: (x) => setState(() {
+              selectedElement = x;
+              widget.onClickedCallback(x);
+            }),
       ),
       SearchMode.Name: new NameSearch(
-        currentElementSymbol: widget.currentElementSymbol,
+        currentElementSymbol: selectedElement ?? widget.currentElementSymbol,
+        onClickedCallback: (x) => setState(() {
+              selectedElement = x;
+              widget.onClickedCallback(x);
+            }),
       ),
     }[currentMode];
 
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Element selection"),
-      ),
-      body: new Column(
-        children: <Widget>[
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: SearchMode.values
-                .map(
-                  (SearchMode mode) => new FlatButton(
-                        onPressed: mode == currentMode
-                            ? null
-                            : () => setState(() {
-                                  currentMode = mode;
-                                }),
-                        child: new Text(enumToReadableString(mode)),
-                      ),
-                )
-                .toList(),
-          ),
-          new Expanded(child: searchWidget),
-        ],
-      ),
+    return new Column(
+      children: <Widget>[
+        new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: SearchMode.values
+              .map(
+                (SearchMode mode) => new FlatButton(
+                      onPressed: mode == currentMode
+                          ? null
+                          : () => setState(() {
+                                currentMode = mode;
+                              }),
+                      child: new Text(enumToReadableString(mode)),
+                    ),
+              )
+              .toList(),
+        ),
+        new Expanded(child: searchWidget),
+      ],
     );
   }
 }
@@ -77,9 +97,14 @@ class _ElementPrompt extends State<ElementPrompt> {
 enum SearchMode { PeriodicTable, AtomicNumber, Name }
 
 class PeriodicTableSearch extends StatelessWidget {
-  final currentElementSymbol;
+  final ElementCallback onClickedCallback;
+  final ElementSymbol currentElementSymbol;
 
-  PeriodicTableSearch({Key key, this.currentElementSymbol}) : super(key: key);
+  PeriodicTableSearch({
+    Key key,
+    this.currentElementSymbol,
+    this.onClickedCallback,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -87,19 +112,21 @@ class PeriodicTableSearch extends StatelessWidget {
       padding: new EdgeInsets.all(16.0),
       child: new PeriodicTable(
         currentElementSymbol,
-        (x) {
-          ElementState.selectedElement = x;
-          Navigator.pop(context); // exit the modal
-        },
+        onClickedCallback,
       ),
     );
   }
 }
 
 class AtomicNumberSearch extends StatefulWidget {
-  final currentElementSymbol;
+  final ElementCallback onClickedCallback;
+  final ElementSymbol currentElementSymbol;
 
-  AtomicNumberSearch({Key key, this.currentElementSymbol}) : super(key: key);
+  AtomicNumberSearch({
+    Key key,
+    this.currentElementSymbol,
+    this.onClickedCallback,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _AtomicNumberSearch();
@@ -116,6 +143,7 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
                 elementToDisplay: e,
                 searchedNumber: typedNumber,
                 selected: e.symbol == widget.currentElementSymbol,
+                onClickedCallback: widget.onClickedCallback,
               ),
         )
         .toList();
@@ -149,9 +177,14 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
 }
 
 class NameSearch extends StatefulWidget {
+  final ElementCallback onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
-  NameSearch({Key key, this.currentElementSymbol}) : super(key: key);
+  NameSearch({
+    Key key,
+    this.currentElementSymbol,
+    this.onClickedCallback,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _NameSearch();
@@ -168,6 +201,7 @@ class _NameSearch extends State<NameSearch> {
                 elementToDisplay: e,
                 searchedName: typedText,
                 selected: e.symbol == widget.currentElementSymbol,
+                onClickedCallback: widget.onClickedCallback,
               ),
         )
         .toList();
@@ -198,6 +232,7 @@ class _NameSearch extends State<NameSearch> {
 }
 
 class SearchRow extends StatelessWidget {
+  final ElementCallback onClickedCallback;
   final ChemicalElement elementToDisplay;
   final int searchedNumber;
   final String searchedName;
@@ -209,14 +244,14 @@ class SearchRow extends StatelessWidget {
     this.searchedNumber,
     this.searchedName,
     this.selected,
+    this.onClickedCallback,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
       onTap: () {
-        ElementState.selectedElement = elementToDisplay.symbol;
-        Navigator.pop(context);
+        onClickedCallback(elementToDisplay.symbol);
       },
       child: new Container(
         padding: const EdgeInsets.all(8.0),
@@ -276,7 +311,8 @@ class SearchRow extends StatelessWidget {
                         style: new TextStyle(fontWeight: FontWeight.bold),
                       ),
                       new Text(
-                          elementToDisplay.name.substring(searchedName.length))
+                        elementToDisplay.name.substring(searchedName.length),
+                      )
                     ],
                   ),
             new Expanded(child: Container())
@@ -285,29 +321,6 @@ class SearchRow extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<Null> elementFormulaPrompt({
-  BuildContext context,
-  ElementAndSubscriptCallback callback,
-  ElementSymbol currentElementSymbol,
-  int currentSubscript,
-  bool isAdding = true,
-}) async {
-  await showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return new ElementAndSubscriptSelector(
-        currentElementSymbol: currentElementSymbol,
-        currentSubscript: currentSubscript,
-        onFinish: (a, b) {
-          callback(a, b);
-          Navigator.pop(context); // exit the modal
-        },
-        isAdding: isAdding,
-      );
-    },
-  );
 }
 
 Future<Null> parenSubscriptPrompt({
@@ -330,6 +343,155 @@ Future<Null> parenSubscriptPrompt({
           ),
         ),
   );
+}
+
+class ElementAndSubscriptSelector extends StatefulWidget {
+  final int currentSubscript;
+  final ElementSymbol currentElementSymbol;
+  final ElementAndSubscriptCallback onFinish;
+  final bool isAdding;
+
+  ElementAndSubscriptSelector({
+    Key key,
+    this.currentSubscript,
+    this.currentElementSymbol,
+    this.onFinish,
+    this.isAdding = true,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _ElementAndSubscriptSelector();
+}
+
+class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
+  ElementSymbol selectedElementSymbol;
+  int selectedSubscript;
+
+  @override
+  Widget build(BuildContext context) {
+    selectedElementSymbol ??= widget.currentElementSymbol;
+    selectedSubscript ??= widget.currentSubscript;
+
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(
+          "Element ${widget.isAdding ? "insertion" : "modification"}",
+        ),
+      ),
+      body: new Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: new Row(children: <Widget>[
+              new Text(
+                "Select subscript",
+                style: new TextStyle(fontWeight: FontWeight.bold),
+              ),
+              new Expanded(child: SizedBox(height: 0.0)), // weird
+              new Text(selectedSubscript.toString()),
+              new Expanded(child: SizedBox(height: 0.0)),
+              new IconButton(
+                onPressed: selectedSubscript == 1
+                    ? null
+                    : () => setState(() => --selectedSubscript),
+                icon: new Icon(Icons.arrow_left),
+              ),
+              new IconButton(
+                onPressed: () => setState(() => ++selectedSubscript),
+                icon: new Icon(Icons.arrow_right),
+              ),
+              new Expanded(child: SizedBox(height: 0.0)),
+              new RaisedButton(
+                child: new Text(
+                  widget.isAdding ? "INSERT" : "MODIFY",
+                  style: new TextStyle(color: Colors.white),
+                ),
+                onPressed: () => selectedElementSymbol == null
+                    ? null
+                    : widget.onFinish(
+                        selectedElementSymbol,
+                        selectedSubscript,
+                      ),
+                color: Colors.blueAccent,
+              )
+            ]),
+          ),
+          new Expanded(
+            child: new ElementPrompt(
+              currentElementSymbol: widget.currentElementSymbol,
+              onClickedCallback: (x) =>
+                  setState(() => selectedElementSymbol = x),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ParenSubscriptSelector extends StatefulWidget {
+  final int currentSubscript;
+  final SubscriptCallback onFinish;
+  final bool isCharge;
+
+  ParenSubscriptSelector(
+      {Key key, this.currentSubscript, this.onFinish, this.isCharge})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _ParenSubscriptSelector();
+}
+
+class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
+  int selectedSubscript;
+
+  @override
+  Widget build(BuildContext context) {
+    selectedSubscript ??= widget.currentSubscript;
+
+    String numberText = selectedSubscript.toString();
+    if (widget.isCharge && selectedSubscript > 0) {
+      numberText = "+$selectedSubscript";
+    }
+
+    String leftText = "Set ${widget.isCharge ? "charge" : "subscript"}";
+
+    return new Row(children: <Widget>[
+      new Text(
+        leftText,
+        style: new TextStyle(fontWeight: FontWeight.bold),
+      ),
+      new Expanded(child: SizedBox(height: 0.0)),
+      new Text(numberText),
+      new Expanded(child: SizedBox(height: 0.0)),
+      new IconButton(
+        onPressed: (widget.isCharge
+                ? (FormulaState.formulaFactory.elementsList.isEmpty &&
+                    selectedSubscript != 0)
+                : selectedSubscript == 1)
+            ? null
+            : () => setState(() => --selectedSubscript),
+        icon: new Icon(Icons.arrow_left),
+      ),
+      new IconButton(
+        onPressed: widget.isCharge &&
+                FormulaState.formulaFactory.elementsList.isEmpty &&
+                selectedSubscript == 0
+            ? null
+            : () => setState(() => ++selectedSubscript),
+        icon: new Icon(Icons.arrow_right),
+      ),
+      new Expanded(child: SizedBox(height: 0.0)),
+      new RaisedButton(
+        child: new Text(
+          "SUBMIT",
+          style: new TextStyle(color: Colors.white),
+        ),
+        onPressed: () => widget.onFinish(selectedSubscript),
+        color: Colors.blueAccent,
+      )
+    ]);
+  }
 }
 
 Future<Null> massMolePrompt(BuildContext context) async {
@@ -645,149 +807,6 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
         ),
       ),
     );
-  }
-}
-
-class ElementAndSubscriptSelector extends StatefulWidget {
-  final int currentSubscript;
-  final ElementSymbol currentElementSymbol;
-  final ElementAndSubscriptCallback onFinish;
-  final bool isAdding;
-
-  ElementAndSubscriptSelector({
-    Key key,
-    this.currentSubscript,
-    this.currentElementSymbol,
-    this.onFinish,
-    this.isAdding = true,
-  }) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => new _ElementAndSubscriptSelector();
-}
-
-class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
-  ElementSymbol selectedElementSymbol;
-  int selectedSubscript;
-
-  @override
-  Widget build(BuildContext context) {
-    selectedElementSymbol ??= widget.currentElementSymbol;
-    selectedSubscript ??= widget.currentSubscript;
-
-    return new Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: new Row(children: <Widget>[
-            new Text(
-              "Select subscript",
-              style: new TextStyle(fontWeight: FontWeight.bold),
-            ),
-            new Expanded(child: SizedBox(height: 0.0)), // weird
-            new Text(selectedSubscript.toString()),
-            new Expanded(child: SizedBox(height: 0.0)),
-            new IconButton(
-              onPressed: selectedSubscript == 1
-                  ? null
-                  : () => setState(() => --selectedSubscript),
-              icon: new Icon(Icons.arrow_left),
-            ),
-            new IconButton(
-              onPressed: () => setState(() => ++selectedSubscript),
-              icon: new Icon(Icons.arrow_right),
-            ),
-            new Expanded(child: SizedBox(height: 0.0)),
-            new RaisedButton(
-              child: new Text(
-                widget.isAdding ? "INSERT" : "MODIFY",
-                style: new TextStyle(color: Colors.white),
-              ),
-              onPressed: () => selectedElementSymbol == null
-                  ? null
-                  : widget.onFinish(
-                      selectedElementSymbol,
-                      selectedSubscript,
-                    ),
-              color: Colors.blueAccent,
-            )
-          ]),
-        ),
-        Expanded(
-          child: new PeriodicTable(
-            selectedElementSymbol,
-            (element) => setState(() {
-                  selectedElementSymbol = element;
-                }),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ParenSubscriptSelector extends StatefulWidget {
-  final int currentSubscript;
-  final SubscriptCallback onFinish;
-  final bool isCharge;
-
-  ParenSubscriptSelector(
-      {Key key, this.currentSubscript, this.onFinish, this.isCharge})
-      : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => new _ParenSubscriptSelector();
-}
-
-class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
-  int selectedSubscript;
-
-  @override
-  Widget build(BuildContext context) {
-    selectedSubscript ??= widget.currentSubscript;
-
-    String numberText = selectedSubscript.toString();
-    if (widget.isCharge && selectedSubscript > 0) {
-      numberText = "+$selectedSubscript";
-    }
-
-    String leftText = "Set ${widget.isCharge ? "charge" : "subscript"}";
-
-    return new Row(children: <Widget>[
-      new Text(
-        leftText,
-        style: new TextStyle(fontWeight: FontWeight.bold),
-      ),
-      new Expanded(child: SizedBox(height: 0.0)),
-      new Text(numberText),
-      new Expanded(child: SizedBox(height: 0.0)),
-      new IconButton(
-        onPressed: (widget.isCharge
-                ? (FormulaState.formulaFactory.elementsList.isEmpty &&
-                    selectedSubscript != 0)
-                : selectedSubscript == 1)
-            ? null
-            : () => setState(() => --selectedSubscript),
-        icon: new Icon(Icons.arrow_left),
-      ),
-      new IconButton(
-        onPressed: widget.isCharge &&
-                (FormulaState.formulaFactory.elementsList.isNotEmpty ||
-                    selectedSubscript == -1)
-            ? () => setState(() => ++selectedSubscript)
-            : null,
-        icon: new Icon(Icons.arrow_right),
-      ),
-      new Expanded(child: SizedBox(height: 0.0)),
-      new RaisedButton(
-        child: new Text(
-          "GO!",
-          style: new TextStyle(color: Colors.white),
-        ),
-        onPressed: () => widget.onFinish(selectedSubscript),
-        color: Colors.blueAccent,
-      )
-    ]);
   }
 }
 

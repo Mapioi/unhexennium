@@ -604,11 +604,19 @@ class FormulaParent extends StatelessWidget {
               ),
               new IconButton(
                 icon: new Icon(Icons.add),
-                onPressed: () => elementFormulaPrompt(
-                      context: context,
-                      callback: FormulaState.onAdd,
-                      currentElementSymbol: null,
-                      currentSubscript: 1,
+                onPressed: () => Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                        builder: (context) => new ElementAndSubscriptSelector(
+                              currentElementSymbol: null,
+                              currentSubscript: 1,
+                              onFinish: (a, b) {
+                                FormulaState.onAdd(a, b);
+                                Navigator.pop(context);
+                              },
+                              isAdding: true,
+                            ),
+                      ),
                     ),
                 tooltip: 'Add element after selected',
               ),
@@ -652,12 +660,21 @@ class FormulaParent extends StatelessWidget {
                               currentSubscript: currentSubscript,
                             )
                         // Element selected
-                        : () => elementFormulaPrompt(
-                              context: context,
-                              callback: FormulaState.onEdit,
-                              currentElementSymbol: currentPair.elementSymbol,
-                              currentSubscript: currentSubscript,
-                              isAdding: false,
+                        : () => Navigator.push(
+                              context,
+                              new MaterialPageRoute(
+                                builder: (context) =>
+                                    new ElementAndSubscriptSelector(
+                                      currentElementSymbol:
+                                          currentPair.elementSymbol,
+                                      currentSubscript: currentSubscript,
+                                      isAdding: false,
+                                      onFinish: (a, b) {
+                                        FormulaState.onEdit(a, b);
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                              ),
                             )),
                 tooltip: 'Edit selected',
               ),

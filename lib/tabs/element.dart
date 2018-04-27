@@ -66,9 +66,17 @@ class ElementParent extends StatelessWidget {
           onTap: () => Navigator.push(
                 context,
                 new MaterialPageRoute(
-                  builder: (context) => new ElementPrompt(
-                      parentContext: context,
-                      currentElementSymbol: ElementState.selectedElement),
+                  builder: (context) => new Scaffold(
+                        appBar: new AppBar(
+                          title: new Text("Element selection"),
+                        ),
+                        body: new ElementPrompt(
+                            currentElementSymbol: ElementState.selectedElement,
+                            onClickedCallback: (x) {
+                              ElementState.selectedElement = x;
+                              Navigator.pop(context);
+                            }),
+                      ),
                 ),
               ),
           child: new Container(
