@@ -1,3 +1,5 @@
+import 'package:unhexennium/utils.dart';
+
 const Map<String, List<String>> formulaeNames = {
   // Some lines are commented out because the parentheses without subscript
   // is not compliant with the toString method, which takes them as brackets.
@@ -2295,3 +2297,29 @@ const Map<String, List<String>> formulaeNames = {
   "Zr₃(PO₄)₄": ['zirconium phosphate'],
   "[Cu(H₂O)₄]SO₄·H₂O": ['blue vitriol'],
 };
+
+class FormulaNameLookup {
+  static FormulaNameLookup instance = FormulaNameLookup._internal();
+  Map<String, String> names;
+
+  FormulaNameLookup._internal() {
+    names = {};
+    for (var entry in formulaeNames.entries) {
+      String formula = entry.key;
+      for (String name in entry.value) {
+        names[name] = formula;
+      }
+    }
+    names = sortMapByKeys(names);
+  }
+
+  static Map<String, String> search(String searchName) {
+    Map<String, String> results = {};
+    for (String name in instance.names.keys) {
+      if (name.toLowerCase().contains(searchName.toLowerCase())) {
+        results[name] = instance.names[name];
+      }
+    }
+    return results;
+  }
+}

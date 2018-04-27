@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 typedef void Callback();
-typedef void SetStateCallback(Callback callback);
+typedef void ArgCallback<T>(T arg);
 
 String enumToString(someEnum) => someEnum.toString().split(".")[1];
 

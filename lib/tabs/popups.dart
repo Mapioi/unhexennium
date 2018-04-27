@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 import "package:unhexennium/tabs/formula.dart";
-import "package:unhexennium/tabs/equation.dart" show EquationState;
+import "package:unhexennium/chemistry/data/formulae.dart";
+import "package:unhexennium/tabs/equation.dart";
 import 'package:unhexennium/tabs/periodic_table.dart';
 import "package:unhexennium/utils.dart";
 
-typedef void ElementCallback(ElementSymbol x);
-typedef void SubscriptCallback(int subscript);
 typedef void ElementAndSubscriptCallback(ElementSymbol x, int subscript);
 
 /// Number of decimal places (used for RFM)
@@ -18,7 +17,7 @@ const dp = 2;
 const sf = 5;
 
 class ElementPrompt extends StatefulWidget {
-  final ElementCallback onClickedCallback;
+  final ArgCallback<ElementSymbol> onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
   ElementPrompt({
@@ -100,7 +99,7 @@ class _ElementPrompt extends State<ElementPrompt> {
 enum SearchMode { PeriodicTable, AtomicNumber, Name }
 
 class PeriodicTableSearch extends StatelessWidget {
-  final ElementCallback onClickedCallback;
+  final ArgCallback<ElementSymbol> onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
   PeriodicTableSearch({
@@ -122,7 +121,7 @@ class PeriodicTableSearch extends StatelessWidget {
 }
 
 class AtomicNumberSearch extends StatefulWidget {
-  final ElementCallback onClickedCallback;
+  final ArgCallback<ElementSymbol> onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
   AtomicNumberSearch({
@@ -184,7 +183,7 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
 }
 
 class NameSearch extends StatefulWidget {
-  final ElementCallback onClickedCallback;
+  final ArgCallback<ElementSymbol> onClickedCallback;
   final ElementSymbol currentElementSymbol;
 
   NameSearch({
@@ -241,7 +240,7 @@ class _NameSearch extends State<NameSearch> {
 }
 
 class SearchRow extends StatelessWidget {
-  final ElementCallback onClickedCallback;
+  final ArgCallback<ElementSymbol> onClickedCallback;
   final ChemicalElement elementToDisplay;
   final int searchedNumber;
   final String searchedName;
@@ -362,7 +361,7 @@ class SearchRow extends StatelessWidget {
 
 Future<Null> parenSubscriptPrompt({
   BuildContext context,
-  SubscriptCallback callback,
+  ArgCallback<int> callback,
   int currentSubscript,
 }) async {
   await showModalBottomSheet(
@@ -466,7 +465,7 @@ class _ElementAndSubscriptSelector extends State<ElementAndSubscriptSelector> {
 
 class ParenSubscriptSelector extends StatefulWidget {
   final int currentSubscript;
-  final SubscriptCallback onFinish;
+  final ArgCallback<int> onFinish;
 
   ParenSubscriptSelector({Key key, this.currentSubscript, this.onFinish})
       : super(key: key);
@@ -1042,28 +1041,40 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
         widget.onFinish();
       },
     );
-    FormulaNameSearch nameSearch = new FormulaNameSearch();
+    FormulaNameSearch nameSearch = new FormulaNameSearch(
+      currentFormulaName: FormulaState.formulaFactory.names.join(", "),
+      onClickedCallback: (String formula) {
+        FormulaState.formulaFactory = new FormulaFactory.fromString(formula);
+        widget.onFinish();
+      },
+    );
     FormulaInput formulaInput = new FormulaInput();
-    Widget currentEditor = new Padding(
+    Widget currentEditor = new Expanded(
+        child: new Padding(
       child: {
         FormulaEditMode.SetCharge: chargeEditor,
         FormulaEditMode.NameSearch: nameSearch,
         FormulaEditMode.FormulaInput: formulaInput
       }[currentMode],
       padding: const EdgeInsets.all(32.0),
-    );
-    return new Column(
-      children: <Widget>[
-        buttonBar,
-        currentEditor,
-      ],
+    ));
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Edit formula"),
+      ),
+      body: new Column(
+        children: <Widget>[
+          buttonBar,
+          currentEditor,
+        ],
+      ),
     );
   }
 }
 
 class ChargeEditor extends StatefulWidget {
   final int currentCharge;
-  final SubscriptCallback onFinish;
+  final ArgCallback<int> onFinish;
 
   const ChargeEditor({Key key, this.currentCharge, this.onFinish})
       : super(key: key);
@@ -1128,28 +1139,123 @@ class FormulaNameSearchResult extends StatelessWidget {
   final String formulaName;
   final String formula;
   final String query;
+  final ArgCallback<String> onClickedCallback;
 
   const FormulaNameSearchResult(
-      {Key key, this.formulaName, this.formula, this.query})
+      {Key key,
+      this.formulaName,
+      this.formula,
+      this.query,
+      this.onClickedCallback})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
-      children: <Widget>[
-        new Text(formulaName),
-        new Chip(
-          label: new Text(formula),
+    int startIndex = formulaName.toLowerCase().indexOf(query.toLowerCase());
+    int endIndex = startIndex + query.length;
+    return new GestureDetector(
+      onTap: () => onClickedCallback(formula),
+      child: new SizedBox(
+        height: MediaQuery.of(context).size.height * 0.05,
+        child: new Row(
+          children: <Widget>[
+            new SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: new ListView(
+                scrollDirection: Axis.horizontal,
+                children: <Widget>[
+                  new RichText(
+                    text: new TextSpan(
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        new TextSpan(
+                          text: formulaName.substring(0, startIndex),
+                        ),
+                        new TextSpan(
+                          text: formulaName.substring(startIndex, endIndex),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        new TextSpan(
+                          text: formulaName.substring(endIndex),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            new SizedBox(
+              width: MediaQuery.of(context).size.width * 0.32,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: new ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    new Chip(
+                      label: new Text(
+                        formula,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-class FormulaNameSearch extends StatelessWidget {
+class FormulaNameSearch extends StatefulWidget {
+  final String currentFormulaName;
+  final ArgCallback<String> onClickedCallback;
+
+  const FormulaNameSearch(
+      {Key key, this.currentFormulaName, this.onClickedCallback})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new _FormulaNameSearchState();
+}
+
+class _FormulaNameSearchState extends State<FormulaNameSearch> {
+  String query = "";
+
   @override
   Widget build(BuildContext context) {
-    return null;
+    Map<String, String> queryResults = FormulaNameLookup.search(query);
+    return new Column(
+      children: <Widget>[
+        // Search bar
+        new Padding(
+          padding: const EdgeInsets.only(bottom: 32.0),
+          child: new TextField(
+            decoration: new InputDecoration(
+              hintText: widget.currentFormulaName,
+              icon: const Icon(Icons.search),
+            ),
+            onChanged: (String s) => setState(() => query = s),
+          ),
+        ),
+
+        // Results
+        new Expanded(
+          child: new ListView(
+            children: queryResults.entries
+                .map(
+                  (var entry) => new FormulaNameSearchResult(
+                        onClickedCallback: widget.onClickedCallback,
+                        formulaName: entry.key,
+                        formula: entry.value,
+                        query: query,
+                      ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
   }
 }
 

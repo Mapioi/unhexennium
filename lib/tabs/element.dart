@@ -8,7 +8,7 @@ import 'package:unhexennium/utils.dart';
 enum ElementInputOptions { enter, cancel }
 
 class ElementState {
-  static SetStateCallback setState;
+  static ArgCallback<Callback> setState;
   static ElementSymbol _selectedElement = ElementSymbol.Xe;
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false];

@@ -13,7 +13,7 @@ enum EquationSide { Reactant, Product }
 
 class EquationState {
   // Callbacks set in homepage.
-  static SetStateCallback setState;
+  static ArgCallback<Callback> setState;
   static Callback switchToFormulaTab;
 
   // State management

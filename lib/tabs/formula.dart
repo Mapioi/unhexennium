@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
@@ -150,7 +151,7 @@ class FormulaProperties {
 }
 
 class FormulaState {
-  static SetStateCallback setState;
+  static ArgCallback<Callback> setState;
   static Callback switchToElementTab;
   static FormulaFactory _formulaFactory = FormulaFactory.thomsonite;
 
@@ -160,7 +161,7 @@ class FormulaState {
     setState(() {
       _formulaFactory = factory;
       formula = factory.build();
-      selectedBlockIndex = factory.elementsList.isNotEmpty ? 0 : -1;
+      selectedBlockIndex = -1;
     });
   }
 
@@ -649,14 +650,9 @@ class FormulaParent extends StatelessWidget {
                     ? () => Navigator.push(
                           context,
                           new MaterialPageRoute(
-                            builder: (context) => new Scaffold(
-                              appBar: new AppBar(
-                                title: new Text("Edit formula"),
-                              ),
-                              body: new FormulaEditor(
-                                onFinish: () => Navigator.pop(context),
-                              ),
-                            ),
+                            builder: (context) => new FormulaEditor(
+                                  onFinish: () => Navigator.pop(context),
+                                ),
                           ),
                         )
                     : (currentPair.elementSymbol == null

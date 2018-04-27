@@ -293,8 +293,6 @@ class FormulaFactory {
 
   int get length => elementsList.length;
 
-  String get name => toString();
-
   /// Instantiate a [FormulaFactory] with an empty [elementsList].
   FormulaFactory();
 
