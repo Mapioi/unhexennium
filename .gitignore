@@ -9,3 +9,4 @@ ios/.generated/
 packages
 .flutter-plugins
 .ipynb_checkpoints
+key.properties
