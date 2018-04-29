@@ -140,21 +140,21 @@ class Formula {
           if (!metalloids.contains(symbol) && !nonMetals.contains(symbol)) {
             isMetalHydride = true;
           }
+        }
 
-          // Postulate 4
-          if (alkaliMetals.contains(symbol)) {
-            os[symbol] = new Rational.fromInt(1);
-            chargeLeft -= 1 * elements[symbol];
-            symbols.remove(symbol);
-            postulate4Used = true;
-            break;
-          } else if (alkalineEarthMetals.contains(symbol)) {
-            os[symbol] = new Rational.fromInt(2);
-            chargeLeft -= 2 * elements[symbol];
-            symbols.remove(symbol);
-            postulate4Used = true;
-            break;
-          }
+        // Postulate 4
+        if (alkaliMetals.contains(symbol)) {
+          os[symbol] = new Rational.fromInt(1);
+          chargeLeft -= 1 * elements[symbol];
+          symbols.remove(symbol);
+          postulate4Used = true;
+          break;
+        } else if (alkalineEarthMetals.contains(symbol)) {
+          os[symbol] = new Rational.fromInt(2);
+          chargeLeft -= 2 * elements[symbol];
+          symbols.remove(symbol);
+          postulate4Used = true;
+          break;
         }
       }
 
