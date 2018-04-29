@@ -1175,7 +1175,7 @@ class FormulaNameSearchResult extends StatelessWidget {
     return new GestureDetector(
       onTap: () => onClickedCallback(formula),
       child: new SizedBox(
-        height: MediaQuery.of(context).size.height * 0.05,
+        height: 40.0,
         child: new Row(
           children: <Widget>[
             new SizedBox(
@@ -1203,8 +1203,9 @@ class FormulaNameSearchResult extends StatelessWidget {
                 ],
               ),
             ),
+            new Expanded(child: new SizedBox()),
             new SizedBox(
-              width: MediaQuery.of(context).size.width * 0.32,
+              width: 150.0,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: new ListView(
@@ -1319,7 +1320,7 @@ class FormulaSearchResult extends StatelessWidget {
     return new GestureDetector(
       onTap: () => onClickedCallback(formula),
       child: new SizedBox(
-        height: MediaQuery.of(context).size.height * 0.05,
+        height: 40.0,
         child: new Row(
           children: <Widget>[
             new SizedBox(

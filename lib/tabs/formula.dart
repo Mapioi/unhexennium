@@ -635,7 +635,7 @@ class FormulaParent extends StatelessWidget {
           Expanded(
             child: Row(
               children: <Widget>[
-                buildEditorMain(),
+                new Expanded(child: buildEditorMain()),
               ],
               mainAxisAlignment: MainAxisAlignment.center,
             ),
