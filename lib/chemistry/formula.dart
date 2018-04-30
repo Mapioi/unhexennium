@@ -284,11 +284,12 @@ class ElementSubscriptPair {
 
 class UnpairedParenthesisError implements Exception {
   final int index;
+  final bool isOpen;
 
-  UnpairedParenthesisError(this.index);
+  UnpairedParenthesisError(this.index, this.isOpen);
 
   @override
-  String toString() => "Unpaired parenthesis or bracket at $index";
+  String toString() => "Unpaired ${isOpen ? "'('" : "')'"} at position $index";
 }
 
 /// Used to construct chemical formulae within the app.
@@ -388,45 +389,47 @@ class FormulaFactory {
     }
     factoryIndex++;
 
-    if (stringIndex >= formula.length) return;
-    if (formula[stringIndex] == '·' || formula[stringIndex] == '.') {
-      // Water of crystallization
-      String n = "";
-      for (++stringIndex; stringIndex < formula.length; stringIndex++) {
-        String char = formula[stringIndex];
-        if (char == 'H') {
-          if (formula.substring(stringIndex) != "H₂O") {
-            throw new FormatException("Expected water of crystallization");
+    if (stringIndex < formula.length) {
+      if (formula[stringIndex] == '·' || formula[stringIndex] == '.') {
+        // Water of crystallization
+        String n = "";
+        for (++stringIndex; stringIndex < formula.length; stringIndex++) {
+          String char = formula[stringIndex];
+          if (char == 'H') {
+            if (formula.substring(stringIndex) != "H₂O") {
+              throw new FormatException("Expected water of crystallization");
+            }
+            break;
           }
-          break;
+          n += char;
         }
-        n += char;
-      }
 
-      int subscript = n.isEmpty ? 1 : num.parse(fromSubscript(n));
-      insertOpeningParenthesisAt(factoryIndex++);
-      insertElementAt(factoryIndex, elementSymbol: ElementSymbol.H);
-      setSubscriptAt(factoryIndex++, subscript: 2);
-      insertElementAt(factoryIndex++, elementSymbol: ElementSymbol.O);
-      insertClosingParenthesisAt(factoryIndex);
-      setSubscriptAt(factoryIndex++, subscript: subscript);
-    } else {
-      // Charge
-      for (stringIndex; stringIndex < formula.length; stringIndex++) {
-        String char = String.fromCharCode(formula.runes.elementAt(stringIndex));
-        assert(isSuperscriptChar(char));
-        charge += char;
-      }
-      if (charge.isNotEmpty) {
-        charge = fromSuperscript(charge);
-        // this.charge defaults to 0
-        String signChar = String.fromCharCode(charge.runes.last);
-        assert(signChar == '-' || signChar == '+');
-        int sign = {'-': -1, '+': 1}[signChar];
-        int value = charge.length == 1
-            ? 1
-            : int.parse(charge.substring(0, charge.length - 1));
-        this.charge = sign * value;
+        int subscript = n.isEmpty ? 1 : num.parse(fromSubscript(n));
+        insertOpeningParenthesisAt(factoryIndex++);
+        insertElementAt(factoryIndex, elementSymbol: ElementSymbol.H);
+        setSubscriptAt(factoryIndex++, subscript: 2);
+        insertElementAt(factoryIndex++, elementSymbol: ElementSymbol.O);
+        insertClosingParenthesisAt(factoryIndex);
+        setSubscriptAt(factoryIndex++, subscript: subscript);
+      } else {
+        // Charge
+        for (stringIndex; stringIndex < formula.length; stringIndex++) {
+          String char = String.fromCharCode(
+              formula.runes.elementAt(stringIndex));
+          assert(isSuperscriptChar(char));
+          charge += char;
+        }
+        if (charge.isNotEmpty) {
+          charge = fromSuperscript(charge);
+          // this.charge defaults to 0
+          String signChar = String.fromCharCode(charge.runes.last);
+          assert(signChar == '-' || signChar == '+');
+          int sign = {'-': -1, '+': 1}[signChar];
+          int value = charge.length == 1
+              ? 1
+              : int.parse(charge.substring(0, charge.length - 1));
+          this.charge = sign * value;
+        }
       }
     }
     // Check for unpaired parenthesis.
@@ -541,7 +544,7 @@ class FormulaFactory {
           openingIndicesStack.add(i);
         } else {
           if (openingIndicesStack.isEmpty) {
-            throw UnpairedParenthesisError(i);
+            throw UnpairedParenthesisError(i, false);
           }
           closingIndices[openingIndicesStack.removeLast()] = i;
         }
@@ -564,7 +567,7 @@ class FormulaFactory {
           closingIndicesStack.add(i);
         } else {
           if (closingIndicesStack.isEmpty) {
-            throw UnpairedParenthesisError(i);
+            throw UnpairedParenthesisError(i, true);
           }
           openingIndices[closingIndicesStack.removeLast()] = i;
         }

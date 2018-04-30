@@ -1417,7 +1417,7 @@ class _FormulaInputState extends State<FormulaInput> {
             decoration: new InputDecoration(
               icon: const Icon(Icons.edit),
               errorText: errorText,
-              helperText: "If needed, set the charge after pressing 'Done'.",
+              helperText: "If needed, set the charge after.",
             ),
             onChanged: onFormulaChanged,
           ),
