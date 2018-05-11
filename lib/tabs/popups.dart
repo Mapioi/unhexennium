@@ -156,7 +156,10 @@ class _AtomicNumberSearch extends State<AtomicNumberSearch> {
           child: new Padding(
             padding: const EdgeInsets.only(left: 32.0, right: 32.0),
             child: new TextField(
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(
+                signed: false,
+                decimal: true,
+              ),
               onChanged: (String s) => setState(() {
                     typedNumber = int.parse(s);
                   }),
@@ -557,7 +560,10 @@ class MassMoleCalculator extends StatelessWidget {
                     decoration: new InputDecoration(
                       helperText: "Mass / g",
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     controller: massController,
                     onChanged: (String s) {
@@ -572,7 +578,10 @@ class MassMoleCalculator extends StatelessWidget {
                     decoration: new InputDecoration(
                       helperText: "Mole / mol",
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     controller: moleController,
                     onChanged: (String s) {
@@ -708,7 +717,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     ),
                     controller: controllers[IdealGasComputed.P],
                     focusNode: focusNodes[IdealGasComputed.P],
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     enabled: FormulaState.properties.idealGasComputed !=
                         IdealGasComputed.P,
@@ -724,7 +736,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     ),
                     controller: controllers[IdealGasComputed.V],
                     focusNode: focusNodes[IdealGasComputed.V],
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     enabled: FormulaState.properties.idealGasComputed !=
                         IdealGasComputed.V,
@@ -747,7 +762,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     ),
                     controller: controllers[IdealGasComputed.n],
                     focusNode: focusNodes[IdealGasComputed.n],
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     enabled: FormulaState.properties.idealGasComputed !=
                         IdealGasComputed.n,
@@ -763,7 +781,10 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                     ),
                     controller: controllers[IdealGasComputed.T],
                     focusNode: focusNodes[IdealGasComputed.T],
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.center,
                     enabled: FormulaState.properties.idealGasComputed !=
                         IdealGasComputed.T,
@@ -966,7 +987,10 @@ class _EquationMassesMolesCalculatorState
                   controller: massControllers[i],
                   onChanged: (String s) =>
                       onMassUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: true,
+                  ),
                   enabled: formulae[i].rfm != 0,
                 ),
                 new TextField(
@@ -977,7 +1001,10 @@ class _EquationMassesMolesCalculatorState
                   controller: moleControllers[i],
                   onChanged: (String s) =>
                       onMoleUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: true,
+                  ),
                 ),
               ]);
               return content;
