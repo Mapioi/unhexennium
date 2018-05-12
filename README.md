@@ -1,15 +1,11 @@
-<center>
-![logo](logo.png)
-<br>
-<h1>Unhexennium</h1>
-</center>
-
-<br><br><br>
-
+<p align="center">
+  <img src="logo.png"/>
+  <h1>Unhexennium</h1>  
+</p>
 <!-- TODO: Add a screenshots/ folder and fill it -->
 
----
-
+<br>
+<br>
 <br>
 
 An adless, open-source & featureful chemistry calculator app, named after the 169th element of the periodic table. 

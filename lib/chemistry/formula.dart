@@ -414,8 +414,8 @@ class FormulaFactory {
       } else {
         // Charge
         for (stringIndex; stringIndex < formula.length; stringIndex++) {
-          String char = String.fromCharCode(
-              formula.runes.elementAt(stringIndex));
+          String char =
+              String.fromCharCode(formula.runes.elementAt(stringIndex));
           assert(isSuperscriptChar(char));
           charge += char;
         }
