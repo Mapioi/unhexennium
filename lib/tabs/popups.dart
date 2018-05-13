@@ -568,7 +568,7 @@ class MassMoleCalculator extends StatelessWidget {
                     controller: massController,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      num mass = num.parse(s, (v) => null);
+                      num mass = num.parse(s);
                       FormulaState.mass = mass;
                       moleController.text =
                           FormulaState.mole.toStringAsPrecision(sf);
@@ -586,7 +586,7 @@ class MassMoleCalculator extends StatelessWidget {
                     controller: moleController,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      num mole = num.parse(s, (v) => null);
+                      num mole = num.parse(s);
                       FormulaState.mole = mole;
                       massController.text =
                           FormulaState.mass.toStringAsPrecision(sf);
@@ -726,7 +726,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                         IdealGasComputed.P,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.properties.P = num.parse(s, (v) => null);
+                      FormulaState.properties.P = num.parse(s);
                       updateValue();
                     },
                   ),
@@ -745,7 +745,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                         IdealGasComputed.V,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.properties.V = num.parse(s, (v) => null);
+                      FormulaState.properties.V = num.parse(s);
                       updateValue();
                     },
                   ),
@@ -771,7 +771,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                         IdealGasComputed.n,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.mole = num.parse(s, (v) => null);
+                      FormulaState.mole = num.parse(s);
                       updateValue();
                     },
                   ),
@@ -790,7 +790,7 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
                         IdealGasComputed.T,
                     onChanged: (String s) {
                       s = unFrench(s);
-                      FormulaState.properties.T = num.parse(s, (v) => null);
+                      FormulaState.properties.T = num.parse(s);
                       updateValue();
                     },
                   ),
