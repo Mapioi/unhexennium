@@ -1,14 +1,19 @@
-<p align="center">
-  <img src="logo.png"/>
-  <h1>Unhexennium</h1>  
-</p>
-<!-- TODO: Add a screenshots/ folder and fill it -->
+<div align="center">
+    <img src="README_assets/icon.png"/>
+    <br/>
+    <a href="https://play.google.com/store/apps/details?id=io.github.mapioi.unhexennium">
+        <img src="README_assets/download/android_google_play.png"/>
+    </a>
+    <!--There must be clear space surrounding the badge equal to one-quarter the height of the badge.-->
+    &nbsp;&nbsp;&nbsp;
+    <a href="https://itunes.apple.com/us/app/unhexennium/id1383947062">
+        <img src="README_assets/download/ios_app_store.png"/>
+    </a>
+</div>
 
-<br>
-<br>
-<br>
+# Unhexennium
 
-An adless, open-source & featureful chemistry calculator app, named after the 169th element of the periodic table. 
+An adless, open-source & featureful chemistry calculator app, named after the 169th element of the periodic table.
 
 It contains data about elements, molecules and ionic compounds; includes an equation balancer and a set of tools for mass <-> mole conversions and ideal gas calculations.
 
