@@ -490,7 +490,7 @@ class _ParenSubscriptSelector extends State<ParenSubscriptSelector> {
         style: new TextStyle(fontWeight: FontWeight.bold),
       ),
       new Expanded(child: SizedBox(height: 0.0)),
-      new Text(widget.currentSubscript.toString()),
+      new Text(selectedSubscript.toString()),
       new Expanded(child: SizedBox(height: 0.0)),
       new IconButton(
         onPressed: selectedSubscript == 1
