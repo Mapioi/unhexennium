@@ -753,7 +753,8 @@ class MassPercentageCards extends StatelessWidget {
   Widget build(BuildContext context) {
     return new ListView(
       scrollDirection: Axis.horizontal,
-      children: percentages.entries
+      children: sortMapByValues(percentages, reverse: true)
+          .entries
           .map(
             (MapEntry<ElementSymbol, num> entry) => Card(
                   color: Colors.grey[200],
@@ -763,7 +764,13 @@ class MassPercentageCards extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         new Text(enumToString(entry.key)),
-                        new Text(entry.value.toStringAsPrecision(3) + '%'),
+                        // So that we have 2 decimals on every %
+                        new Text(entry.value.toStringAsPrecision(
+                              entry.value < 1
+                                  ? 2
+                                  : entry.value.toInt().toString().length + 2,
+                            ) +
+                            '%'),
                       ],
                     ),
                   ),

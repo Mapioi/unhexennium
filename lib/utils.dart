@@ -105,21 +105,25 @@ String toStringAsCharge(int charge, {bool omitOne = false}) {
 /// Replace the french virgules by points.
 String unFrench(String s) => s.replaceAll(",", ".");
 
-/// Sort a map by its keys
+/// Map sorting
 LinkedHashMap<K, V> sortMapByValues<K, V extends Comparable>(
-    Map<K, V> mapToSort) {
+    Map<K, V> mapToSort,
+    {bool reverse = false}) {
   List sortedKeys = mapToSort.keys.toList(growable: false)
     ..sort((a, b) => mapToSort[a].compareTo(mapToSort[b]));
   return new LinkedHashMap.fromIterable(
-    sortedKeys,
+    reverse ? sortedKeys.reversed : sortedKeys,
     key: (k) => k,
     value: (k) => mapToSort[k],
   );
 }
 
-LinkedHashMap<K, V> sortMapByKeys<K extends Comparable, V>(
-    Map<K, V> mapToSort) {
-  List sortedKey = mapToSort.keys.toList()..sort();
-  return new LinkedHashMap.fromIterable(sortedKey,
-      key: (k) => k, value: (k) => mapToSort[k]);
+LinkedHashMap<K, V> sortMapByKeys<K extends Comparable, V>(Map<K, V> mapToSort,
+    {bool reverse = false}) {
+  List sortedKeys = mapToSort.keys.toList()..sort();
+  return new LinkedHashMap.fromIterable(
+    reverse ? sortedKeys.reversed : sortedKeys,
+    key: (k) => k,
+    value: (k) => mapToSort[k],
+  );
 }
