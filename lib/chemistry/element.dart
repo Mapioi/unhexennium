@@ -138,12 +138,12 @@ enum ElementSymbol {
   Ds,
   Rg,
   Cn,
-  Uut,
-  Uuq,
-  Uup,
-  Uuh,
-  Uus,
-  Uuo,
+  Nh, // Uut
+  Fl, // Uuq
+  Mc, // Uup
+  Lv, // Uuh
+  Ts, // Uus
+  Og, // Uuo
 }
 
 const List<ElementSymbol> alkaliMetals = const [
@@ -765,7 +765,7 @@ final Map<ElementSymbol, List<Sublevel>> _nobleGasesSublevels = {
     Sublevel("5d", 10),
     Sublevel("6p", 6)
   ],
-  ElementSymbol.Uuo: [
+  ElementSymbol.Og: [
     Sublevel("7s", 2),
     Sublevel("5f", 14),
     Sublevel("6d", 10),

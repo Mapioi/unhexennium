@@ -11,18 +11,18 @@ void main() {
 
     test("name", () {
       expect(new ChemicalElement(ElementSymbol.H).name, "Hydrogen");
-      expect(new ChemicalElement(ElementSymbol.Uuo).name,
-          "Oganesson (Ununoctium)");
+      expect(
+          new ChemicalElement(ElementSymbol.Og).name, "Oganesson (Ununoctium)");
     });
 
     test("atomic number", () {
       expect(new ChemicalElement(ElementSymbol.H).atomicNumber, 1);
-      expect(new ChemicalElement(ElementSymbol.Uuo).atomicNumber, 118);
+      expect(new ChemicalElement(ElementSymbol.Og).atomicNumber, 118);
     });
 
     test("relative atomic mass", () {
       expect(new ChemicalElement(ElementSymbol.H).relativeAtomicMass, 1.01);
-      expect(new ChemicalElement(ElementSymbol.Uuo).relativeAtomicMass, 294);
+      expect(new ChemicalElement(ElementSymbol.Og).relativeAtomicMass, 294);
     });
 
     test("electronegativity", () {
