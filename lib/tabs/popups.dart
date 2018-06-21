@@ -1405,6 +1405,7 @@ class _FormulaInputState extends State<FormulaInput> {
 
   void onFormulaChanged(String s) {
     setState(() {
+      TextSelection oldSelection = controller.selection;
       currentFormula = asSubscript(s
           .replaceAll("+", asSuperscript("+"))
           .replaceAll("-", asSuperscript("-")));
@@ -1413,6 +1414,15 @@ class _FormulaInputState extends State<FormulaInput> {
         errorText = null;
         if (f.elementsList.isNotEmpty && f.charge != -1) {
           currentFormula = f.toString();
+          int cursorPos = controller.selection.start - 1;
+          if (cursorPos < s.length &&
+              s[cursorPos] == '1' &&
+              (cursorPos >= currentFormula.length ||
+                  currentFormula[cursorPos] != asSubscript('1'))) {
+            currentFormula = currentFormula.substring(0, cursorPos) +
+                asSubscript('1') +
+                currentFormula.substring(cursorPos);
+          }
         }
       } on UnknownElementSymbolError catch (e) {
         errorText = e.toString();
@@ -1420,13 +1430,21 @@ class _FormulaInputState extends State<FormulaInput> {
         errorText = e.toString();
       } on FormatException catch (e) {
         errorText = e.toString();
+      } catch (e) {
+        print(e);
       }
-      TextSelection oldSelection = controller.selection;
-      try {
-        controller
-          ..text = currentFormula
-          ..selection = oldSelection;
-      } catch (_) {}
+      // Without this if, when you delete the '2' from 'C12',
+      // the '12' vanishes instead of the intended '2' only.
+      if (currentFormula.length < s.length) {
+        oldSelection = TextSelection(
+          baseOffset:
+              oldSelection.baseOffset + (currentFormula.length - s.length),
+          extentOffset: null,
+        );
+      }
+      controller
+        ..text = currentFormula
+        ..selection = oldSelection;
     });
   }
 
