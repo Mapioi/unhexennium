@@ -76,6 +76,46 @@ class Formula {
         )
       : null;
 
+  /// The Index of Hydrogen Deficiency, also known as degree of unsaturation,
+  /// indicates how many rings, double bonds and triple bonds are present.
+  ///
+  /// This function uses the rings and pi bonds formulation, valid for molecules
+  /// containing only carbon, hydrogen, halogens, nitrogen, and oxygen.
+  /// The specific rules are as follows:
+  ///
+  /// * count X (halogens) as H
+  /// * N adds 1 to the C count and the H count
+  /// * ignore O, S
+  /// * IHD = (2 * C + 2 - H) / 2
+  ///
+  /// Return [null] if IHD cannot be calculated using this formulation.
+  int get ihd {
+    for (ElementSymbol element in elements.keys) {
+      if (element == ElementSymbol.C) continue;
+      if (element == ElementSymbol.H) continue;
+      if (element == ElementSymbol.N) continue;
+      if (element == ElementSymbol.S) continue;
+      if (element == ElementSymbol.O) continue;
+      if (halogens.contains(element)) continue;
+      // Cannot handle the remaining elements
+      return null;
+    }
+
+    int c = elements[ElementSymbol.C] ?? 0;
+    int h = elements[ElementSymbol.H] ?? 0;
+
+    for (ElementSymbol candidateHalogen in elements.keys) {
+      if (halogens.contains(candidateHalogen)) h += elements[candidateHalogen];
+    }
+    if (elements.containsKey(ElementSymbol.N)) {
+      c += elements[ElementSymbol.N];
+      h += elements[ElementSymbol.N];
+    }
+
+    if (h % 2 != 0) return null;
+    return (2 * c + 2 - h) ~/ 2;
+  }
+
   /// The oxidation state, sometimes referred to as oxidation number, describes
   /// degree of oxidation (loss of electrons) of an atom in a chemical compound.
   /// Conceptually, the oxidation state, which may be positive, negative or
