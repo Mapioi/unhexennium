@@ -577,6 +577,15 @@ class FormulaParent extends StatelessWidget {
         style: StaticTable.head,
       )] = new Text(enumToReadableString(FormulaState.formula.bondType));
     }
+
+    int ihd = FormulaState.formula.ihd;
+    if (ihd != null) {
+      data[new Text(
+        "IHD",
+        style: StaticTable.head,
+      )] = new Text(ihd.toString());
+    }
+
     return StaticTable(data);
   }
 
