@@ -40,7 +40,6 @@ class PeriodicTable extends StatelessWidget {
       height: cellSize,
       child: new RaisedButton(
         padding: new EdgeInsets.all(0.0),
-//          color: symbol == selectedElement ? Colors.green : Colors.grey[400],
         child: new Text(
           enumToString(symbol) +
               (symbol == ElementSymbol.La
