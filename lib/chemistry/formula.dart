@@ -358,7 +358,7 @@ class FormulaFactory {
     String subscript = "";
     String element = "";
     String charge = "";
-    for (stringIndex; stringIndex < formula.length; stringIndex++) {
+    for (; stringIndex < formula.length; stringIndex++) {
       String char = formula[stringIndex];
       // char can either be:
       // - an opening parenthesis / bracket
@@ -453,7 +453,7 @@ class FormulaFactory {
         setSubscriptAt(factoryIndex++, subscript: subscript);
       } else {
         // Charge
-        for (stringIndex; stringIndex < formula.length; stringIndex++) {
+        for (; stringIndex < formula.length; stringIndex++) {
           String char =
               String.fromCharCode(formula.runes.elementAt(stringIndex));
           assert(isSuperscriptChar(char));
