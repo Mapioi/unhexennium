@@ -634,7 +634,7 @@ class FormulaFactory {
           /// If the list of subscripts is empty,
           /// this factory contains an unpaired opening parenthesis / bracket.
           /// In this case, the opening parenthesis / bracket is ignored.
-          if (subscripts.length > 1)
+          if (subscripts.isNotEmpty)
             nestedSubscripts ~/= subscripts.removeLast();
         }
       } else {
