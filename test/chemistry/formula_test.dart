@@ -39,6 +39,26 @@ void main() {
       );
     });
 
+    test("fromString (with water of crystallisation coefficients)", () {
+      Formula copperSulfate = FormulaFactory.fromString("CuSO₄·5H₂O").build();
+      expect(copperSulfate.elements, {
+        ElementSymbol.Cu: 1,
+        ElementSymbol.S: 1,
+        ElementSymbol.O: 4 + 5 * 1,
+        ElementSymbol.H: 5 * 2,
+      });
+    });
+
+    test("fromString (with parentheses)", () {
+      Formula copperChloride =
+          FormulaFactory.fromString(asSubscript("Cu(NO3)2")).build();
+      expect(copperChloride.elements, {
+        ElementSymbol.Cu: 1,
+        ElementSymbol.N: 2 * 1,
+        ElementSymbol.O: 2 * 3,
+      });
+    });
+
     test("fromString from data/formulae", () {
       for (String formula in formulaeNames.keys) {
         String str = FormulaFactory.fromString(formula).toString();

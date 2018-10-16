@@ -358,7 +358,7 @@ class FormulaFactory {
     String subscript = "";
     String element = "";
     String charge = "";
-    for (stringIndex; stringIndex < formula.length; stringIndex++) {
+    for (; stringIndex < formula.length; stringIndex++) {
       String char = formula[stringIndex];
       // char can either be:
       // - an opening parenthesis / bracket
@@ -453,7 +453,7 @@ class FormulaFactory {
         setSubscriptAt(factoryIndex++, subscript: subscript);
       } else {
         // Charge
-        for (stringIndex; stringIndex < formula.length; stringIndex++) {
+        for (; stringIndex < formula.length; stringIndex++) {
           String char =
               String.fromCharCode(formula.runes.elementAt(stringIndex));
           assert(isSuperscriptChar(char));
@@ -634,7 +634,7 @@ class FormulaFactory {
           /// If the list of subscripts is empty,
           /// this factory contains an unpaired opening parenthesis / bracket.
           /// In this case, the opening parenthesis / bracket is ignored.
-          if (subscripts.length > 1)
+          if (subscripts.isNotEmpty)
             nestedSubscripts ~/= subscripts.removeLast();
         }
       } else {
