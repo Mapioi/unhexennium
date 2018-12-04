@@ -2320,7 +2320,7 @@ class FormulaLookup {
         results[name] = instance.names[name];
       }
     }
-    return results;
+    return sortMapByKeys(results);
   }
 
   static Map<String, List<String>> searchByFormula(String queryFormula) {
@@ -2330,6 +2330,17 @@ class FormulaLookup {
         results[formula] = formulaeNames[formula];
       }
     }
-    return results;
+    return sortMapByKeys(results, comparator: (String a, String b) {
+      if (a.length > 0 && b.length > 0) {
+        final regex = new RegExp(r"[a-zA-Z]");
+        if (!regex.hasMatch(a[0])) {
+          a = "Z" + a;
+        }
+        if (!regex.hasMatch(b[0])) {
+          b = "Z" + b;
+        }
+      }
+      return a.compareTo(b);
+    });
   }
 }

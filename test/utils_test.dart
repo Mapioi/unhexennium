@@ -78,4 +78,8 @@ void main() {
     expect(sortMapByValues({1: "b", 2: "a"}).keys, [2, 1]);
     expect(sortMapByValues({1: "a", 2: "b"}).keys, [1, 2]);
   });
+  
+  test("sortMapByKeys", () {
+    expect(sortMapByKeys({2: "a", 1: "b"}).keys, [1, 2]);
+  });
 }

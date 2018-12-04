@@ -119,8 +119,8 @@ LinkedHashMap<K, V> sortMapByValues<K, V extends Comparable>(
 }
 
 LinkedHashMap<K, V> sortMapByKeys<K extends Comparable, V>(Map<K, V> mapToSort,
-    {bool reverse = false}) {
-  List sortedKeys = mapToSort.keys.toList()..sort();
+    {bool reverse = false, Comparator<K> comparator}) {
+  List sortedKeys = mapToSort.keys.toList()..sort(comparator);
   return new LinkedHashMap.fromIterable(
     reverse ? sortedKeys.reversed : sortedKeys,
     key: (k) => k,

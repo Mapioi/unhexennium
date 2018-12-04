@@ -526,7 +526,12 @@ Future<Null> massMolePrompt(BuildContext context) async {
   );
 }
 
-class MassMoleCalculator extends StatelessWidget {
+class MassMoleCalculator extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _MassMoleCalculatorState();
+}
+
+class _MassMoleCalculatorState extends State<MassMoleCalculator> {
   final TextEditingController massController = new TextEditingController(
       text: FormulaState.mass == null
           ? ""
@@ -573,6 +578,7 @@ class MassMoleCalculator extends StatelessWidget {
                       moleController.text =
                           FormulaState.mole.toStringAsPrecision(sf);
                     },
+                    autofocus: true,
                   ),
                   new TextField(
                     decoration: new InputDecoration(
@@ -595,10 +601,10 @@ class MassMoleCalculator extends StatelessWidget {
                 ],
               ),
             ),
-            new IconButton(
-              icon: new Icon(Icons.clear),
+            new RaisedButton.icon(
+              icon: new Icon(Icons.exposure_zero),
               onPressed: clear,
-              tooltip: "Clear",
+              label: Text("Clear"),
             ),
           ],
         ),
@@ -874,7 +880,6 @@ class _EquationMassesMolesCalculatorState
   List<TextEditingController> massControllers;
   List<TextEditingController> moleControllers;
 
-  bool updateProperties = false;
   int lrIndex;
 
   _EquationMassesMolesCalculatorState() {
@@ -923,11 +928,6 @@ class _EquationMassesMolesCalculatorState
         massControllers[i].text = masses[i].toStringAsPrecision(sf);
       }
       moleControllers[i].text = moles[i].toStringAsPrecision(sf);
-      if (updateProperties) {
-        EquationState.properties[i]
-          ..mass = masses[i]
-          ..mole = moles[i];
-      }
     }
   }
 
@@ -946,11 +946,6 @@ class _EquationMassesMolesCalculatorState
         massControllers[i].text = masses[i].toStringAsPrecision(sf);
         if (i != index) {
           moleControllers[i].text = moles[i].toStringAsPrecision(sf);
-        }
-        if (updateProperties) {
-          EquationState.properties[i]
-            ..mass = masses[i]
-            ..mole = moles[i];
         }
       }
     });
@@ -977,7 +972,7 @@ class _EquationMassesMolesCalculatorState
                   decoration: new InputDecoration(
                     helperText: "m(${factories[i]}) / g",
                     suffixIcon: i == lrIndex
-                        ? new Icon(
+                        ? Icon(
                             Icons.invert_colors_off,
                             color: Colors.red,
                           )
@@ -996,6 +991,12 @@ class _EquationMassesMolesCalculatorState
                 new TextField(
                   decoration: new InputDecoration(
                     helperText: "n(${factories[i]}) / mol",
+                    suffixIcon: i == lrIndex
+                        ? Icon(
+                            Icons.invert_colors_off,
+                            color: Colors.red,
+                          )
+                        : null,
                   ),
                   textAlign: TextAlign.center,
                   controller: moleControllers[i],
@@ -1010,18 +1011,27 @@ class _EquationMassesMolesCalculatorState
               return content;
             }).expand((x) => x).toList() +
             <Widget>[
-              new CheckboxListTile(
-                value: updateProperties,
-                onChanged: (bool val) => setState(() {
-                      updateProperties = val;
-                    }),
-                subtitle: new Text("Update values"),
-                dense: true,
+              Divider(),
+              Divider(),
+              new RaisedButton.icon(
+                icon: Icon(Icons.save),
+                onPressed: () {
+                  for (int i = 0; i < formulae.length; i++) {
+                    EquationState.properties[i]
+                      ..mass = massControllers[i].text == ''
+                          ? null
+                          : double.parse(massControllers[i].text)
+                      ..mole = moleControllers[i].text == ''
+                          ? null
+                          : double.parse(moleControllers[i].text);
+                  }
+                },
+                label: Text("Apply changes"),
               ),
-              new IconButton(
-                icon: new Icon(Icons.clear),
+              new RaisedButton.icon(
+                icon: Icon(Icons.exposure_zero),
                 onPressed: clearText,
-                tooltip: "Clear",
+                label: Text("Clear"),
               ),
             ],
       ),
@@ -1041,7 +1051,7 @@ class FormulaEditor extends StatefulWidget {
 }
 
 class _FormulaEditPromptState extends State<FormulaEditor> {
-  FormulaEditMode currentMode = FormulaEditMode.SetCharge;
+  FormulaEditMode currentMode = FormulaEditMode.FormulaInput;
 
   @override
   Widget build(BuildContext context) {
@@ -1094,6 +1104,7 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
           ..elementsList = f.elementsList
           ..charge = f.charge;
         FormulaState.formula = f.build();
+        FormulaState.mole = null;
         widget.onFinish();
       },
     );
@@ -1136,7 +1147,8 @@ class _ChargeEditorState extends State<ChargeEditor> {
 
   @override
   Widget build(BuildContext context) {
-    String chargeDisplay = (charge <= 0 ? '' : '+') + charge.toString();
+    String sign = charge < 0 ? '-' : charge == 0 ? '' : '+';
+    String chargeDisplay = charge.abs().toString() + sign;
     return new Center(
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1147,21 +1159,21 @@ class _ChargeEditorState extends State<ChargeEditor> {
               charge != 0 ? Icons.flash_on : Icons.flash_off,
               color: charge == 0
                   ? Colors.grey
-                  : charge < 0 ? Colors.amber[300] : Colors.amber[700],
+                  : charge < 0 ? Colors.amber[600] : Colors.yellow[600],
             ),
           ),
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new IconButton(
-                icon: const Icon(Icons.arrow_left),
+                icon: const Icon(Icons.remove_circle),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
                         charge != 0
                     ? null
                     : () => setState(() => charge--),
               ),
               new IconButton(
-                icon: const Icon(Icons.arrow_right),
+                icon: const Icon(Icons.add_circle_outline),
                 onPressed: FormulaState.formulaFactory.elementsList.isEmpty &&
                         charge != -1
                     ? null
@@ -1171,7 +1183,7 @@ class _ChargeEditorState extends State<ChargeEditor> {
           ),
           new RaisedButton(
             onPressed: () => widget.onFinish(charge),
-            child: new Text("Done"),
+            child: new Text("Apply changes"),
             color: Colors.blue,
             textColor: Colors.white,
           ),
@@ -1459,10 +1471,11 @@ class _FormulaInputState extends State<FormulaInput> {
           child: new TextField(
             autocorrect: false,
             controller: controller,
+            autofocus: true,
             decoration: new InputDecoration(
               icon: const Icon(Icons.edit),
               errorText: errorText,
-              helperText: "If needed, set the charge after.",
+              helperText: "Enter the chemical formula (without the charge)",
             ),
             onChanged: onFormulaChanged,
           ),
@@ -1503,11 +1516,12 @@ class _FormulaInputState extends State<FormulaInput> {
                 onPressed: errorText != null
                     ? null
                     : () => widget.onFinish(currentFormula),
-                color: currentFormula == FormulaState.formulaFactory.toString()
+                color: FormulaState.formulaFactory.length == 0 &&
+                        currentFormula == FormulaState.formulaFactory.toString()
                     ? Colors.blue[300]
                     : Colors.blue,
                 textColor: Colors.white,
-                child: new Text("Done"),
+                child: new Text("Apply changes"),
               ),
             ],
           ),
