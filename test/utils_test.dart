@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:unhexennium/utils.dart';
 
 enum Foo { bar, spam, UnreadableEnum, SomewhatReadableEnum, Boo }
