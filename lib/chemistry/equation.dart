@@ -17,7 +17,6 @@ class InfiniteWaysOfBalancingException implements Exception {
 /// and the product entities on the right-hand side.
 class Equation {
   final List<Formula> reactants, products;
-  final bool isEquilibrium;
 
   /// Stoichiometric coefficients of the reactants and products.
   final List<int> coefficients;
@@ -75,14 +74,13 @@ class Equation {
         .toList();
   }
 
-  Equation(this.reactants, this.products,
-      {this.isEquilibrium = false, strictBalancing = false})
+  Equation(this.reactants, this.products, {strictBalancing = false})
       : coefficients = getBalancedCoefficients(reactants, products,
             strict: strictBalancing);
 
   @override
   String toString() {
-    String arrow = isEquilibrium ? "⇌" : "⟶";
+    const arrow = "⟶";
     String reactants = this.reactants.join(" + ");
     String products = this.products.join(" + ");
     return "$reactants $arrow $products";

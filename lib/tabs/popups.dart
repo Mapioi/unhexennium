@@ -1184,7 +1184,9 @@ class _ChargeEditorState extends State<ChargeEditor> {
           new RaisedButton(
             onPressed: () => widget.onFinish(charge),
             child: new Text("Apply changes"),
-            color: Colors.blue,
+            color: charge == FormulaState.formulaFactory.charge
+                ? Colors.blue[300]
+                : Colors.blue,
             textColor: Colors.white,
           ),
         ],
@@ -1516,7 +1518,7 @@ class _FormulaInputState extends State<FormulaInput> {
                 onPressed: errorText != null
                     ? null
                     : () => widget.onFinish(currentFormula),
-                color: FormulaState.formulaFactory.length == 0 &&
+                color: FormulaState.formulaFactory.length != 0 &&
                         currentFormula == FormulaState.formulaFactory.toString()
                     ? Colors.blue[300]
                     : Colors.blue,

@@ -31,28 +31,49 @@ class EquationState {
 
   static FormulaProperties get selectedProperties => _selectedProperties;
 
-  static List<FormulaFactory> reactants = [
-    new FormulaFactory()
+  static List<FormulaFactory> _reactants = [
+    FormulaFactory()
+      ..insertElementAt(0, elementSymbol: ElementSymbol.I)
+      ..insertElementAt(1, elementSymbol: ElementSymbol.O)
+      ..setSubscriptAt(1, subscript: 3)
+      ..charge = -1,
+    FormulaFactory()
+      ..insertElementAt(0, elementSymbol: ElementSymbol.I)
+      ..charge = -1,
+    FormulaFactory()
       ..insertElementAt(0, elementSymbol: ElementSymbol.H)
-      ..setSubscriptAt(0, subscript: 2),
-    new FormulaFactory()
-      ..insertElementAt(0, elementSymbol: ElementSymbol.O)
-      ..setSubscriptAt(0, subscript: 2),
+      ..charge = 1,
   ];
-  static List<FormulaFactory> products = [
-    new FormulaFactory()
+  static List<FormulaFactory> _products = [
+    FormulaFactory()
+      ..insertElementAt(0, elementSymbol: ElementSymbol.I)
+      ..setSubscriptAt(0, subscript: 2),
+    FormulaFactory()
       ..insertElementAt(0, elementSymbol: ElementSymbol.H)
       ..setSubscriptAt(0, subscript: 2)
       ..insertElementAt(1, elementSymbol: ElementSymbol.O),
   ];
 
+  static List<FormulaFactory> get reactants => _reactants;
+
+  static List<FormulaFactory> get products => _products;
+
+  static String toStr() {
+    const arrow = " ⟶ ";
+    return EquationState.reactants.join(" + ") +
+        arrow +
+        EquationState.products.join(" + ");
+  }
+
   static List<FormulaProperties> properties = [
-    new FormulaProperties(),
-    new FormulaProperties(),
-    new FormulaProperties(),
+    FormulaProperties(),
+    FormulaProperties(),
+    FormulaProperties(),
+    FormulaProperties(),
+    FormulaProperties(),
   ];
 
-  static Equation equation = new Equation(
+  static Equation equation = Equation(
     reactants.map((f) => f.build()).toList(),
     products.map((f) => f.build()).toList(),
   );
@@ -135,6 +156,126 @@ class EquationState {
         properties[selectedIndex + selectedSide.index * reactants.length];
     switchToFormulaTab();
   }
+
+  static updateEquation(
+    List<FormulaFactory> reactants,
+    List<FormulaFactory> products,
+  ) {
+    setState(() {
+      _reactants = reactants;
+      _products = products;
+
+      _selectedSide = EquationSide.Reactant;
+      _selectedIndex = -1;
+      _selectedFormula = null;
+      _selectedProperties = null;
+
+      rebuildEquation();
+    });
+  }
+}
+
+typedef void EquationUpdateCallback(
+  List<FormulaFactory> reactants,
+  List<FormulaFactory> products,
+);
+
+class EquationInput extends StatefulWidget {
+  final EquationUpdateCallback onExit;
+  final String currentEquation;
+
+  const EquationInput(this.currentEquation, this.onExit, {Key key})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() =>
+      new _EquationInputState(currentEquation);
+}
+
+class _EquationInputState extends State<EquationInput> {
+  String currentEquation;
+  TextEditingController controller;
+  String errorText;
+
+  _EquationInputState(this.currentEquation) {
+    controller = TextEditingController(text: currentEquation);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(32.0),
+          child: TextField(
+            autocorrect: false,
+            autofocus: true,
+            controller: controller,
+            decoration: InputDecoration(
+              icon: Icon(Icons.edit),
+              errorText: errorText,
+              helperText: "A + B -> C + D (without charges)",
+            ),
+            onChanged: onEquationChanged,
+          ),
+        ),
+        RaisedButton.icon(
+          onPressed: errorText == null ? onDone : null,
+          icon: Icon(Icons.save),
+          label: Text("Apply changes"),
+          color: currentEquation != EquationState.toStr()
+              ? Colors.blue
+              : Colors.blue[300],
+          textColor: Colors.white,
+        ),
+      ],
+    );
+  }
+
+  static List<List<FormulaFactory>> parse(String eq) {
+    eq = eq.replaceAll(" ", "");
+    var sidesStr = eq.split("⟶");
+
+    if (sidesStr.length != 2) {
+      throw Exception("'->' not found, or misplaced");
+    }
+
+    List<FormulaFactory> reactants = [];
+    for (String fStr in sidesStr[0].split("+")) {
+      FormulaFactory f = FormulaFactory.fromString(fStr);
+      reactants.add(f);
+    }
+    List<FormulaFactory> products = [];
+    for (String fStr in sidesStr[1].split("+")) {
+      FormulaFactory f = FormulaFactory.fromString(fStr);
+      products.add(f);
+    }
+
+    return [reactants, products];
+  }
+
+  void onEquationChanged(String s) {
+    TextSelection oldSelection = controller.selection;
+    setState(() {
+      currentEquation = asSubscript(s.replaceAll("->", "⟶ "));
+
+      try {
+        parse(currentEquation);
+        errorText = null;
+      } catch (e) {
+        errorText = e.toString();
+      }
+
+      controller
+        ..text = currentEquation
+        ..selection = oldSelection;
+    });
+  }
+
+  void onDone() {
+    var sides = parse(currentEquation);
+    widget.onExit(sides[0], sides[1]);
+  }
 }
 
 class EquationParent extends StatelessWidget {
@@ -162,6 +303,26 @@ class EquationParent extends StatelessWidget {
     );
   }
 
+  void showEditor(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: Text("Edit equation"),
+              ),
+              body: EquationInput(
+                EquationState.toStr(),
+                (rs, ps) {
+                  EquationState.updateEquation(rs, ps);
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+      ),
+    );
+  }
+
   Widget buildCalculatorButtons(BuildContext context) {
     List<Widget> buttons = [];
     if (EquationState.selectedSide == EquationSide.Product &&
@@ -170,35 +331,37 @@ class EquationParent extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
           child: new FloatingActionButton.extended(
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return new SimpleDialog(
-                      title: new Center(
-                        child: new Text("Atom economy"),
-                      ),
-                      children: <Widget>[
-                        new Row(
-                          children: <Widget>[
-                            new Padding(
-                              padding: new EdgeInsets.all(8.0),
-                              child: Text(
-                                EquationState.equation
-                                    .atomEconomyForProductAt(
-                                        EquationState.selectedIndex)
-                                    .toStringAsFixed(2),
-                                style: new TextStyle(fontFamily: "RobotoMono"),
-                              ),
+            onPressed: () => showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return new SimpleDialog(
+                    title: new Center(
+                      child: new Text("Atom economy"),
+                    ),
+                    children: <Widget>[
+                      new Row(
+                        children: <Widget>[
+                          new Padding(
+                            padding: new EdgeInsets.all(8.0),
+                            child: Text(
+                              EquationState.equation
+                                  .atomEconomyForProductAt(
+                                      EquationState.selectedIndex)
+                                  .toStringAsFixed(2),
+                              style: new TextStyle(fontFamily: "RobotoMono"),
                             ),
-                            new Text("%"),
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        )
-                      ],
-                    );
-                  }),
-              icon: new Icon(Icons.monetization_on),
-              label: new Text("Atom economy")),
+                          ),
+                          new Text("%"),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      )
+                    ],
+                  );
+                }),
+            icon: new Icon(Icons.monetization_on),
+            label: new Text("Atom economy"),
+            heroTag: 'atom economy',
+          ),
         ),
       );
     }
@@ -210,6 +373,7 @@ class EquationParent extends StatelessWidget {
             onPressed: () => equationMassesMolesPrompt(context),
             icon: new Icon(Icons.assessment),
             label: new Text("Mass & mole"),
+            heroTag: 'mass & mole',
           ),
         ),
       );
@@ -237,6 +401,16 @@ class EquationParent extends StatelessWidget {
           onPressed: EquationState.onInsertAfterSelected,
           child: new Icon(Icons.add),
           tooltip: "Insert after selected",
+          heroTag: "add",
+        ),
+      ),
+      new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: new FloatingActionButton(
+          onPressed: () => showEditor(context),
+          child: new Icon(Icons.edit),
+          tooltip: "Edit equation",
+          heroTag: "edit",
         ),
       ),
     ];
@@ -253,8 +427,9 @@ class EquationParent extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: new FloatingActionButton(
             onPressed: EquationState.onEditSelected,
-            child: new Icon(Icons.edit),
-            tooltip: "Edit selected formula",
+            child: new Icon(Icons.zoom_in),
+            tooltip: "View selected formula",
+            heroTag: "view",
           ),
         ),
       );
@@ -274,6 +449,7 @@ class EquationParent extends StatelessWidget {
             onPressed: EquationState.onDeleteSelected,
             child: new Icon(Icons.delete),
             tooltip: "Delete selected",
+            heroTag: "delete",
           ),
         ),
       );
@@ -342,6 +518,7 @@ class EquationParent extends StatelessWidget {
           child: new Icon(
             Icons.warning,
           ),
+          heroTag: "warning",
         ),
       ));
     }

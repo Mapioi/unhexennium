@@ -31,8 +31,6 @@ const Map<String, String> _subscriptMap = const {
   "7": "₇",
   "8": "₈",
   "9": "₉",
-  "+": "₊",
-  "-": "₋",
 };
 
 const Map<String, String> _superscriptMap = const {

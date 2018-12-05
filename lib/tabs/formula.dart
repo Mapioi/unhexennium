@@ -187,14 +187,14 @@ class FormulaState {
 
   static FormulaProperties properties = new FormulaProperties();
 
-  static get mass => properties.mass;
+  static num get mass => properties.mass;
 
   static set mass(num m) {
     properties.mass = m;
     properties.mole = m != null ? formula.mole(m) : null;
   }
 
-  static get mole => properties.mole;
+  static num get mole => properties.mole;
 
   static set mole(num n) {
     properties.mole = n;
