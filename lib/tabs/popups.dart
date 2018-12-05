@@ -1456,9 +1456,13 @@ class _FormulaInputState extends State<FormulaInput> {
           extentOffset: null,
         );
       }
-      controller
-        ..text = currentFormula
-        ..selection = oldSelection;
+
+      controller = TextEditingController.fromValue(
+        TextEditingValue(
+          text: currentFormula,
+          selection: oldSelection,
+        ),
+      );
     });
   }
 

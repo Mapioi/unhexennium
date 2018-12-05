@@ -255,8 +255,8 @@ class _EquationInputState extends State<EquationInput> {
   }
 
   void onEquationChanged(String s) {
-    TextSelection oldSelection = controller.selection;
     setState(() {
+      TextSelection oldSelection = controller.selection;
       currentEquation = asSubscript(s.replaceAll("->", "⟶ "));
 
       try {
@@ -266,9 +266,12 @@ class _EquationInputState extends State<EquationInput> {
         errorText = e.toString();
       }
 
-      controller
-        ..text = currentEquation
-        ..selection = oldSelection;
+      controller = TextEditingController.fromValue(
+        TextEditingValue(
+          text: currentEquation,
+          selection: oldSelection,
+        ),
+      );
     });
   }
 
