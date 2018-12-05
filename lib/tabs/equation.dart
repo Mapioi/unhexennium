@@ -5,6 +5,7 @@ import 'package:unhexennium/maths/rational.dart';
 import 'package:unhexennium/chemistry/element.dart';
 import 'package:unhexennium/chemistry/formula.dart';
 import 'package:unhexennium/chemistry/equation.dart';
+import 'package:unhexennium/chemistry/data/formulae.dart';
 import 'package:unhexennium/tabs/formula.dart';
 import 'package:unhexennium/tabs/popups.dart';
 
@@ -202,8 +203,16 @@ class EquationInput extends StatefulWidget {
 
 class _EquationInputState extends State<EquationInput> {
   String currentEquation;
-  TextEditingController controller;
+  TextEditingController _controller;
   String errorText;
+  Map<String, List<String>> suggestions = {};
+
+  TextEditingController get controller => _controller;
+
+  set controller(TextEditingController c) {
+    _controller = c;
+    _controller.addListener(this.updateSuggestions);
+  }
 
   _EquationInputState(this.currentEquation) {
     controller = TextEditingController(text: currentEquation);
@@ -215,23 +224,40 @@ class _EquationInputState extends State<EquationInput> {
       appBar: AppBar(
         title: Text("Edit equation"),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(32.0),
-            child: TextField(
-              autocorrect: false,
-              autofocus: true,
-              controller: controller,
-              decoration: InputDecoration(
-                icon: Icon(Icons.edit),
-                errorText: errorText,
-                helperText: "A + B -> C + D (without charges)",
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(bottom: 32.0),
+              child: TextField(
+                autocorrect: false,
+                autofocus: true,
+                controller: controller,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.edit),
+                  errorText: errorText,
+                  helperText: "A + B -> C + D (without charges)",
+                ),
+                onChanged: onEquationChanged,
               ),
-              onChanged: onEquationChanged,
             ),
-          ),
-        ],
+            Expanded(
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                children: suggestions.entries.map((var e) {
+                  return FormulaSearchResult(
+                    formula: e.key,
+                    formulaNames: e.value,
+                    queryFormula: getFormulaUnderCursor().replaceAll(" ", ""),
+                    // TODO wtf
+                    onTap: onAcceptSuggestion,
+                  );
+                }).toList(),
+              ),
+            )
+          ],
+        ),
       ),
       bottomSheet: BottomAppBar(
         child: ButtonBar(
@@ -282,6 +308,52 @@ class _EquationInputState extends State<EquationInput> {
     return [reactants, products];
   }
 
+  List<int> getRangeOfFormulaUnderCursor() {
+    String s = controller.text;
+    int cursorPos = controller.selection.baseOffset;
+    if (s.length == 0) {
+      return [0, 0];  // TODO wtf
+    }
+
+    final regex = RegExp(r" ?[+⟶]");
+
+    int leftOffset = String.fromCharCodes(
+      s.substring(0, cursorPos).runes.toList().reversed,
+    ).indexOf(regex);
+    int formulaStart;
+    if (leftOffset != -1) {
+      formulaStart = cursorPos - leftOffset;
+    } else {
+      formulaStart = 0;
+    }
+
+    int formulaEnd = s.indexOf(regex, cursorPos);
+    if (formulaEnd == -1) {
+      formulaEnd = s.length;
+    }
+
+    assert(formulaStart != -1);
+    assert(formulaEnd != -1);
+
+    return [formulaStart, formulaEnd];
+  }
+
+  String getFormulaUnderCursor() {
+    final range = getRangeOfFormulaUnderCursor();
+    if (range[0] < 0 || range[1] > currentEquation.length) {
+      return '';
+    }
+    return currentEquation.substring(range[0], range[1]);
+  }
+
+  void updateSuggestions() {
+    final fStr = getFormulaUnderCursor();
+    print(fStr);
+    setState(() {
+      suggestions = fStr.length > 0 ? FormulaLookup.searchByFormula(fStr) : {};
+    });
+  }
+
   void onEquationChanged(String s) {
     setState(() {
       TextSelection oldSelection = controller.selection;
@@ -300,6 +372,25 @@ class _EquationInputState extends State<EquationInput> {
           selection: oldSelection,
         ),
       );
+    });
+  }
+
+  void onAcceptSuggestion(String suggestion) {
+    setState(() {
+      final range = getRangeOfFormulaUnderCursor();
+
+      setState(() {
+        currentEquation = currentEquation.substring(0, range[0]) +
+            suggestion +
+            currentEquation.substring(range[1]);
+        controller = TextEditingController.fromValue(
+          TextEditingValue(
+            text: currentEquation,
+            selection:
+                TextSelection.collapsed(offset: range[0] + suggestion.length),
+          ),
+        );
+      });
     });
   }
 

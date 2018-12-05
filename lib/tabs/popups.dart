@@ -1344,14 +1344,10 @@ class FormulaSearchResult extends StatelessWidget {
   final String formula;
   final String queryFormula;
   final List<String> formulaNames;
-  final ArgCallback<String> onClickedCallback;
+  final ArgCallback<String> onTap;
 
   const FormulaSearchResult(
-      {Key key,
-      this.formula,
-      this.formulaNames,
-      this.onClickedCallback,
-      this.queryFormula})
+      {Key key, this.formula, this.formulaNames, this.onTap, this.queryFormula})
       : super(key: key);
 
   @override
@@ -1359,7 +1355,7 @@ class FormulaSearchResult extends StatelessWidget {
     int startIndex = formula.indexOf(queryFormula);
     int endIndex = startIndex + queryFormula.length;
     return new GestureDetector(
-      onTap: () => onClickedCallback(formula),
+      onTap: () => onTap(formula),
       child: new SizedBox(
         height: 40.0,
         child: new Row(
@@ -1450,10 +1446,8 @@ class _FormulaInputState extends State<FormulaInput> {
       // Without this if, when you delete the '2' from 'C12',
       // the '12' vanishes instead of the intended '2' only.
       if (currentFormula.length < s.length) {
-        oldSelection = TextSelection(
-          baseOffset:
-              oldSelection.baseOffset + (currentFormula.length - s.length),
-          extentOffset: null,
+        oldSelection = TextSelection.collapsed(
+          offset: oldSelection.baseOffset + (currentFormula.length - s.length),
         );
       }
 
@@ -1496,7 +1490,7 @@ class _FormulaInputState extends State<FormulaInput> {
                         formula: entry.key,
                         formulaNames: entry.value,
                         queryFormula: currentFormula,
-                        onClickedCallback: (String formula) => setState(() {
+                        onTap: (String formula) => setState(() {
                               currentFormula = formula;
                               controller.text = formula;
                             }),
