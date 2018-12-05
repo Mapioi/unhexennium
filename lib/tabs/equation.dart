@@ -59,6 +59,9 @@ class EquationState {
   static List<FormulaFactory> get products => _products;
 
   static String toStr() {
+    if (reactants.length == 0 && products.length == 0) {
+      return "";
+    }
     const arrow = " ⟶ ";
     return EquationState.reactants.join(" + ") +
         arrow +
@@ -181,11 +184,16 @@ typedef void EquationUpdateCallback(
 );
 
 class EquationInput extends StatefulWidget {
+  final BuildContext context;
   final EquationUpdateCallback onExit;
   final String currentEquation;
 
-  const EquationInput(this.currentEquation, this.onExit, {Key key})
-      : super(key: key);
+  const EquationInput(
+    this.context,
+    this.currentEquation,
+    this.onExit, {
+    Key key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() =>
@@ -203,32 +211,49 @@ class _EquationInputState extends State<EquationInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.all(32.0),
-          child: TextField(
-            autocorrect: false,
-            autofocus: true,
-            controller: controller,
-            decoration: InputDecoration(
-              icon: Icon(Icons.edit),
-              errorText: errorText,
-              helperText: "A + B -> C + D (without charges)",
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Edit equation"),
+      ),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(32.0),
+            child: TextField(
+              autocorrect: false,
+              autofocus: true,
+              controller: controller,
+              decoration: InputDecoration(
+                icon: Icon(Icons.edit),
+                errorText: errorText,
+                helperText: "A + B -> C + D (without charges)",
+              ),
+              onChanged: onEquationChanged,
             ),
-            onChanged: onEquationChanged,
           ),
+        ],
+      ),
+      bottomSheet: BottomAppBar(
+        child: ButtonBar(
+          children: <Widget>[
+            RaisedButton(
+              onPressed: onClear,
+              child: Text("Clear"),
+              color: Colors.blue,
+              textColor: Colors.white,
+            ),
+            RaisedButton(
+              onPressed: errorText == null ? onDone : null,
+              child: Text("Apply changes"),
+              color: currentEquation != EquationState.toStr()
+                  ? Colors.blue
+                  : Colors.blue[300],
+              textColor: Colors.white,
+            ),
+          ],
+          alignment: MainAxisAlignment.spaceAround,
         ),
-        RaisedButton.icon(
-          onPressed: errorText == null ? onDone : null,
-          icon: Icon(Icons.save),
-          label: Text("Apply changes"),
-          color: currentEquation != EquationState.toStr()
-              ? Colors.blue
-              : Colors.blue[300],
-          textColor: Colors.white,
-        ),
-      ],
+      ),
     );
   }
 
@@ -236,6 +261,9 @@ class _EquationInputState extends State<EquationInput> {
     eq = eq.replaceAll(" ", "");
     var sidesStr = eq.split("⟶");
 
+    if (eq.length == 0) {
+      return [[], []];
+    }
     if (sidesStr.length != 2) {
       throw Exception("'->' not found, or misplaced");
     }
@@ -275,6 +303,14 @@ class _EquationInputState extends State<EquationInput> {
     });
   }
 
+  void onClear() {
+    setState(() {
+      controller = TextEditingController();
+      currentEquation = "";
+      errorText = null;
+    });
+  }
+
   void onDone() {
     var sides = parse(currentEquation);
     widget.onExit(sides[0], sides[1]);
@@ -310,17 +346,13 @@ class EquationParent extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-              appBar: AppBar(
-                title: Text("Edit equation"),
-              ),
-              body: EquationInput(
-                EquationState.toStr(),
-                (rs, ps) {
-                  EquationState.updateEquation(rs, ps);
-                  Navigator.pop(context);
-                },
-              ),
+        builder: (context) => EquationInput(
+              context,
+              EquationState.toStr(),
+              (rs, ps) {
+                EquationState.updateEquation(rs, ps);
+                Navigator.pop(context);
+              },
             ),
       ),
     );
