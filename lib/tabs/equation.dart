@@ -250,7 +250,6 @@ class _EquationInputState extends State<EquationInput> {
                     formula: e.key,
                     formulaNames: e.value,
                     queryFormula: getFormulaUnderCursor().replaceAll(" ", ""),
-                    // TODO wtf
                     onTap: onAcceptSuggestion,
                   );
                 }).toList(),
@@ -311,8 +310,9 @@ class _EquationInputState extends State<EquationInput> {
   List<int> getRangeOfFormulaUnderCursor() {
     String s = controller.text;
     int cursorPos = controller.selection.baseOffset;
-    if (s.length == 0) {
-      return [0, 0];  // TODO wtf
+    // This seems to occur upon disposal of controller.
+    if (cursorPos == -1) {
+      return [0, 0];
     }
 
     final regex = RegExp(r" ?[+⟶]");
@@ -332,23 +332,16 @@ class _EquationInputState extends State<EquationInput> {
       formulaEnd = s.length;
     }
 
-    assert(formulaStart != -1);
-    assert(formulaEnd != -1);
-
     return [formulaStart, formulaEnd];
   }
 
   String getFormulaUnderCursor() {
     final range = getRangeOfFormulaUnderCursor();
-    if (range[0] < 0 || range[1] > currentEquation.length) {
-      return '';
-    }
-    return currentEquation.substring(range[0], range[1]);
+    return controller.text.substring(range[0], range[1]);
   }
 
   void updateSuggestions() {
     final fStr = getFormulaUnderCursor();
-    print(fStr);
     setState(() {
       suggestions = fStr.length > 0 ? FormulaLookup.searchByFormula(fStr) : {};
     });
@@ -378,14 +371,14 @@ class _EquationInputState extends State<EquationInput> {
   void onAcceptSuggestion(String suggestion) {
     setState(() {
       final range = getRangeOfFormulaUnderCursor();
+      var s = controller.text;
 
       setState(() {
-        currentEquation = currentEquation.substring(0, range[0]) +
-            suggestion +
-            currentEquation.substring(range[1]);
+        s = s.substring(0, range[0]) + suggestion + s.substring(range[1]);
+        currentEquation = s;
         controller = TextEditingController.fromValue(
           TextEditingValue(
-            text: currentEquation,
+            text: s,
             selection:
                 TextSelection.collapsed(offset: range[0] + suggestion.length),
           ),
