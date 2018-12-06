@@ -603,7 +603,7 @@ class FormulaParent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new IconButton(
-                icon: new Icon(Icons.info),
+                icon: Icon(Icons.zoom_in),
                 onPressed: FormulaState.selectedBlockIndex == -1 ||
                         FormulaState.formulaFactory
                             .getClosingIndices()
