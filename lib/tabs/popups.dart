@@ -1038,10 +1038,10 @@ class _EquationMassesMolesCalculatorState
                 EquationState.properties[i]
                   ..mass = massControllers[i].text == ''
                       ? null
-                      : double.parse(massControllers[i].text)
+                      : double.parse(unFrench(massControllers[i].text))
                   ..mole = moleControllers[i].text == ''
                       ? null
-                      : double.parse(moleControllers[i].text);
+                      : double.parse(unFrench(moleControllers[i].text));
               }
               widget.onExit();
             },
