@@ -9,7 +9,7 @@ enum ElementInputOptions { enter, cancel }
 
 class ElementState {
   static ArgCallback<Callback> setState;
-  static ElementSymbol _selectedElement = ElementSymbol.Xe;
+  static ElementSymbol _selectedElement = ElementSymbol.Mo;
   static int _oxidationState = 0;
   static List<bool> expansionPanelStates = [false];
 

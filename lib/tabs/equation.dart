@@ -19,7 +19,7 @@ class EquationState {
 
   // State management
   static EquationSide _selectedSide = EquationSide.Reactant;
-  static int _selectedIndex = -1;
+  static int _selectedIndex = 0;
   static FormulaFactory _selectedFormula;
   static FormulaProperties _selectedProperties;
   static bool hasError = false;
@@ -69,7 +69,7 @@ class EquationState {
         EquationState.products.join(" + ");
   }
 
-  static List<FormulaProperties> properties = [
+  static List<FormulaProperties> _properties = [
     FormulaProperties(),
     FormulaProperties(),
     FormulaProperties(),
@@ -77,10 +77,14 @@ class EquationState {
     FormulaProperties(),
   ];
 
-  static Equation equation = Equation(
+  static List<FormulaProperties> get properties => _properties;
+
+  static Equation _equation = Equation(
     reactants.map((f) => f.build()).toList(),
     products.map((f) => f.build()).toList(),
   );
+
+  static Equation get equation => _equation;
 
   // To display in error message
   static List<List<Rational>> candidateCoefficients;
@@ -90,10 +94,10 @@ class EquationState {
     var p = products.map((f) => f.build()).toList();
     setState(() {
       try {
-        equation = new Equation(r, p, strictBalancing: true);
+        _equation = new Equation(r, p, strictBalancing: true);
         candidateCoefficients = null;
       } on InfiniteWaysOfBalancingException catch (e) {
-        equation = new Equation(r, p, strictBalancing: false);
+        _equation = new Equation(r, p, strictBalancing: false);
         candidateCoefficients = e.kernel;
       }
       hasError = equation.coefficients.any((int c) => c <= 0);
@@ -168,6 +172,11 @@ class EquationState {
     setState(() {
       _reactants = reactants;
       _products = products;
+
+      _properties = List.generate(
+        reactants.length + products.length,
+        (_) => FormulaProperties(),
+      );
 
       _selectedSide = EquationSide.Reactant;
       _selectedIndex = -1;

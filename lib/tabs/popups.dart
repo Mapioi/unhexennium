@@ -856,16 +856,24 @@ class _IdealGasCalculatorState extends State<IdealGasCalculator> {
 }
 
 Future<Null> equationMassesMolesPrompt(BuildContext context) async {
-  await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return new Dialog(
-          child: new EquationMassesMolesCalculator(),
-        );
-      });
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EquationMassesMolesCalculator(
+            context,
+            () => Navigator.pop(context),
+          ),
+    ),
+  );
 }
 
 class EquationMassesMolesCalculator extends StatefulWidget {
+  final BuildContext context;
+  final Callback onExit;
+
+  const EquationMassesMolesCalculator(this.context, this.onExit, {Key key})
+      : super(key: key);
+
   @override
   State<EquationMassesMolesCalculator> createState() =>
       new _EquationMassesMolesCalculatorState();
@@ -953,87 +961,93 @@ class _EquationMassesMolesCalculatorState
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      width: 0.8 * MediaQuery.of(context).size.width,
-      height: 0.5 * MediaQuery.of(context).size.height,
-      child: new GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 2.7,
-        children: new List.generate(formulae.length, (int i) {
-              List<Widget> content = [];
-              if (i == EquationState.reactants.length) {
-                content.addAll([
-                  new Divider(),
-                  new Divider(),
-                ]);
-              }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Mass & Mole"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 2.7,
+          children: new List.generate(formulae.length, (int i) {
+            List<Widget> content = [];
+            if (i == EquationState.reactants.length) {
               content.addAll([
-                new TextField(
-                  decoration: new InputDecoration(
-                    helperText: "m(${factories[i]}) / g",
-                    suffixIcon: i == lrIndex
-                        ? Icon(
-                            Icons.invert_colors_off,
-                            color: Colors.red,
-                          )
-                        : null,
-                  ),
-                  textAlign: TextAlign.center,
-                  controller: massControllers[i],
-                  onChanged: (String s) =>
-                      onMassUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.numberWithOptions(
-                    signed: false,
-                    decimal: true,
-                  ),
-                  enabled: formulae[i].rfm != 0,
-                ),
-                new TextField(
-                  decoration: new InputDecoration(
-                    helperText: "n(${factories[i]}) / mol",
-                    suffixIcon: i == lrIndex
-                        ? Icon(
-                            Icons.invert_colors_off,
-                            color: Colors.red,
-                          )
-                        : null,
-                  ),
-                  textAlign: TextAlign.center,
-                  controller: moleControllers[i],
-                  onChanged: (String s) =>
-                      onMoleUpdateAt(i, num.parse(unFrench(s))),
-                  keyboardType: TextInputType.numberWithOptions(
-                    signed: false,
-                    decimal: true,
-                  ),
-                ),
+                new Divider(),
+                new Divider(),
               ]);
-              return content;
-            }).expand((x) => x).toList() +
-            <Widget>[
-              Divider(),
-              Divider(),
-              new RaisedButton.icon(
-                icon: Icon(Icons.save),
-                onPressed: () {
-                  for (int i = 0; i < formulae.length; i++) {
-                    EquationState.properties[i]
-                      ..mass = massControllers[i].text == ''
-                          ? null
-                          : double.parse(massControllers[i].text)
-                      ..mole = moleControllers[i].text == ''
-                          ? null
-                          : double.parse(moleControllers[i].text);
-                  }
-                },
-                label: Text("Apply changes"),
+            }
+            content.addAll([
+              new TextField(
+                decoration: new InputDecoration(
+                  helperText: "m(${factories[i]}) / g",
+                  suffixIcon: i == lrIndex
+                      ? Icon(
+                          Icons.invert_colors_off,
+                          color: Colors.red,
+                        )
+                      : null,
+                ),
+                textAlign: TextAlign.center,
+                controller: massControllers[i],
+                onChanged: (String s) =>
+                    onMassUpdateAt(i, num.parse(unFrench(s))),
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
+                ),
+                enabled: formulae[i].rfm != 0,
               ),
-              new RaisedButton.icon(
-                icon: Icon(Icons.exposure_zero),
-                onPressed: clearText,
-                label: Text("Clear"),
+              new TextField(
+                decoration: new InputDecoration(
+                  helperText: "n(${factories[i]}) / mol",
+                  suffixIcon: i == lrIndex
+                      ? Icon(
+                          Icons.invert_colors_off,
+                          color: Colors.red,
+                        )
+                      : null,
+                ),
+                textAlign: TextAlign.center,
+                controller: moleControllers[i],
+                onChanged: (String s) =>
+                    onMoleUpdateAt(i, num.parse(unFrench(s))),
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: false,
+                  decimal: true,
+                ),
               ),
-            ],
+            ]);
+            return content;
+          }).expand((x) => x).toList(),
+        ),
+      ),
+      bottomSheet: ButtonBar(
+        alignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          RaisedButton.icon(
+            icon: Icon(Icons.exposure_zero),
+            onPressed: clearText,
+            label: Text("Clear"),
+          ),
+          RaisedButton.icon(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              for (int i = 0; i < formulae.length; i++) {
+                EquationState.properties[i]
+                  ..mass = massControllers[i].text == ''
+                      ? null
+                      : double.parse(massControllers[i].text)
+                  ..mole = moleControllers[i].text == ''
+                      ? null
+                      : double.parse(moleControllers[i].text);
+              }
+              widget.onExit();
+            },
+            label: Text("Apply changes"),
+          ),
+        ],
       ),
     );
   }
@@ -1475,7 +1489,6 @@ class _FormulaInputState extends State<FormulaInput> {
             decoration: new InputDecoration(
               icon: const Icon(Icons.edit),
               errorText: errorText,
-              helperText: "Enter the chemical formula (without the charge)",
             ),
             onChanged: onFormulaChanged,
           ),
