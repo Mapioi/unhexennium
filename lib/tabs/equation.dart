@@ -310,7 +310,7 @@ class _EquationInputState extends State<EquationInput> {
   List<int> getRangeOfFormulaUnderCursor() {
     String s = controller.text;
     int cursorPos = controller.selection.baseOffset;
-    // This seems to occur upon disposal of controller.
+    cursorPos = min(cursorPos, s.length - 1);
     if (cursorPos == -1) {
       return [0, 0];
     }
