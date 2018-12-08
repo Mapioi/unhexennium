@@ -371,7 +371,9 @@ class _EquationInputState extends State<EquationInput> {
       controller = TextEditingController.fromValue(
         TextEditingValue(
           text: currentEquation,
-          selection: oldSelection,
+          selection: TextSelection.collapsed(
+            offset: min(oldSelection.baseOffset, s.length),
+          ),
         ),
       );
     });
