@@ -2331,6 +2331,14 @@ class FormulaLookup {
       }
     }
     return sortMapByKeys(results, comparator: (String a, String b) {
+      int aFirstMatch = a.indexOf(queryFormula);
+      int bFirstMatch = b.indexOf(queryFormula);
+      if (aFirstMatch == 0 && bFirstMatch != 0) {
+        return -1;
+      }
+      if (bFirstMatch == 0 && aFirstMatch != 0) {
+        return 1;
+      }
       if (a.length > 0 && b.length > 0) {
         final regex = new RegExp(r"[a-zA-Z]");
         if (!regex.hasMatch(a[0])) {
