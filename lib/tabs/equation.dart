@@ -214,6 +214,7 @@ class _EquationInputState extends State<EquationInput> {
   String currentEquation;
   TextEditingController _controller;
   String errorText;
+  String formulaUnderCursor;
   Map<String, List<String>> suggestions = {};
 
   TextEditingController get controller => _controller;
@@ -258,7 +259,7 @@ class _EquationInputState extends State<EquationInput> {
                   return FormulaSearchResult(
                     formula: e.key,
                     formulaNames: e.value,
-                    queryFormula: getFormulaUnderCursor().replaceAll(" ", ""),
+                    queryFormula: formulaUnderCursor,
                     onTap: onAcceptSuggestion,
                   );
                 }).toList(),
@@ -319,27 +320,26 @@ class _EquationInputState extends State<EquationInput> {
   List<int> getRangeOfFormulaUnderCursor() {
     String s = controller.text;
     int cursorPos = controller.selection.baseOffset;
-    cursorPos = min(cursorPos, s.length - 1);
+
+    final regex = RegExp(r"[+⟶]");
+
     if (cursorPos == -1) {
       return [0, 0];
     }
 
-    final regex = RegExp(r" ?[+⟶]");
+    // might exceed bound
+    int leftDelimiter = s.substring(0, cursorPos).lastIndexOf(regex);
+    int formulaStart = leftDelimiter + 1;
 
-    int leftOffset = String.fromCharCodes(
-      s.substring(0, cursorPos).runes.toList().reversed,
-    ).indexOf(regex);
-    int formulaStart;
-    if (leftOffset != -1) {
-      formulaStart = cursorPos - leftOffset;
+    int formulaEnd;
+    int rightDelimiter;
+    if (cursorPos < s.length && regex.hasMatch(s[cursorPos])) {
+      rightDelimiter = cursorPos;
     } else {
-      formulaStart = 0;
+      rightDelimiter = cursorPos + s.substring(cursorPos).indexOf(regex);
+      if (rightDelimiter == cursorPos - 1) rightDelimiter = s.length;
     }
-
-    int formulaEnd = s.indexOf(regex, cursorPos);
-    if (formulaEnd == -1) {
-      formulaEnd = s.length;
-    }
+    formulaEnd = rightDelimiter;
 
     return [formulaStart, formulaEnd];
   }
@@ -350,9 +350,10 @@ class _EquationInputState extends State<EquationInput> {
   }
 
   void updateSuggestions() {
-    final fStr = getFormulaUnderCursor();
     setState(() {
-      suggestions = fStr.length > 0 ? FormulaLookup.searchByFormula(fStr) : {};
+      formulaUnderCursor = getFormulaUnderCursor().replaceAll(" ", "");
+      print("'$formulaUnderCursor'");
+      suggestions = FormulaLookup.searchByFormula(formulaUnderCursor);
     });
   }
 

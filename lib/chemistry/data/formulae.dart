@@ -2326,7 +2326,7 @@ class FormulaLookup {
   static Map<String, List<String>> searchByFormula(String queryFormula) {
     Map<String, List<String>> results = {};
     for (String formula in formulaeNames.keys) {
-      if (formula.contains(queryFormula)) {
+      if (formula.contains(queryFormula) || queryFormula.length == 0) {
         results[formula] = formulaeNames[formula];
       }
     }
