@@ -387,17 +387,16 @@ class _EquationInputState extends State<EquationInput> {
       final range = getRangeOfFormulaUnderCursor();
       var s = controller.text;
       // Prevents adding a space at the head of the equation
-      final extraSpace = range[0] == 0 ? "" : " ";
+      if (range[0] != 0) suggestion = " " + suggestion;
+      suggestion += " ";
       setState(() {
-        s = "${s.substring(0, range[0])}" +
-            extraSpace +
-            "$suggestion ${s.substring(range[1])}";
+        s = s.substring(0, range[0]) + suggestion + s.substring(range[1]);
         currentEquation = s;
         controller = TextEditingController.fromValue(
           TextEditingValue(
             text: s,
             selection: TextSelection.collapsed(
-              offset: range[0] + suggestion.length + extraSpace.length + 1,
+              offset: range[0] + suggestion.length,
             ),
           ),
         );
