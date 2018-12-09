@@ -2298,6 +2298,22 @@ const Map<String, List<String>> formulaeNames = {
   "[Cu(H₂O)₄]SO₄·H₂O": ['blue vitriol'],
 };
 
+Map<String, List<String>> formulaeNamesSorted = sortMapByKeys(
+  formulaeNames,
+  comparator: (a, b) {
+    if (a.length > 0 && b.length > 0) {
+      final regex = new RegExp(r"[a-zA-Z]");
+      if (!regex.hasMatch(a[0])) {
+        a = "Z" + a;
+      }
+      if (!regex.hasMatch(b[0])) {
+        b = "Z" + b;
+      }
+    }
+    return a.compareTo(b);
+  },
+);
+
 class FormulaLookup {
   static FormulaLookup instance = FormulaLookup._internal();
   Map<String, String> names;
@@ -2324,9 +2340,12 @@ class FormulaLookup {
   }
 
   static Map<String, List<String>> searchByFormula(String queryFormula) {
+    if (queryFormula.length == 0) {
+      return formulaeNamesSorted;
+    }
     Map<String, List<String>> results = {};
     for (String formula in formulaeNames.keys) {
-      if (formula.contains(queryFormula) || queryFormula.length == 0) {
+      if (formula.contains(queryFormula)) {
         results[formula] = formulaeNames[formula];
       }
     }
