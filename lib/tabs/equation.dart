@@ -388,13 +388,15 @@ class _EquationInputState extends State<EquationInput> {
       var s = controller.text;
 
       setState(() {
-        s = s.substring(0, range[0]) + suggestion + " " + s.substring(range[1]);
+        s = s.substring(0, range[0]) +
+            " " + suggestion + " " +
+            s.substring(range[1]);
         currentEquation = s;
         controller = TextEditingController.fromValue(
           TextEditingValue(
             text: s,
             selection: TextSelection.collapsed(
-              offset: range[0] + suggestion.length + 1,
+              offset: range[0] + suggestion.length + 2,
             ),
           ),
         );
