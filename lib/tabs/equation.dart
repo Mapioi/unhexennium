@@ -346,13 +346,15 @@ class _EquationInputState extends State<EquationInput> {
 
   String getFormulaUnderCursor() {
     final range = getRangeOfFormulaUnderCursor();
-    return controller.text.substring(range[0], range[1]);
+    return controller.text.substring(
+      range[0],
+      max(_controller.selection.baseOffset, 0),
+    );
   }
 
   void updateSuggestions() {
     setState(() {
       formulaUnderCursor = getFormulaUnderCursor().replaceAll(" ", "");
-      print("'$formulaUnderCursor'");
       suggestions = FormulaLookup.searchByFormula(formulaUnderCursor);
     });
   }
@@ -384,15 +386,18 @@ class _EquationInputState extends State<EquationInput> {
     setState(() {
       final range = getRangeOfFormulaUnderCursor();
       var s = controller.text;
-
+      // Prevents adding a space at the head of the equation
+      if (range[0] != 0) suggestion = " " + suggestion;
+      suggestion += " ";
       setState(() {
         s = s.substring(0, range[0]) + suggestion + s.substring(range[1]);
         currentEquation = s;
         controller = TextEditingController.fromValue(
           TextEditingValue(
             text: s,
-            selection:
-                TextSelection.collapsed(offset: range[0] + suggestion.length),
+            selection: TextSelection.collapsed(
+              offset: range[0] + suggestion.length,
+            ),
           ),
         );
       });
