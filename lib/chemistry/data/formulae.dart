@@ -2298,25 +2298,38 @@ const Map<String, List<String>> formulaeNames = {
   "[Cu(H₂O)₄]SO₄·H₂O": ['blue vitriol'],
 };
 
-Map<String, List<String>> formulaeNamesSorted = sortMapByKeys(
-  formulaeNames,
-  comparator: (a, b) {
-    if (a.length > 0 && b.length > 0) {
-      final regex = new RegExp(r"[a-zA-Z]");
-      if (!regex.hasMatch(a[0])) {
-        a = "Z" + a;
-      }
-      if (!regex.hasMatch(b[0])) {
-        b = "Z" + b;
-      }
+int comparePrioritisingAlpha(String a, String b) {
+  if (a.length > 0 && b.length > 0) {
+    final regex = new RegExp(r"[a-zA-Z]");
+    if (!regex.hasMatch(a[0])) {
+      a = "Z" + a;
     }
-    return a.compareTo(b);
-  },
-);
+    if (!regex.hasMatch(b[0])) {
+      b = "Z" + b;
+    }
+  }
+  return a.compareTo(b);
+}
+
+typedef int Comparator(String a, String b);
+
+Comparator getComparatorByRelevanceOf(String query) {
+  return (String a, String b) {
+    int aFirstMatch = a.indexOf(query);
+    int bFirstMatch = b.indexOf(query);
+    if (aFirstMatch == 0 && bFirstMatch != 0) {
+      return -1;
+    }
+    if (bFirstMatch == 0 && aFirstMatch != 0) {
+      return 1;
+    }
+  };
+}
 
 class FormulaLookup {
   static FormulaLookup instance = FormulaLookup._internal();
   Map<String, String> names;
+  Map<String, List<String>> formulaeNamesSorted;
 
   FormulaLookup._internal() {
     names = {};
@@ -2327,6 +2340,10 @@ class FormulaLookup {
       }
     }
     names = sortMapByKeys(names);
+    formulaeNamesSorted = sortMapByKeys(
+      formulaeNames,
+      comparator: comparePrioritisingAlpha,
+    );
   }
 
   static Map<String, String> searchByName(String queryName) {
@@ -2336,12 +2353,15 @@ class FormulaLookup {
         results[name] = instance.names[name];
       }
     }
-    return sortMapByKeys(results);
+    return sortMapByKeys(
+      results,
+      comparator: getComparatorByRelevanceOf(queryName),
+    );
   }
 
   static Map<String, List<String>> searchByFormula(String queryFormula) {
     if (queryFormula.length == 0) {
-      return formulaeNamesSorted;
+      return instance.formulaeNamesSorted;
     }
     Map<String, List<String>> results = {};
     for (String formula in formulaeNames.keys) {
@@ -2349,25 +2369,9 @@ class FormulaLookup {
         results[formula] = formulaeNames[formula];
       }
     }
-    return sortMapByKeys(results, comparator: (String a, String b) {
-      int aFirstMatch = a.indexOf(queryFormula);
-      int bFirstMatch = b.indexOf(queryFormula);
-      if (aFirstMatch == 0 && bFirstMatch != 0) {
-        return -1;
-      }
-      if (bFirstMatch == 0 && aFirstMatch != 0) {
-        return 1;
-      }
-      if (a.length > 0 && b.length > 0) {
-        final regex = new RegExp(r"[a-zA-Z]");
-        if (!regex.hasMatch(a[0])) {
-          a = "Z" + a;
-        }
-        if (!regex.hasMatch(b[0])) {
-          b = "Z" + b;
-        }
-      }
-      return a.compareTo(b);
-    });
+    return sortMapByKeys(
+      results,
+      comparator: getComparatorByRelevanceOf(queryFormula),
+    );
   }
 }
