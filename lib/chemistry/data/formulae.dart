@@ -2323,6 +2323,7 @@ Comparator getComparatorByRelevanceOf(String query) {
     if (bFirstMatch == 0 && aFirstMatch != 0) {
       return 1;
     }
+    return comparePrioritisingAlpha(a, b);
   };
 }
 
