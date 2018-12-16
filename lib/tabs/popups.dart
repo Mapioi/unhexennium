@@ -1098,6 +1098,7 @@ class _FormulaEditPromptState extends State<FormulaEditor> {
       currentCharge: FormulaState.formulaFactory.charge,
       onFinish: (c) {
         FormulaState.formulaFactory.charge = c;
+        FormulaState.formula = FormulaState.formulaFactory.build();
         widget.onFinish();
       },
     );
