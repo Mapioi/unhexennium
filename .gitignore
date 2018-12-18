@@ -10,3 +10,6 @@ packages
 .flutter-plugins
 .ipynb_checkpoints
 key.properties
+
+# something added in flutter plugin beta
+.dart_tool/

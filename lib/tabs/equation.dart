@@ -362,6 +362,7 @@ class _EquationInputState extends State<EquationInput> {
   void onEquationChanged(String s) {
     setState(() {
       TextSelection oldSelection = controller.selection;
+      var forceRefresh = s.contains("->");
       currentEquation = asSubscript(s.replaceAll("->", "⟶ "));
 
       try {
@@ -379,6 +380,11 @@ class _EquationInputState extends State<EquationInput> {
           ),
         ),
       );
+
+      if (forceRefresh) {
+        // See #11 on github
+        updateSuggestions();
+      }
     });
   }
 
