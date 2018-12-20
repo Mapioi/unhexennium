@@ -29,8 +29,8 @@ android {
         applicationId "io.github.mapioi.unhexennium"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 4
-        versionName "1.0.2"
+        versionCode 5
+        versionName "1.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
